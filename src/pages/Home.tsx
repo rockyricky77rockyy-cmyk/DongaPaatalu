@@ -8,11 +8,17 @@ import Player from "@/components/Player";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSidebar from "@/components/MobileSidebar";
 import { Input } from "@/components/ui/input";
+import { useYouTubeMusicSearch } from "@/hooks/use-youtube-music"; // Import the new hook
+import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea for results
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const isMobile = useIsMobile();
+  const [searchTerm, setSearchTerm] = useState(""); // State for search input
+
+  // Use the new hook to fetch search results
+  const { data: searchResults, isLoading, isError, error } = useYouTubeMusicSearch(searchTerm);
 
   const navItems = [
     { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
@@ -49,6 +55,8 @@ const Home = () => {
             <Input
               placeholder="Search..."
               className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
+              value={searchTerm} // Bind search term to input value
+              onChange={(e) => setSearchTerm(e.target.value)} // Update search term on change
             />
           </div>
         </header>
@@ -87,50 +95,80 @@ const Home = () => {
               <Input
                 placeholder="Search music, artists, albums..."
                 className="pl-10 bg-input border-border rounded-lg h-10 text-sm"
+                value={searchTerm} // Bind search term to input value
+                onChange={(e) => setSearchTerm(e.target.value)} // Update search term on change
               />
             </div>
 
-            {/* Hero Section */}
-            <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
-              <div className="absolute inset-0 bg-gradient-glow opacity-50" />
-              
-              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between">
-                <div className="flex-1 flex justify-center mb-8 sm:mb-0">
-                  <div className="relative">
-                    <NeonLogo size={isMobile ? "medium" : "large"} />
-                    <Button
-                      size={isMobile ? "md" : "lg"}
-                      className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
-                    >
-                      <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" />
-                    </Button>
+            {/* Conditional rendering for search results or hero/albums */}
+            {searchTerm ? (
+              <div className="mt-8">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
+                {isLoading && <p className="text-muted-foreground">Searching...</p>}
+                {isError && <p className="text-destructive">Error: {error?.message}</p>}
+                {searchResults && searchResults.length > 0 ? (
+                  <ScrollArea className="h-[400px] rounded-md border border-border p-4">
+                    <div className="space-y-4">
+                      {searchResults.map((track, index) => (
+                        <div key={index} className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors">
+                          <Music className="w-6 h-6 text-primary" />
+                          <div>
+                            <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
+                            <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                ) : (
+                  !isLoading && !isError && <p className="text-muted-foreground">No results found.</p>
+                )}
+              </div>
+            ) : (
+              <>
+                {/* Hero Section */}
+                <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
+                  <div className="absolute inset-0 bg-gradient-glow opacity-50" />
+                  
+                  <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between">
+                    <div className="flex-1 flex justify-center mb-8 sm:mb-0">
+                      <div className="relative">
+                        <NeonLogo size={isMobile ? "medium" : "large"} />
+                        <Button
+                          size={isMobile ? "md" : "lg"}
+                          className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
+                        >
+                          <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 mt-4 sm:mt-8">
+                    <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" />
                   </div>
                 </div>
-              </div>
 
-              <div className="relative z-10 mt-4 sm:mt-8">
-                <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" />
-              </div>
-            </div>
-
-            {/* Albums Section */}
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Pessonse</h2>
-              <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                {albums.map((album, index) => (
-                  <div
-                    key={index}
-                    className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon"
-                  >
-                    <div className={`aspect-square rounded-xl bg-gradient-to-br ${album.color} mb-4 flex items-center justify-center`}>
-                      <Music className="w-16 h-16 text-white opacity-50" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground mb-1">{album.title}</h3>
-                    <p className="text-sm text-muted-foreground">{album.artist}</p>
+                {/* Albums Section */}
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Pessonse</h2>
+                  <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    {albums.map((album, index) => (
+                      <div
+                        key={index}
+                        className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon"
+                      >
+                        <div className={`aspect-square rounded-xl bg-gradient-to-br ${album.color} mb-4 flex items-center justify-center`}>
+                          <Music className="w-16 h-16 text-white opacity-50" />
+                        </div>
+                        <h3 className="font-semibold text-lg text-foreground mb-1">{album.title}</h3>
+                        <p className="text-sm text-muted-foreground">{album.artist}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              </>
+            )}
           </div>
         </main>
       </div>
