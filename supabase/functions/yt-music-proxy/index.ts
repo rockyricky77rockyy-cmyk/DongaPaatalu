@@ -12,38 +12,45 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Authentication check removed as per user request to remove Supabase authentication from the frontend.
-  // If authentication is needed in the future, it should be re-implemented here.
-
   try {
-    const { pathname, searchParams } = new URL(req.url);
-    const ytMusic = new YouTubeMusic();
-    await ytMusic.initialize();
+    const { pathname } = new URL(req.url);
+    console.log(`[yt-music-proxy] Request received for: ${pathname}`);
 
     if (pathname.endsWith('/search')) {
       const requestBody = await req.json();
       const query = requestBody.query;
+      console.log(`[yt-music-proxy] Search query: "${query}"`);
 
       if (!query) {
+        console.log('[yt-music-proxy] Missing search query');
         return new Response(JSON.stringify({ error: 'Missing search query' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+
+      const ytMusic = new YouTubeMusic();
+      console.log('[yt-music-proxy] Initializing YouTubeMusic API...');
+      await ytMusic.initialize();
+      console.log('[yt-music-proxy] YouTubeMusic API initialized. Performing search...');
+      
       const results = await ytMusic.search(query);
+      console.log(`[yt-music-proxy] Search results obtained: ${JSON.stringify(results).substring(0, 200)}...`); // Log first 200 chars
+
       return new Response(JSON.stringify(results), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
     } 
 
+    console.log(`[yt-music-proxy] Path not found: ${pathname}`);
     return new Response(JSON.stringify({ error: 'Not Found' }), {
       status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in yt-music-proxy:', error.message);
+    console.error('[yt-music-proxy] Error:', error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
