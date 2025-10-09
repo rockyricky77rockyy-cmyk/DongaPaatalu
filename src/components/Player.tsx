@@ -1,11 +1,11 @@
-import { useState } from "react"; // Added useState import
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Maximize2, Music } from "lucide-react";
 import Visualizer from "./Visualizer";
 import ExpandablePlayer from "./ExpandablePlayer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useMusicPlayer } from "@/context/MusicPlayerContext"; // Import useMusicPlayer
+import { useMusicPlayer } from "@/context/MusicPlayerContext";
 
 const Player = () => {
   const {
@@ -15,7 +15,7 @@ const Player = () => {
     playbackProgress,
     currentTime,
     duration,
-    playerRef, // We need playerRef to seek
+    playerRef,
   } = useMusicPlayer();
   const isMobile = useIsMobile();
 
@@ -32,12 +32,7 @@ const Player = () => {
     }
   };
 
-  // State for ExpandablePlayer
   const [isExpanded, setIsExpanded] = useState(false);
-
-  if (!currentTrack) {
-    return null; // Don't render the player if no track is loaded
-  }
 
   return (
     <>
@@ -50,18 +45,19 @@ const Player = () => {
             max={100}
             step={1}
             className="w-full"
+            disabled={!currentTrack} // Disable slider if no track is playing
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1 sm:mt-2">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
+            <span>{currentTrack ? formatTime(currentTime) : '00:00'}</span>
+            <span>{currentTrack ? formatTime(duration) : '00:00'}</span>
           </div>
         </div>
 
         {/* Controls */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-8 sm:py-6">
           {/* Left: Track Info & Visualizer */}
-          <div className="flex-1 flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => setIsExpanded(true)}>
-            {currentTrack.thumbnail ? (
+          <div className="flex-1 flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => currentTrack && setIsExpanded(true)}>
+            {currentTrack?.thumbnail ? (
               <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0" />
             ) : (
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0">
@@ -69,10 +65,14 @@ const Player = () => {
               </div>
             )}
             <div className="flex flex-col min-w-0">
-              <span className="text-sm sm:text-base font-medium text-foreground truncate">{currentTrack.title}</span>
-              <span className="text-xs sm:text-sm text-muted-foreground truncate">{currentTrack.artist}</span>
+              <span className="text-sm sm:text-base font-medium text-foreground truncate">
+                {currentTrack ? currentTrack.title : 'No track playing'}
+              </span>
+              <span className="text-xs sm:text-sm text-muted-foreground truncate">
+                {currentTrack ? currentTrack.artist : 'Select a song to start'}
+              </span>
             </div>
-            {!isMobile && ( // Hide visualizer on very small screens in compact player
+            {!isMobile && currentTrack && ( // Hide visualizer on very small screens in compact player, and if no track
               <div className="hidden md:block ml-4">
                 <Visualizer barCount={20} className="h-12 w-32 sm:h-16 sm:w-48" />
               </div>
@@ -81,11 +81,11 @@ const Player = () => {
 
           {/* Center: Playback Controls */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" disabled={!currentTrack}>
               <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12">
+            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" disabled={!currentTrack}>
               <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             
@@ -93,15 +93,16 @@ const Player = () => {
               size="icon"
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
               onClick={togglePlayPause}
+              disabled={!currentTrack} // Disable play/pause if no track
             >
               {isPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-1" />}
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12">
+            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" disabled={!currentTrack}>
               <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" disabled={!currentTrack}>
               <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
@@ -112,7 +113,8 @@ const Player = () => {
               variant="ghost" 
               size="icon" 
               className="text-muted-foreground hover:text-primary w-8 h-8 sm:w-10 sm:h-10"
-              onClick={() => setIsExpanded(true)}
+              onClick={() => currentTrack && setIsExpanded(true)} // Only expand if a track is playing
+              disabled={!currentTrack} // Disable expand if no track
             >
               <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
@@ -121,7 +123,7 @@ const Player = () => {
       </div>
 
       {/* Expandable Player */}
-      <ExpandablePlayer isOpen={isExpanded} onClose={() => setIsExpanded(false)} />
+      {currentTrack && <ExpandablePlayer isOpen={isExpanded} onClose={() => setIsExpanded(false)} />}
     </>
   );
 };

@@ -9,16 +9,19 @@ import MobileSidebar from "@/components/MobileSidebar";
 import { Input } from "@/components/ui/input";
 import { useYouTubeMusicSearch } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMusicPlayer } from "@/context/MusicPlayerContext"; // Import useMusicPlayer
+import { useMusicPlayer } from "@/context/MusicPlayerContext";
+import { useAlbums } from "@/hooks/use-albums"; // Import useAlbums hook
+import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton for loading states
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
-  const { playTrack } = useMusicPlayer(); // Get playTrack from context
+  const { playTrack } = useMusicPlayer();
 
-  const { data: searchResults, isLoading, isError, error } = useYouTubeMusicSearch(searchTerm);
+  const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
+  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useAlbums(); // Fetch albums
 
   const navItems = [
     { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
@@ -30,16 +33,22 @@ const Home = () => {
     { id: "playlists", label: "Playlists", icon: List, path: "/playlists" },
   ];
 
-  const albums = [
-    { title: "Muzik Album", artist: "Cantılam albuy", color: "from-blue-600 to-purple-600" },
-    { title: "Artly Beavilum", artist: "Öperilkiy", color: "from-slate-300 to-slate-400" },
-    { title: "Sanlskir Skiküm", artist: "Öperıñ øoc", color: "from-purple-600 to-pink-600" },
-    { title: "Sanavøceiıa", artist: "beürlt Leiii", color: "from-cyan-500 to-blue-600" },
-  ];
-
   const handleNavClick = (item: typeof navItems[0]) => {
     setActiveNav(item.id);
     navigate(item.path);
+  };
+
+  // Placeholder for playing an album's first track (or a representative track)
+  const handlePlayAlbum = (albumTitle: string, artistName: string) => {
+    // In a real app, you'd fetch tracks for this album and play the first one.
+    // For now, we'll simulate playing a generic track.
+    playTrack({
+      videoId: 'dQw4w9WgXcQ', // Example video ID
+      title: `Playing ${albumTitle}`,
+      artist: artistName,
+      thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+      album: albumTitle,
+    });
   };
 
   return (
@@ -104,8 +113,8 @@ const Home = () => {
             {searchTerm ? (
               <div className="mt-8">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
-                {isLoading && <p className="text-muted-foreground">Searching...</p>}
-                {isError && <p className="text-destructive">Error: {error?.message}</p>}
+                {isSearchLoading && <p className="text-muted-foreground">Searching...</p>}
+                {isSearchError && <p className="text-destructive">Error: {searchError?.message}</p>}
                 {searchResults && searchResults.length > 0 ? (
                   <ScrollArea className="h-[400px] rounded-md border border-border p-4">
                     <div className="space-y-4">
@@ -113,7 +122,7 @@ const Home = () => {
                         <div 
                           key={index} 
                           className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
-                          onClick={() => playTrack(track)} // Play track on click
+                          onClick={() => playTrack(track)}
                         >
                           {track.thumbnail && (
                             <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded-md object-cover" />
@@ -128,7 +137,7 @@ const Home = () => {
                     </div>
                   </ScrollArea>
                 ) : (
-                  !isLoading && !isError && <p className="text-muted-foreground">No results found.</p>
+                  !isSearchLoading && !isSearchError && <p className="text-muted-foreground">No results found.</p>
                 )}
               </div>
             ) : (
@@ -159,20 +168,41 @@ const Home = () => {
                 {/* Albums Section */}
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Pessonse</h2>
-                  <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                    {albums.map((album, index) => (
-                      <div
-                        key={index}
-                        className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon"
-                      >
-                        <div className={`aspect-square rounded-xl bg-gradient-to-br ${album.color} mb-4 flex items-center justify-center`}>
-                          <Music className="w-16 h-16 text-white opacity-50" />
+                  {isAlbumsLoading && (
+                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
+                          <Skeleton className="aspect-square rounded-xl mb-4" />
+                          <Skeleton className="h-6 w-3/4 mb-1" />
+                          <Skeleton className="h-4 w-1/2" />
                         </div>
-                        <h3 className="font-semibold text-lg text-foreground mb-1">{album.title}</h3>
-                        <p className="text-sm text-muted-foreground">{album.artist}</p>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
+                  {isAlbumsError && <p className="text-destructive">Error loading albums: {albumsError?.message}</p>}
+                  {albums && albums.length > 0 && (
+                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                      {albums.map((album) => (
+                        <div
+                          key={album.id}
+                          className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
+                          onClick={() => handlePlayAlbum(album.title, album.artist_name)}
+                        >
+                          <div className={`aspect-square rounded-xl bg-gradient-to-br ${album.cover_color} mb-4 flex items-center justify-center`}>
+                            <Disc3 className="w-16 h-16 text-white opacity-50" />
+                          </div>
+                          <h3 className="font-semibold text-lg text-foreground mb-1">{album.title}</h3>
+                          <p className="text-sm text-muted-foreground">{album.artist_name}</p>
+                          <Button 
+                            size="icon" 
+                            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                          >
+                            <Play className="w-5 h-5 fill-current" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </>
             )}
