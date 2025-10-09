@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } => 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Disc3, Play } from 'lucide-react';
 import { useAlbums } from '@/hooks/use-albums';
