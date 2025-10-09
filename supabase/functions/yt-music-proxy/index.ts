@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { YouTubeMusic } from 'npm:ytmusic-api'; // Import the ytmusic-api package
+import YouTubeMusic from 'npm:ytmusic-api'; // Corrected import: YouTubeMusic is likely the default export
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
