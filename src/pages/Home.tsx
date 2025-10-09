@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeonLogo from "@/components/NeonLogo";
@@ -7,17 +8,18 @@ import Player from "@/components/Player";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const isMobile = useIsMobile();
 
   const navItems = [
-    { id: "home", label: "Home", icon: HomeIcon },
-    { id: "music", label: "Music", icon: Music },
-    { id: "albums", label: "Albums", icon: Disc3 },
-    { id: "artists", label: "Artists", icon: Headphones },
-    { id: "radio", label: "Radio", icon: Radio },
-    { id: "genre", label: "Genre", icon: Mic2 },
-    { id: "playlists", label: "Playlists", icon: List },
+    { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
+    { id: "music", label: "Music", icon: Music, path: "/music" },
+    { id: "albums", label: "Albums", icon: Disc3, path: "/albums" },
+    { id: "artists", label: "Artists", icon: Headphones, path: "/artists" },
+    { id: "radio", label: "Radio", icon: Radio, path: "/radio" },
+    { id: "genre", label: "Genre", icon: Mic2, path: "/genre" },
+    { id: "playlists", label: "Playlists", icon: List, path: "/playlists" },
   ];
 
   const albums = [
@@ -26,6 +28,11 @@ const Home = () => {
     { title: "Sanlskir Skiküm", artist: "Öperıñ øoc", color: "from-purple-600 to-pink-600" },
     { title: "Sanavøceiıa", artist: "beürlt Leiii", color: "from-cyan-500 to-blue-600" },
   ];
+
+  const handleNavClick = (item: typeof navItems[0]) => {
+    setActiveNav(item.id);
+    navigate(item.path);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -46,7 +53,7 @@ const Home = () => {
                     ? "bg-primary text-primary-foreground shadow-neon"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
-                onClick={() => setActiveNav(item.id)}
+                onClick={() => handleNavClick(item)}
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}
