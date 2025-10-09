@@ -4,7 +4,6 @@ import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play, Se
 import { Button } from "@/components/ui/button";
 import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
-// import Player from "@/components/Player"; // Removed Player import
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSidebar from "@/components/MobileSidebar";
 import { Input } from "@/components/ui/input";
@@ -86,7 +85,7 @@ const Home = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto"> {/* Removed pb-[120px] here */}
+        <main className="flex-1 overflow-auto">
           <div className="p-4 sm:p-8 space-y-8">
             {/* Search Bar (Desktop Only) */}
             <div className="relative mb-6 hidden lg:block">
@@ -110,7 +109,10 @@ const Home = () => {
                     <div className="space-y-4">
                       {searchResults.map((track, index) => (
                         <div key={index} className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors">
-                          <Music className="w-6 h-6 text-primary" />
+                          {track.thumbnail && (
+                            <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded-md object-cover" />
+                          )}
+                          {!track.thumbnail && <Music className="w-6 h-6 text-primary" />}
                           <div>
                             <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
                             <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
@@ -171,8 +173,6 @@ const Home = () => {
           </div>
         </main>
       </div>
-
-      {/* <Player /> Removed Player here */}
     </div>
   );
 };

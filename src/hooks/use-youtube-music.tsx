@@ -5,8 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 interface YouTubeMusicTrack {
   title: string;
   artist: string;
-  album?: string;
-  // You can add more fields here as needed from the YouTube Music API response
+  album?: string; // Album might be undefined now
+  thumbnail?: string; // New field
+  videoId?: string; // New field
 }
 
 export const useYouTubeMusicSearch = (query: string) => {
@@ -25,13 +26,14 @@ export const useYouTubeMusicSearch = (query: string) => {
         throw new Error(error.message || "An unknown error occurred with the Edge Function.");
       }
 
-      // The Edge Function returns an object with 'tracks', 'albums', 'artists', etc.
-      // We're interested in the 'tracks' array.
+      // The Edge Function now returns an object with a 'tracks' array.
       if (data && data.tracks) {
         return data.tracks.map((track: any) => ({
           title: track.title,
-          artist: track.artist?.name || 'Unknown Artist', // Handle cases where artist might be missing
-          album: track.album?.name,
+          artist: track.artist || 'Unknown Artist', // Artist is now directly from Edge Function
+          album: track.album, // Album might be undefined
+          thumbnail: track.thumbnail, // New field
+          videoId: track.videoId, // New field
         }));
       }
       return [];
