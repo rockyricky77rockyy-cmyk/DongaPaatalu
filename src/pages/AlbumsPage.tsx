@@ -1,20 +1,17 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } => 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Disc3, Play } from 'lucide-react';
 import { useAlbums } from '@/hooks/use-albums';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useMusicPlayer } from '@/context/MusicPlayerContext'; // Import useMusicPlayer
+import { useMusicPlayer } from '@/context/MusicPlayerContext';
 
 const AlbumsPage = () => {
   const navigate = useNavigate();
-  const { data: albums, isLoading, isError, error } = useAlbums();
-  const { playTrack } = useMusicPlayer(); // Get playTrack from context
+  const { data: albums, isLoading, isError, error } = useAlbums('Telugu'); // Filter for Telugu albums
+  const { playTrack } = useMusicPlayer();
 
-  // Placeholder for playing an album's first track (or a representative track)
   const handlePlayAlbum = (albumTitle: string, artistName: string) => {
-    // In a real app, you'd fetch tracks for this album and play the first one.
-    // For now, we'll simulate playing a generic track.
     playTrack({
       videoId: 'dQw4w9WgXcQ', // Example video ID
       title: `Playing ${albumTitle}`,
@@ -31,7 +28,7 @@ const AlbumsPage = () => {
           <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
             <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
           </Button>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Albums</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Telugu Albums</h1>
           <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
@@ -53,7 +50,7 @@ const AlbumsPage = () => {
           <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
             <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
           </Button>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Albums</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Telugu Albums</h1>
           <p className="text-destructive">Error loading albums: {error?.message}</p>
         </div>
       </div>
@@ -66,7 +63,7 @@ const AlbumsPage = () => {
         <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
           <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
         </Button>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Albums</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Telugu Albums</h1>
         <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {albums?.map((album) => (
             <div 
