@@ -12,6 +12,7 @@ import RadioPage from "./pages/RadioPage";
 import GenrePage from "./pages/GenrePage";
 import PlaylistsPage from "./pages/PlaylistsPage";
 import NotFound from "./pages/NotFound";
+import { SessionContextProvider } from "./components/SessionContextProvider"; // Import the new provider
 
 const queryClient = new QueryClient();
 
@@ -21,19 +22,21 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/music" element={<MusicPage />} />
-          <Route path="/albums" element={<AlbumsPage />} />
-          <Route path="/artists" element={<ArtistsPage />} />
-          <Route path="/radio" element={<RadioPage />} />
-          <Route path="/genre" element={<GenrePage />} />
-          <Route path="/playlists" element={<PlaylistsPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <SessionContextProvider> {/* Wrap with SessionContextProvider */}
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/music" element={<MusicPage />} />
+            <Route path="/albums" element={<AlbumsPage />} />
+            <Route path="/artists" element={<ArtistsPage />} />
+            <Route path="/radio" element={<RadioPage />} />
+            <Route path="/genre" element={<GenrePage />} />
+            <Route path="/playlists" element={<PlaylistsPage />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </SessionContextProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

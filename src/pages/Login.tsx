@@ -1,47 +1,26 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { User, Lock } from "lucide-react";
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { supabase } from '@/integrations/supabase/client';
 import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSession } from '@/components/SessionContextProvider'; // Import useSession
 
 const Login = () => {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const isMobile = useIsMobile();
+  const { isLoading } = useSession(); // Use isLoading from session context
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // For demo purposes, just navigate to home
-    navigate("/home");
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <NeonLogo size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Top Navigation */}
-      <nav className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 p-4 sm:p-8">
-        <Button
-          variant="ghost"
-          className="rounded-full px-6 py-4 sm:px-8 sm:py-6 text-base sm:text-lg font-medium bg-gradient-neon text-primary-foreground hover:opacity-90"
-        >
-          Home
-        </Button>
-        <Button variant="ghost" className="text-base sm:text-lg font-medium text-foreground hover:text-primary">
-          Browse
-        </Button>
-        <Button variant="ghost" className="text-base sm:text-lg font-medium text-foreground hover:text-primary">
-          Playlists
-        </Button>
-        <Button variant="ghost" className="text-base sm:text-lg font-medium text-foreground hover:text-primary">
-          Library
-        </Button>
-        <Button variant="ghost" className="text-base sm:text-lg font-medium text-foreground hover:text-primary">
-          Profile
-        </Button>
-      </nav>
+      {/* Top Navigation - Removed as it's not relevant for a login page */}
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 relative">
@@ -56,41 +35,72 @@ const Login = () => {
         </div>
 
         {/* Login Form */}
-        <div className="w-full max-w-sm sm:max-w-md space-y-6 sm:space-y-8 z-10">
-          <div className="flex justify-center">
+        <div className="w-full max-w-sm sm:max-w-md space-y-6 sm:space-y-8 z-10 p-6 bg-card rounded-2xl shadow-neon-strong border border-primary/30">
+          <div className="flex justify-center mb-6">
             <NeonLogo size={isMobile ? "medium" : "large"} />
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
-            <div className="relative">
-              <User className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-primary w-4 h-4 sm:w-5 sm:h-5" />
-              <Input
-                type="text"
-                placeholder="Sans Srovie"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="pl-10 sm:pl-12 h-12 sm:h-14 bg-card border-2 border-primary/30 rounded-xl sm:rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-primary focus:shadow-neon"
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-secondary w-4 h-4 sm:w-5 sm:h-5" />
-              <Input
-                type="password"
-                placeholder="Libbranis"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 sm:pl-12 h-12 sm:h-14 bg-card border-2 border-secondary/30 rounded-xl sm:rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-secondary focus:shadow-neon"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full h-12 sm:h-14 rounded-full text-lg sm:text-xl font-semibold bg-gradient-neon hover:opacity-90 text-foreground shadow-neon-strong transition-all"
-            >
-              Login
-            </Button>
-          </form>
+          <Auth
+            supabaseClient={supabase}
+            providers={[]} // No third-party providers for now
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: 'hsl(var(--primary))', // Use your primary color
+                    brandAccent: 'hsl(var(--accent))', // Use your accent color
+                    inputBackground: 'hsl(var(--input))',
+                    inputBorder: 'hsl(var(--border))',
+                    inputBorderHover: 'hsl(var(--primary))',
+                    inputBorderFocus: 'hsl(var(--primary))',
+                    inputText: 'hsl(var(--foreground))',
+                    defaultButtonBackground: 'hsl(var(--primary))',
+                    defaultButtonBackgroundHover: 'hsl(var(--accent))',
+                    defaultButtonBorder: 'hsl(var(--primary))',
+                    defaultButtonText: 'hsl(var(--primary-foreground))',
+                    anchorText: 'hsl(var(--primary))',
+                    anchorTextHover: 'hsl(var(--accent))',
+                  },
+                },
+              },
+            }}
+            theme="dark" // Using dark theme to match your app's aesthetic
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: 'Email Address',
+                  password_label: 'Password',
+                  email_input_placeholder: 'Your email address',
+                  password_input_placeholder: 'Your password',
+                  button_label: 'Sign In',
+                  social_provider_text: 'Sign in with {{provider}}',
+                  link_text: 'Already have an account? Sign In',
+                },
+                sign_up: {
+                  email_label: 'Email Address',
+                  password_label: 'Create a Password',
+                  email_input_placeholder: 'Your email address',
+                  password_input_placeholder: 'Your password',
+                  button_label: 'Sign Up',
+                  social_provider_text: 'Sign up with {{provider}}',
+                  link_text: 'Don\'t have an account? Sign Up',
+                },
+                forgotten_password: {
+                  email_label: 'Email Address',
+                  password_label: 'Your Password',
+                  email_input_placeholder: 'Your email address',
+                  button_label: 'Send reset password instructions',
+                  link_text: 'Forgot your password?',
+                },
+                update_password: {
+                  password_label: 'New Password',
+                  password_input_placeholder: 'Your new password',
+                  button_label: 'Update Password',
+                },
+              },
+            }}
+          />
         </div>
       </div>
 
