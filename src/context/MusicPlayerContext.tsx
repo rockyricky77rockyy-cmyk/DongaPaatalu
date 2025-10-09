@@ -22,6 +22,7 @@ interface MusicPlayerContextType {
   currentTime: number; // in seconds
   setDuration: (duration: number) => void;
   setCurrentTime: (time: number) => void;
+  setIsPlaying: (playing: boolean) => void; // Expose setIsPlaying
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -79,6 +80,7 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     currentTime,
     setDuration,
     setCurrentTime,
+    setIsPlaying, // Include in value
   };
 
   return (

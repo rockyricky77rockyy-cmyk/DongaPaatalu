@@ -12,29 +12,39 @@ import GenrePage from "./pages/GenrePage";
 import PlaylistsPage from "./pages/PlaylistsPage";
 import NotFound from "./pages/NotFound";
 import Player from "./components/Player";
-import { MusicPlayerProvider, useMusicPlayer } from "./context/MusicPlayerContext"; // Import MusicPlayerProvider and useMusicPlayer
-import YouTubeEmbed from "./components/YouTubeEmbed"; // Import YouTubeEmbed
-import React from "react"; // Import React for functional component
+import { MusicPlayerProvider, useMusicPlayer } from "./context/MusicPlayerContext";
+import YouTubeEmbed from "./components/YouTubeEmbed";
+import React from "react";
 
 const queryClient = new QueryClient();
 
 // Create a wrapper component to use the MusicPlayerContext
 const AppContent = () => {
-  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress } = useMusicPlayer();
+  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying } = useMusicPlayer();
 
   const handlePlayerReady = (event: any) => {
-    // You can perform actions when the player is ready, e.g., set initial volume
     event.target.setVolume(50); // Set default volume to 50%
   };
 
   const handlePlayerStateChange = (event: any) => {
     // Update context based on player state changes
-    if (event.data === window.YT.PlayerState.PLAYING) {
-      setDuration(event.target.getDuration());
-    } else if (event.data === window.YT.PlayerState.ENDED) {
-      setPlaybackProgress(0);
-      setCurrentTime(0);
-      // Optionally, handle playing the next track here
+    switch (event.data) {
+      case window.YT.PlayerState.PLAYING:
+        setIsPlaying(true);
+        setDuration(event.target.getDuration());
+        break;
+      case window.YT.PlayerState.PAUSED:
+      case window.YT.PlayerState.ENDED:
+        setIsPlaying(false);
+        setPlaybackProgress(0);
+        setCurrentTime(0);
+        break;
+      case window.YT.PlayerState.BUFFERING:
+        // Keep isPlaying true if buffering, as it's still "trying" to play
+        setIsPlaying(true); 
+        break;
+      default:
+        break;
     }
   };
 

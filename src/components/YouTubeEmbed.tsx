@@ -27,7 +27,7 @@ const YouTubeEmbed = ({
   onPlaybackQualityChange,
   className,
 }: YouTubeEmbedProps) => {
-  const { playerRef, isPlaying, setDuration, setCurrentTime, setPlaybackProgress, togglePlayPause } = useMusicPlayer();
+  const { playerRef, isPlaying, setDuration, setCurrentTime, setPlaybackProgress } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
 
   const opts: YouTubeProps['opts'] = {
@@ -47,28 +47,30 @@ const YouTubeEmbed = ({
 
   const handleReady = (event: any) => {
     playerRef.current = event.target;
-    if (isPlaying) {
+    // If a track is already set to be playing, ensure it starts playing on ready
+    if (isPlaying && videoId) {
       playerRef.current.playVideo();
     }
     onReady?.(event);
   };
 
-  const handlePlay = (event: any) => {
+  // These handlers will now primarily manage the progress interval,
+  // while the `onStateChange` prop (handled in App.tsx) will update the global `isPlaying` state.
+  const handlePlayInternal = (event: any) => {
     setDuration(event.target.getDuration());
     startProgressInterval(event.target);
     onPlay?.(event);
   };
 
-  const handlePause = (event: any) => {
+  const handlePauseInternal = (event: any) => {
     stopProgressInterval();
     onPause?.(event);
   };
 
-  const handleEnd = (event: any) => {
+  const handleEndInternal = (event: any) => {
     stopProgressInterval();
     setPlaybackProgress(0);
     setCurrentTime(0);
-    // Optionally, play next track or loop
     onEnd?.(event);
   };
 
@@ -97,9 +99,7 @@ const YouTubeEmbed = ({
     // If the videoId changes, and the player is ready, load the new video
     if (playerRef.current && videoId && playerRef.current.loadVideoById) {
       playerRef.current.loadVideoById(videoId);
-      if (!isPlaying) { // If it wasn't playing, start playing the new track
-        togglePlayPause();
-      }
+      // The AppContent's onStateChange will handle setting isPlaying
     } else if (playerRef.current && !videoId) {
       // If videoId becomes null, stop and clear player
       playerRef.current.stopVideo();
@@ -107,7 +107,7 @@ const YouTubeEmbed = ({
       setCurrentTime(0);
       setDuration(0);
     }
-  }, [videoId, playerRef, isPlaying, togglePlayPause]);
+  }, [videoId, playerRef]); // Removed isPlaying from dependencies to avoid loop, AppContent handles it
 
   useEffect(() => {
     return () => {
@@ -125,11 +125,11 @@ const YouTubeEmbed = ({
         videoId={videoId}
         opts={opts}
         onReady={handleReady}
-        onPlay={handlePlay}
-        onPause={handlePause}
-        onEnd={handleEnd}
+        onPlay={handlePlayInternal} // Use internal handler for progress
+        onPause={handlePauseInternal} // Use internal handler for progress
+        onEnd={handleEndInternal} // Use internal handler for progress
         onError={onError}
-        onStateChange={onStateChange}
+        onStateChange={onStateChange} // Pass through to AppContent for global state
         onPlaybackRateChange={onPlaybackRateChange}
         onPlaybackQualityChange={onPlaybackQualityChange}
       />
