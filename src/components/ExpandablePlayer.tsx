@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2 } from "lucide-react";
+import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2, Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat } from "lucide-react";
@@ -7,6 +7,7 @@ import Visualizer from "./Visualizer";
 import PlaylistQueue from "./PlaylistQueue";
 import NeonLogo from "./NeonLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
@@ -14,9 +15,27 @@ interface ExpandablePlayerProps {
 }
 
 const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
+  const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(33);
+  const [activeNav, setActiveNav] = useState("home"); // State for internal navigation in expanded player
   const isMobile = useIsMobile();
+
+  const navItems = [
+    { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
+    { id: "music", label: "Music", icon: Music, path: "/music" },
+    { id: "albums", label: "Albums", icon: Disc3, path: "/albums" },
+    { id: "artists", label: "Artists", icon: Headphones, path: "/artists" },
+    { id: "radio", label: "Radio", icon: Radio, path: "/radio" },
+    { id: "genre", label: "Genre", icon: Mic2, path: "/genre" },
+    { id: "playlists", label: "Playlists", icon: List, path: "/playlists" },
+  ];
+
+  const handleNavClick = (item: typeof navItems[0]) => {
+    setActiveNav(item.id);
+    navigate(item.path);
+    onClose(); // Close the expanded player after navigating
+  };
 
   if (!isOpen) return null;
 
@@ -37,16 +56,23 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   </Button>
                 </div>
 
-                <Button variant="default" className="w-full justify-start gap-3 bg-primary shadow-neon text-sm lg:text-base">
-                  <span className="w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center">🏠</span>
-                  Bırajdor
-                </Button>
-                {["MuzlÇru", "Mluzamvlön", "Açrıstıst", "Bölrioct", "Klenrıt", "Llziıist", "Yeparıar"].map((item, i) => (
-                  <Button key={i} variant="ghost" className="w-full justify-start gap-3 text-muted-foreground text-sm lg:text-base">
-                    <span className="w-4 h-4 lg:w-5 lg:h-5">📱</span>
-                    {item}
-                  </Button>
-                ))}
+                <nav className="space-y-1">
+                  {navItems.map((item) => (
+                    <Button
+                      key={item.id}
+                      variant={activeNav === item.id ? "default" : "ghost"}
+                      className={`w-full justify-start gap-3 ${
+                        activeNav === item.id
+                          ? "bg-primary text-primary-foreground shadow-neon"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      } text-sm lg:text-base`}
+                      onClick={() => handleNavClick(item)}
+                    >
+                      <item.icon className="w-4 h-4 lg:w-5 lg:h-5" />
+                      {item.label}
+                    </Button>
+                  ))}
+                </nav>
               </aside>
 
               {/* Center - Player */}
@@ -193,17 +219,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-8 border-white/30 animate-pulse-glow" />
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-1 bg-white/40 rounded-full animate-visualizer"
-                    style={{
-                      height: `${Math.random() * 100 + 50}px`,
-                      left: `${(i / 20) * 100}%`,
-                      animationDelay: `${i * 0.1}s`,
-                    }}
-                  />
-                ))}
+                {/* Replaced custom bars with Visualizer component */}
+                <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" />
               </div>
             </div>
           </div>
