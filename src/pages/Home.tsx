@@ -20,7 +20,7 @@ const Home = () => {
   const [activeNav, setActiveNav] = useState("home");
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
-  const { playTrack } = useMusicPlayer();
+  const { playTrack, isPlaying } = useMusicPlayer(); // Destructure isPlaying
 
   const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
   const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useAlbums();
@@ -165,7 +165,7 @@ const Home = () => {
                   </div>
 
                   <div className="relative z-10 mt-4 sm:mt-8">
-                    <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" />
+                    <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" isPlaying={isPlaying} /> {/* Pass isPlaying */}
                   </div>
                 </div>
 
@@ -253,7 +253,7 @@ const Home = () => {
                 <div className="mt-8">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
                   {isAlbumsLoading && (
-                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    <div className="flex flex-col md:grid md::grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                       {Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
                           <Skeleton className="aspect-square rounded-xl mb-4" />

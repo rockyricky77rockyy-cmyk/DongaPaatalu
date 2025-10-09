@@ -59,7 +59,7 @@ const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", i
         return (
           <div
             key={i}
-            className={`bg-gradient-to-t ${direction === "horizontal" ? "w-1.5" : "h-1.5 w-full"} transition-all duration-200 rounded-full`}
+            className={`bg-gradient-to-t ${direction === "horizontal" ? "w-1.5" : "h-1.5 w-full"} rounded-full`}
             style={{
               [direction === "horizontal" ? "height" : "width"]: `${height}%`,
               backgroundColor: gradientColor,
