@@ -30,9 +30,12 @@ serve(async (req) => {
       }
 
       const ytMusic = new YouTubeMusic();
-      console.log('[yt-music-proxy] YouTubeMusic API instantiated. Performing search...');
-      
-      // The problematic ytMusic.initialize() call has been removed.
+      console.log('[yt-music-proxy] YouTubeMusic API instantiated.');
+      console.log('[yt-music-proxy] Type of ytMusic:', typeof ytMusic);
+      console.log('[yt-music-proxy] ytMusic object keys:', Object.keys(ytMusic));
+      // console.log('[yt-music-proxy] Full ytMusic object (may be verbose):', ytMusic); // Uncomment for very detailed debugging if needed
+
+      console.log('[yt-music-proxy] Attempting to call ytMusic.search...');
       const results = await ytMusic.search(query);
       console.log(`[yt-music-proxy] Search results obtained: ${JSON.stringify(results).substring(0, 200)}...`); // Log first 200 chars
 
@@ -50,7 +53,8 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('[yt-music-proxy] Error:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('[yt-music-proxy] Stack:', error.stack); // Log the stack trace
+    return new Response(JSON.stringify({ error: error.message, stack: error.stack }), { // Return stack trace in response
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
