@@ -44,14 +44,29 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] Raw search results count: ${searchResults.length}`);
 
       // Process ytmusic-api results to match expected format
-      const tracks = searchResults.map((item: any) => ({
-        title: item.title || 'Unknown Title', // Added fallback for title
-        artist: item.artists && item.artists.length > 0 ? item.artists[0].name : 'Unknown Artist',
-        album: item.album ? item.album.name : undefined,
-        // Select the last thumbnail, which is typically the largest/highest quality
-        thumbnail: item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined,
-        videoId: item.videoId,
-      }));
+      const tracks = searchResults.map((item: any) => {
+        console.log(`[yt-music-proxy] Processing item: ${JSON.stringify(item).substring(0, 200)}...`); // Log raw item for debugging
+
+        const title = item.title || item.name || 'Unknown Title'; // More robust title check
+        let artist = 'Unknown Artist';
+        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
+          artist = item.artists[0].name;
+        } else if (item.artist) { // Sometimes artist might be a top-level string
+          artist = item.artist;
+        }
+
+        const album = item.album ? item.album.name : undefined;
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const videoId = item.videoId;
+
+        return {
+          title,
+          artist,
+          album,
+          thumbnail,
+          videoId,
+        };
+      });
 
       console.log(`[yt-music-proxy] Processed search results: ${JSON.stringify(tracks).substring(0, 200)}...`);
 
