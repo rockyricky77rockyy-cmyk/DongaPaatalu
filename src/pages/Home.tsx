@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
 import Player from "@/components/Player";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Home = () => {
   const [activeNav, setActiveNav] = useState("home");
+  const isMobile = useIsMobile();
 
   const navItems = [
     { id: "home", label: "Bərajdor", icon: HomeIcon },
@@ -29,7 +31,7 @@ const Home = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex">
         {/* Left Sidebar */}
-        <aside className="w-64 bg-card border-r border-border p-6 space-y-2">
+        <aside className="w-64 bg-card border-r border-border p-6 space-y-2 hidden lg:block">
           <div className="mb-8 flex justify-center">
             <NeonLogo size="small" />
           </div>
@@ -55,20 +57,20 @@ const Home = () => {
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
-          <div className="p-8 space-y-8">
+          <div className="p-4 sm:p-8 space-y-8">
             {/* Hero Section */}
-            <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-12 overflow-hidden border border-primary/20 shadow-card">
+            <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
               <div className="absolute inset-0 bg-gradient-glow opacity-50" />
               
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="flex-1 flex justify-center">
+              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between">
+                <div className="flex-1 flex justify-center mb-8 sm:mb-0">
                   <div className="relative">
-                    <NeonLogo size="large" />
+                    <NeonLogo size={isMobile ? "medium" : "large"} />
                     <Button
-                      size="lg"
-                      className="absolute -right-8 top-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
+                      size={isMobile ? "md" : "lg"}
+                      className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
                     >
-                      <svg className="w-12 h-12" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-8 h-8 sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </Button>
@@ -76,15 +78,15 @@ const Home = () => {
                 </div>
               </div>
 
-              <div className="relative z-10 mt-8">
-                <Visualizer barCount={50} className="h-24" />
+              <div className="relative z-10 mt-4 sm:mt-8">
+                <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" />
               </div>
             </div>
 
             {/* Albums Section */}
             <div>
-              <h2 className="text-3xl font-bold mb-6 text-foreground">Pessonse</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Pessonse</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {albums.map((album, index) => (
                   <div
                     key={index}
