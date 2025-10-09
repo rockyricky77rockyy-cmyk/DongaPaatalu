@@ -1,11 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
-// Removed YouTubeMusic import as it's incompatible with Deno runtime
+import { YouTubeMusic } from 'npm:ytmusic-api'; // Import the ytmusic-api package
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Initialize YouTubeMusic client outside the serve function to reuse it
+const ytmusic = new YouTubeMusic();
+let isInitialized = false;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -15,6 +18,13 @@ serve(async (req) => {
   try {
     const { pathname } = new URL(req.url);
     console.log(`[yt-music-proxy] Request received for: ${pathname}`);
+
+    // Initialize ytmusic-api if not already initialized
+    if (!isInitialized) {
+      await ytmusic.initialize();
+      isInitialized = true;
+      console.log('[yt-music-proxy] YouTubeMusic API initialized.');
+    }
 
     if (pathname.endsWith('/search')) {
       const requestBody = await req.json();
@@ -29,48 +39,26 @@ serve(async (req) => {
         });
       }
 
-      // Retrieve YouTube API Key from environment variables
-      const YOUTUBE_API_KEY = Deno.env.get('YOUTUBE_API_KEY');
+      // Use ytmusic-api to search for songs
+      const searchResults = await ytmusic.search(query, 'songs');
+      console.log(`[yt-music-proxy] Raw search results count: ${searchResults.length}`);
 
-      if (!YOUTUBE_API_KEY) {
-        console.error('[yt-music-proxy] YOUTUBE_API_KEY is not set in environment variables.');
-        return new Response(JSON.stringify({ error: 'YouTube API Key not configured.' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      // Construct the YouTube Data API v3 search URL
-      const youtubeSearchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoCategoryId=10&key=${YOUTUBE_API_KEY}`;
-      console.log(`[yt-music-proxy] Calling YouTube Data API: ${youtubeSearchUrl}`);
-
-      const youtubeResponse = await fetch(youtubeSearchUrl);
-      const youtubeData = await youtubeResponse.json();
-
-      if (!youtubeResponse.ok) {
-        console.error('[yt-music-proxy] YouTube API Error:', youtubeData);
-        return new Response(JSON.stringify({ error: 'YouTube API Error', details: youtubeData }), {
-          status: youtubeResponse.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      // Process YouTube Data API results to match expected format
-      const tracks = youtubeData.items.map((item: any) => ({
-        title: item.snippet.title,
-        artist: item.snippet.channelTitle, // YouTube channel is often the artist for music videos
-        album: undefined, // YouTube Data API doesn't directly provide album info in search results
-        thumbnail: item.snippet.thumbnails.default.url, // Add thumbnail for display
-        videoId: item.id.videoId, // Add video ID for potential playback
+      // Process ytmusic-api results to match expected format
+      const tracks = searchResults.map((item: any) => ({
+        title: item.title,
+        artist: item.artists && item.artists.length > 0 ? item.artists[0].name : 'Unknown Artist',
+        album: item.album ? item.album.name : undefined,
+        thumbnail: item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[0].url : undefined,
+        videoId: item.videoId,
       }));
 
       console.log(`[yt-music-proxy] Processed search results: ${JSON.stringify(tracks).substring(0, 200)}...`);
 
-      return new Response(JSON.stringify({ tracks }), { // Wrap in 'tracks' object to match previous structure
+      return new Response(JSON.stringify({ tracks }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
-    } 
+    }
 
     console.log(`[yt-music-proxy] Path not found: ${pathname}`);
     return new Response(JSON.stringify({ error: 'Not Found' }), {
