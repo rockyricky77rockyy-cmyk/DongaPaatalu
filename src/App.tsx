@@ -12,7 +12,7 @@ import RadioPage from "./pages/RadioPage";
 import GenrePage from "./pages/GenrePage";
 import PlaylistsPage from "./pages/PlaylistsPage";
 import NotFound from "./pages/NotFound";
-import { SessionContextProvider } from "./components/SessionContextProvider"; // Import the new provider
+// import { SessionContextProvider } from "./components/SessionContextProvider"; // Removed
 
 const queryClient = new QueryClient();
 
@@ -22,10 +22,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SessionContextProvider> {/* Wrap with SessionContextProvider */}
+        {/* <SessionContextProvider> Removed */}
           <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Navigate to="/home" replace />} /> {/* Redirect to home */}
+            <Route path="/login" element={<Login />} /> {/* Login page still exists but won't be redirected to by default */}
             <Route path="/home" element={<Home />} />
             <Route path="/music" element={<MusicPage />} />
             <Route path="/albums" element={<AlbumsPage />} />
@@ -36,7 +36,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </SessionContextProvider>
+        {/* </SessionContextProvider> Removed */}
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
