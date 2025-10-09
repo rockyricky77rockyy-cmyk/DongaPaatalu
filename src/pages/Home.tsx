@@ -72,7 +72,7 @@ const Home = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto pb-[120px]"> {/* Added bottom padding */}
+        <main className="flex-1 overflow-auto pb-[120px]">
           <div className="p-4 sm:p-8 space-y-8">
             {/* Hero Section */}
             <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
@@ -102,7 +102,7 @@ const Home = () => {
             {/* Albums Section */}
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Pessonse</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"> {/* Changed to flex flex-col on mobile */}
                 {albums.map((album, index) => (
                   <div
                     key={index}

@@ -20,7 +20,7 @@ const AlbumsPage = () => {
           <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
         </Button>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Albums</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-6"> {/* Changed to flex flex-col on mobile */}
           {albums.map((album, index) => (
             <div key={index} className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon">
               <div className={`aspect-square rounded-xl bg-gradient-to-br ${album.color} mb-4 flex items-center justify-center`}>
