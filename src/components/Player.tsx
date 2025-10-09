@@ -14,7 +14,7 @@ const Player = () => {
 
   return (
     <>
-      <div className="bg-card border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 w-full z-50 bg-card border-t border-border">
         {/* Progress Bar */}
         <div className="px-4 pt-2 sm:px-8 sm:pt-4">
           <Slider

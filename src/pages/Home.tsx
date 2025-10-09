@@ -37,7 +37,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 flex flex-col lg:flex-row"> {/* Changed this line */}
+      <div className="flex-1 flex flex-col lg:flex-row">
         {/* Mobile Header with Sidebar Trigger */}
         <header className="lg:hidden w-full p-4 flex items-center justify-between bg-card border-b border-border">
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
@@ -72,7 +72,7 @@ const Home = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto pb-[120px]"> {/* Added bottom padding */}
           <div className="p-4 sm:p-8 space-y-8">
             {/* Hero Section */}
             <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">

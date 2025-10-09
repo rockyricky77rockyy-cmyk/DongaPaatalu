@@ -15,7 +15,7 @@ const RadioPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 p-4 sm:p-8">
+      <div className="flex-1 p-4 sm:p-8 pb-[120px]"> {/* Added bottom padding */}
         <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
           <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
         </Button>
