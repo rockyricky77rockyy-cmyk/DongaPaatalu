@@ -11,7 +11,9 @@ import RadioPage from "./pages/RadioPage";
 import GenrePage from "./pages/GenrePage";
 import PlaylistsPage from "./pages/PlaylistsPage";
 import NotFound from "./pages/NotFound";
-import Player from "./components/Player"; // Import Player
+import Player from "./components/Player";
+import { MusicPlayerProvider } from "./context/MusicPlayerContext"; // Import MusicPlayerProvider
+import YouTubeEmbed from "./components/YouTubeEmbed"; // Import YouTubeEmbed
 
 const queryClient = new QueryClient();
 
@@ -21,22 +23,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen flex flex-col"> {/* Main layout container */}
-          <div className="flex-1 pb-[120px]"> {/* Content area with padding for the player */}
-            <Routes>
-              <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/music" element={<MusicPage />} />
-              <Route path="/albums" element={<AlbumsPage />} />
-              <Route path="/artists" element={<ArtistsPage />} />
-              <Route path="/radio" element={<RadioPage />} />
-              <Route path="/genre" element={<GenrePage />} />
-              <Route path="/playlists" element={<PlaylistsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+        <MusicPlayerProvider> {/* Wrap the entire app with MusicPlayerProvider */}
+          <div className="min-h-screen flex flex-col">
+            <div className="flex-1 pb-[120px]">
+              <Routes>
+                <Route path="/" element={<Navigate to="/home" replace />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/music" element={<MusicPage />} />
+                <Route path="/albums" element={<AlbumsPage />} />
+                <Route path="/artists" element={<ArtistsPage />} />
+                <Route path="/radio" element={<RadioPage />} />
+                <Route path="/genre" element={<GenrePage />} />
+                <Route path="/playlists" element={<PlaylistsPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+            <Player /> {/* Persistent Player at the bottom */}
+            {/* Hidden YouTube Embed for global playback */}
+            <YouTubeEmbed videoId={null} className="absolute bottom-0 right-0" /> 
           </div>
-          <Player /> {/* Persistent Player at the bottom */}
-        </div>
+        </MusicPlayerProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
