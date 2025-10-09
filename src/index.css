@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 220 30% 8%;
+    --foreground: 0 0% 100%;
+
+    --card: 220 28% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 220 28% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 188 100% 50%;
+    --primary-foreground: 220 30% 8%;
+
+    --secondary: 280 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 25% 20%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 280 100% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 20% 25%;
+    --input: 220 25% 15%;
+    --ring: 188 100% 50%;
+
+    --radius: 1rem;
+
+    /* Custom music app tokens */
+    --neon-cyan: 188 100% 50%;
+    --neon-purple: 280 100% 50%;
+    --neon-pink: 320 100% 50%;
+    --dark-navy: 220 30% 8%;
+    --card-dark: 220 28% 12%;
+    
+    /* Gradients */
+    --gradient-neon: linear-gradient(135deg, hsl(188 100% 50%) 0%, hsl(250 100% 60%) 50%, hsl(280 100% 50%) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(188 100% 50% / 0.2) 0%, hsl(280 100% 50% / 0.2) 100%);
+    
+    /* Shadows and Glows */
+    --shadow-neon: 0 0 20px hsl(188 100% 50% / 0.5), 0 0 40px hsl(188 100% 50% / 0.3);
+    --shadow-neon-strong: 0 0 30px hsl(188 100% 50% / 0.8), 0 0 60px hsl(280 100% 50% / 0.6);
+    --shadow-card: 0 8px 32px hsl(220 30% 4% / 0.5);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-glow: all 0.5s ease-in-out;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
