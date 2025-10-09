@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
-import YouTubeMusic from 'https://esm.sh/youtube-music-api@1.0.6'; // Changed to default import
+import YouTubeMusic from 'https://esm.sh/youtube-music-api@1.0.6';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,10 +30,9 @@ serve(async (req) => {
       }
 
       const ytMusic = new YouTubeMusic();
-      console.log('[yt-music-proxy] Initializing YouTubeMusic API...');
-      await ytMusic.initialize();
-      console.log('[yt-music-proxy] YouTubeMusic API initialized. Performing search...');
+      console.log('[yt-music-proxy] YouTubeMusic API instantiated. Performing search...');
       
+      // Removed the problematic ytMusic.initialize() call
       const results = await ytMusic.search(query);
       console.log(`[yt-music-proxy] Search results obtained: ${JSON.stringify(results).substring(0, 200)}...`); // Log first 200 chars
 
