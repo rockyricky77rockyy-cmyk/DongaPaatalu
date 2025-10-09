@@ -51,8 +51,13 @@ serve(async (req) => {
         let artist = 'Unknown Artist';
         if (item.artists && item.artists.length > 0 && item.artists[0].name) {
           artist = item.artists[0].name;
-        } else if (item.artist) { // Sometimes artist might be a top-level string
-          artist = item.artist;
+        } else if (item.artist) {
+          // Check if item.artist is an object and has a 'name' property
+          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
+            artist = item.artist.name;
+          } else if (typeof item.artist === 'string') {
+            artist = item.artist;
+          }
         }
 
         const album = item.album ? item.album.name : undefined;
