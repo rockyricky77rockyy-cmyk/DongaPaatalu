@@ -4,20 +4,19 @@ import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play, Se
 import { Button } from "@/components/ui/button";
 import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
-import Player from "@/components/Player";
+// import Player from "@/components/Player"; // Removed Player import
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSidebar from "@/components/MobileSidebar";
 import { Input } from "@/components/ui/input";
-import { useYouTubeMusicSearch } from "@/hooks/use-youtube-music"; // Import the new hook
-import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea for results
+import { useYouTubeMusicSearch } from "@/hooks/use-youtube-music";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const isMobile = useIsMobile();
-  const [searchTerm, setSearchTerm] = useState(""); // State for search input
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Use the new hook to fetch search results
   const { data: searchResults, isLoading, isError, error } = useYouTubeMusicSearch(searchTerm);
 
   const navItems = [
@@ -55,8 +54,8 @@ const Home = () => {
             <Input
               placeholder="Search..."
               className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
-              value={searchTerm} // Bind search term to input value
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term on change
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </header>
@@ -87,7 +86,7 @@ const Home = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto pb-[120px]">
+        <main className="flex-1 overflow-auto"> {/* Removed pb-[120px] here */}
           <div className="p-4 sm:p-8 space-y-8">
             {/* Search Bar (Desktop Only) */}
             <div className="relative mb-6 hidden lg:block">
@@ -95,8 +94,8 @@ const Home = () => {
               <Input
                 placeholder="Search music, artists, albums..."
                 className="pl-10 bg-input border-border rounded-lg h-10 text-sm"
-                value={searchTerm} // Bind search term to input value
-                onChange={(e) => setSearchTerm(e.target.value)} // Update search term on change
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
@@ -173,8 +172,7 @@ const Home = () => {
         </main>
       </div>
 
-      {/* Bottom Player */}
-      <Player />
+      {/* <Player /> Removed Player here */}
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } => 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Radio } from 'lucide-react';
-import Player from '@/components/Player';
+// import Player from '@/components/Player'; // Removed Player import
 
 const RadioPage = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const RadioPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 p-4 sm:p-8 pb-[120px]"> {/* Added bottom padding */}
+      <div className="flex-1 p-4 sm:p-8"> {/* Removed bottom padding */}
         <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
           <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
         </Button>
@@ -32,7 +32,7 @@ const RadioPage = () => {
           ))}
         </div>
       </div>
-      <Player />
+      {/* <Player /> Removed Player here */}
     </div>
   );
 };
