@@ -9,12 +9,14 @@ import MobileSidebar from "@/components/MobileSidebar";
 import { Input } from "@/components/ui/input";
 import { useYouTubeMusicSearch } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMusicPlayer } from "@/context/MusicPlayerContext"; // Import useMusicPlayer
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
+  const { playTrack } = useMusicPlayer(); // Get playTrack from context
 
   const { data: searchResults, isLoading, isError, error } = useYouTubeMusicSearch(searchTerm);
 
@@ -108,7 +110,11 @@ const Home = () => {
                   <ScrollArea className="h-[400px] rounded-md border border-border p-4">
                     <div className="space-y-4">
                       {searchResults.map((track, index) => (
-                        <div key={index} className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors">
+                        <div 
+                          key={index} 
+                          className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
+                          onClick={() => playTrack(track)} // Play track on click
+                        >
                           {track.thumbnail && (
                             <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded-md object-cover" />
                           )}

@@ -8,6 +8,7 @@ import PlaylistQueue from "./PlaylistQueue";
 import NeonLogo from "./NeonLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
+import { useMusicPlayer } from "@/context/MusicPlayerContext"; // Import useMusicPlayer
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
@@ -16,8 +17,15 @@ interface ExpandablePlayerProps {
 
 const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   const navigate = useNavigate();
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [progress, setProgress] = useState(33);
+  const {
+    currentTrack,
+    isPlaying,
+    togglePlayPause,
+    playbackProgress,
+    currentTime,
+    duration,
+    playerRef, // We need playerRef to seek
+  } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home"); // State for internal navigation in expanded player
   const isMobile = useIsMobile();
 
@@ -37,7 +45,21 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     onClose(); // Close the expanded player after navigating
   };
 
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleSliderChange = (value: number[]) => {
+    if (playerRef.current && duration > 0) {
+      const newTime = (value[0] / 100) * duration;
+      playerRef.current.seekTo(newTime);
+    }
+  };
+
   if (!isOpen) return null;
+  if (!currentTrack) return null; // Don't render if no track is loaded
 
   return (
     <div className="fixed inset-0 z-50 bg-background animate-slide-up">
@@ -82,7 +104,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
                     <Menu className="w-4 h-4 lg:w-5 lg:h-5" />
                   </Button>
-                  <span className="text-xs lg:text-sm text-muted-foreground">Petweer...</span>
+                  <span className="text-xs lg:text-sm text-muted-foreground">{currentTrack.title} - {currentTrack.artist}</span>
                   <div className="flex items-center gap-1 lg:gap-2">
                     <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
                       <Search className="w-4 h-4 lg:w-5 lg:h-5" />
@@ -116,10 +138,14 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           ))}
                         </div>
                       </div>
-                      {/* H Logo */}
-                      <div className="relative z-10">
-                        <NeonLogo size="large" />
-                      </div>
+                      {/* Album Thumbnail or H Logo */}
+                      {currentTrack.thumbnail ? (
+                        <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
+                      ) : (
+                        <div className="relative z-10">
+                          <NeonLogo size="large" />
+                        </div>
+                      )}
                     </div>
 
                     {/* Left Visualizer */}
@@ -132,15 +158,15 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 {/* Progress Bar */}
                 <div className="px-6 lg:px-12 pb-4">
                   <Slider
-                    value={[progress]}
-                    onValueChange={(value) => setProgress(value[0])}
+                    value={[playbackProgress]}
+                    onValueChange={handleSliderChange}
                     max={100}
                     step={1}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs lg:text-sm text-muted-foreground mt-2">
-                    <span>00:43</span>
-                    <span>05:00</span>
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
                   </div>
                 </div>
 
@@ -162,7 +188,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     <Button
                       size="icon"
                       className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
-                      onClick={() => setIsPlaying(!isPlaying)}
+                      onClick={togglePlayPause}
                     >
                       {isPlaying ? <Pause className="w-5 h-5 lg:w-7 lg:h-7" /> : <Play className="w-5 h-5 lg:w-7 lg:h-7 ml-1" />}
                     </Button>
@@ -222,27 +248,30 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 {/* Replaced custom bars with Visualizer component */}
                 <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" />
               </div>
+              {currentTrack.thumbnail && (
+                <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
+              )}
             </div>
           </div>
 
           {/* Track Info */}
           <div className="text-center px-6 mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">Sertıam Sounte</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">Artisi Arnéct</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">{currentTrack.title}</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">{currentTrack.artist}</p>
           </div>
 
           {/* Progress Bar */}
           <div className="px-6 mb-4">
             <Slider
-              value={[progress]}
-              onValueChange={(value) => setProgress(value[0])}
+              value={[playbackProgress]}
+              onValueChange={handleSliderChange}
               max={100}
               step={1}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>00:43</span>
-              <span>05:00</span>
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
             </div>
           </div>
 
@@ -263,7 +292,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               <Button
                 size="icon"
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={togglePlayPause}
               >
                 {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 sm:h-8 ml-1" />}
               </Button>

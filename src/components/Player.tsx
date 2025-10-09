@@ -1,16 +1,42 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Maximize2, Music } from "lucide-react";
 import Visualizer from "./Visualizer";
 import ExpandablePlayer from "./ExpandablePlayer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMusicPlayer } from "@/context/MusicPlayerContext"; // Import useMusicPlayer
 
 const Player = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(33);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const {
+    currentTrack,
+    isPlaying,
+    togglePlayPause,
+    playbackProgress,
+    currentTime,
+    duration,
+    playerRef, // We need playerRef to seek
+  } = useMusicPlayer();
   const isMobile = useIsMobile();
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleSliderChange = (value: number[]) => {
+    if (playerRef.current && duration > 0) {
+      const newTime = (value[0] / 100) * duration;
+      playerRef.current.seekTo(newTime);
+    }
+  };
+
+  // State for ExpandablePlayer
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!currentTrack) {
+    return null; // Don't render the player if no track is loaded
+  }
 
   return (
     <>
@@ -18,15 +44,15 @@ const Player = () => {
         {/* Progress Bar */}
         <div className="px-4 pt-2 sm:px-8 sm:pt-4">
           <Slider
-            value={[progress]}
-            onValueChange={(value) => setProgress(value[0])}
+            value={[playbackProgress]}
+            onValueChange={handleSliderChange}
             max={100}
             step={1}
             className="w-full"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1 sm:mt-2">
-            <span>00:43</span>
-            <span>02:00</span>
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
           </div>
         </div>
 
@@ -34,11 +60,19 @@ const Player = () => {
         <div className="flex items-center justify-between px-4 py-3 sm:px-8 sm:py-6">
           {/* Left: Track Info & Visualizer */}
           <div className="flex-1 flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => setIsExpanded(true)}>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-              <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            {currentTrack.thumbnail ? (
+              <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+            )}
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm sm:text-base font-medium text-foreground truncate">{currentTrack.title}</span>
+              <span className="text-xs sm:text-sm text-muted-foreground truncate">{currentTrack.artist}</span>
             </div>
             {!isMobile && ( // Hide visualizer on very small screens in compact player
-              <div className="hidden md:block">
+              <div className="hidden md:block ml-4">
                 <Visualizer barCount={20} className="h-12 w-32 sm:h-16 sm:w-48" />
               </div>
             )}
@@ -57,7 +91,7 @@ const Player = () => {
             <Button
               size="icon"
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
-              onClick={() => setIsPlaying(!isPlaying)}
+              onClick={togglePlayPause}
             >
               {isPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-1" />}
             </Button>
