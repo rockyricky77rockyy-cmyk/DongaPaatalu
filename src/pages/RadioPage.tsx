@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } => 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Radio } from 'lucide-react';
 // import Player from '@/components/Player'; // Removed Player import
