@@ -277,7 +277,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
           </div>
 
           {/* Playlist Section */}
-          <div className="flex-1 bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden">
+          <div className="flex-1 min-h-0 bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden">
             <PlaylistQueue activeTrackId={2} isMobile />
           </div>
         </div>

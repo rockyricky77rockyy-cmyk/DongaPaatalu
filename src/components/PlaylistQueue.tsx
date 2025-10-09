@@ -31,7 +31,7 @@ interface PlaylistQueueProps {
 
 const PlaylistQueue = ({ activeTrackId = 3, isMobile = false }: PlaylistQueueProps) => {
   return (
-    <div className={`flex flex-col ${isMobile ? 'h-full' : 'h-full'} bg-card/50 backdrop-blur-sm`}>
+    <div className="flex flex-col bg-card/50 backdrop-blur-sm">
       {/* Header */}
       <div className="p-4 space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
