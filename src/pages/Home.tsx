@@ -6,6 +6,7 @@ import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
 import Player from "@/components/Player";
 import { useIsMobile } from "@/hooks/use-mobile";
+import MobileSidebar from "@/components/MobileSidebar";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -37,7 +38,15 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex">
-        {/* Left Sidebar */}
+        {/* Mobile Header with Sidebar Trigger */}
+        <header className="lg:hidden w-full p-4 flex items-center justify-between bg-card border-b border-border">
+          <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
+          <NeonLogo size="small" />
+          {/* Placeholder for right side if needed, or just space-between */}
+          <div className="w-10 h-10"></div> {/* To balance the space if no other icon is needed */}
+        </header>
+
+        {/* Left Sidebar (Desktop Only) */}
         <aside className="w-64 bg-card border-r border-border p-6 space-y-2 hidden lg:block">
           <div className="mb-8 flex justify-center">
             <NeonLogo size="small" />
