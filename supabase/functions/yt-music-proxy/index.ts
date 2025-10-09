@@ -45,7 +45,7 @@ serve(async (req) => {
 
       // Process ytmusic-api results to match expected format
       const tracks = searchResults.map((item: any) => ({
-        title: item.title,
+        title: item.title || 'Unknown Title', // Added fallback for title
         artist: item.artists && item.artists.length > 0 ? item.artists[0].name : 'Unknown Artist',
         album: item.album ? item.album.name : undefined,
         // Select the last thumbnail, which is typically the largest/highest quality
