@@ -32,7 +32,7 @@ serve(async (req) => {
       const ytMusic = new YouTubeMusic();
       console.log('[yt-music-proxy] YouTubeMusic API instantiated. Performing search...');
       
-      // Removed the problematic ytMusic.initialize() call
+      // The problematic ytMusic.initialize() call has been removed.
       const results = await ytMusic.search(query);
       console.log(`[yt-music-proxy] Search results obtained: ${JSON.stringify(results).substring(0, 200)}...`); // Log first 200 chars
 
