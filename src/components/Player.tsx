@@ -74,7 +74,7 @@ const Player = () => {
             </div>
             {!isMobile && currentTrack && ( // Hide visualizer on very small screens in compact player, and if no track
               <div className="hidden md:block ml-4">
-                <Visualizer barCount={20} className="h-12 w-32 sm:h-16 sm:w-48" />
+                <Visualizer barCount={20} className="h-12 w-32 sm:h-16 sm:w-48" isPlaying={isPlaying} />
               </div>
             )}
           </div>

@@ -150,7 +150,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
                     {/* Left Visualizer */}
                     <div className="absolute -left-16 md:-left-24 lg:-left-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
-                      <Visualizer barCount={20} direction="horizontal" className="h-full" />
+                      <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} />
                     </div>
                   </div>
                 </div>
@@ -174,7 +174,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <div className="p-4 lg:p-8 border-t border-border flex items-center">
                   {/* Left Visualizer */}
                   <div className="flex-1">
-                    <Visualizer barCount={25} className="h-16 w-48 lg:h-24 lg:w-64" />
+                    <Visualizer barCount={25} className="h-16 w-48 lg:h-24 lg:w-64" isPlaying={isPlaying} />
                   </div>
 
                   {/* Center Controls */}
@@ -246,7 +246,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
                 {/* Replaced custom bars with Visualizer component */}
-                <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" />
+                <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} />
               </div>
               {currentTrack.thumbnail && (
                 <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
@@ -277,7 +277,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
           {/* Visualizer */}
           <div className="px-6 mb-6">
-            <Visualizer barCount={40} className="h-16" />
+            <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} />
           </div>
 
           {/* Controls */}
