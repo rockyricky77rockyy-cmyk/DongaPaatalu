@@ -12,20 +12,29 @@ const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", i
   const animationFrameRef = useRef<number | null>(null);
 
   const generateBars = () => {
-    const newBars = Array.from({ length: barCount }, () => Math.random() * 100);
-    setBars(newBars);
+    if (isPlaying) {
+      // When playing, bars fluctuate more dynamically, e.g., between 20% and 100%
+      const newBars = Array.from({ length: barCount }, () => Math.random() * (100 - 20) + 20);
+      setBars(newBars);
+    } else {
+      // When not playing, bars are static and low
+      setBars(Array.from({ length: barCount }, () => 10));
+    }
   };
 
   useEffect(() => {
     if (isPlaying) {
       const animate = () => {
-        generateBars();
+        generateBars(); // Generate dynamic bars
         animationFrameRef.current = requestAnimationFrame(animate);
       };
       animationFrameRef.current = requestAnimationFrame(animate);
     } else {
-      // When not playing, set bars to a static, low height
-      setBars(Array.from({ length: barCount }, () => 10)); 
+      // When not playing, set static bars once and stop animation
+      generateBars();
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     }
 
     return () => {
@@ -33,7 +42,7 @@ const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", i
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [barCount, isPlaying]);
+  }, [barCount, isPlaying]); // isPlaying is a dependency
 
   return (
     <div className={`flex ${direction === "horizontal" ? "items-end gap-1" : "flex-col justify-center gap-1"} ${className}`}>

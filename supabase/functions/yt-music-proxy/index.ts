@@ -48,7 +48,8 @@ serve(async (req) => {
         title: item.title,
         artist: item.artists && item.artists.length > 0 ? item.artists[0].name : 'Unknown Artist',
         album: item.album ? item.album.name : undefined,
-        thumbnail: item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[0].url : undefined,
+        // Select the last thumbnail, which is typically the largest/highest quality
+        thumbnail: item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined,
         videoId: item.videoId,
       }));
 
