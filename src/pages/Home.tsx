@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play } from "lucide-react"; // Added Play icon
 import { Button } from "@/components/ui/button";
 import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
@@ -86,9 +86,7 @@ const Home = () => {
                       size={isMobile ? "md" : "lg"}
                       className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
                     >
-                      <svg className="w-8 h-8 sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
+                      <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" /> {/* Replaced SVG with Lucide Play icon */}
                     </Button>
                   </div>
                 </div>
@@ -102,7 +100,7 @@ const Home = () => {
             {/* Albums Section */}
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Pessonse</h2>
-              <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"> {/* Changed to flex flex-col on mobile */}
+              <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {albums.map((album, index) => (
                   <div
                     key={index}
