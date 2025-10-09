@@ -11,13 +11,13 @@ const Home = () => {
   const isMobile = useIsMobile();
 
   const navItems = [
-    { id: "home", label: "Bərajdor", icon: HomeIcon },
-    { id: "music", label: "MuzlÇon", icon: Music },
-    { id: "albums", label: "Mluzamvlön", icon: Disc3 },
-    { id: "artists", label: "Açrıstıst", icon: Headphones },
-    { id: "radio", label: "Bölrioct", icon: Radio },
-    { id: "genre", label: "Klenrıt", icon: Mic2 },
-    { id: "playlists", label: "Llziıist", icon: List },
+    { id: "home", label: "Home", icon: HomeIcon },
+    { id: "music", label: "Music", icon: Music },
+    { id: "albums", label: "Albums", icon: Disc3 },
+    { id: "artists", label: "Artists", icon: Headphones },
+    { id: "radio", label: "Radio", icon: Radio },
+    { id: "genre", label: "Genre", icon: Mic2 },
+    { id: "playlists", label: "Playlists", icon: List },
   ];
 
   const albums = [
