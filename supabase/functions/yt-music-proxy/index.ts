@@ -44,13 +44,22 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] Raw search results count: ${searchResults.length}`);
 
       // Process ytmusic-api results to match expected format
-      const tracks = searchResults.map((item: any) => ({
-        title: item.title,
-        artist: item.artists && item.artists.length > 0 ? item.artists[0].name : 'Unknown Artist',
-        album: item.album ? item.album.name : undefined,
-        thumbnail: item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[0].url : undefined,
-        videoId: item.videoId,
-      }));
+      const tracks = searchResults.map((item: any) => {
+        // Find the highest quality thumbnail by comparing width * height
+        const highestQualityThumbnail = item.thumbnails && item.thumbnails.length > 0
+          ? item.thumbnails.reduce((prev: any, current: any) => 
+              (prev.width * prev.height > current.width * current.height) ? prev : current
+            ).url
+          : undefined;
+
+        return {
+          title: item.title,
+          artist: item.artists && item.artists.length > 0 ? item.artists[0].name : 'Unknown Artist',
+          album: item.album ? item.album.name : undefined,
+          thumbnail: highestQualityThumbnail, // Use the highest quality thumbnail
+          videoId: item.videoId,
+        };
+      });
 
       console.log(`[yt-music-proxy] Processed search results: ${JSON.stringify(tracks).substring(0, 200)}...`);
 

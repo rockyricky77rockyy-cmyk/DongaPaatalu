@@ -42,6 +42,7 @@ const YouTubeEmbed = ({
       rel: 0, // Do not show related videos
       showinfo: 0, // Hide video title and uploader info
       iv_load_policy: 3, // Hide video annotations
+      vq: 'hd1080', // Request higher video quality (e.g., 'hd1080', 'hd720', 'large', 'medium', 'small')
     },
   };
 
