@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play } from "lucide-react"; // Added Play icon
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play, Search } from "lucide-react"; // Added Play and Search icon
 import { Button } from "@/components/ui/button";
 import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
 import Player from "@/components/Player";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSidebar from "@/components/MobileSidebar";
+import { Input } from "@/components/ui/input"; // Import Input component
 
 const Home = () => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const Home = () => {
         </header>
 
         {/* Left Sidebar (Desktop Only) */}
-        <aside className="w-64 bg-card border-r border-border p-6 space-y-2 hidden lg:block">
+        <aside className="w-64 bg-card border-r border-border p-6 space-y-2 hidden lg:block sticky top-0 h-screen overflow-y-auto">
           <div className="mb-8 flex justify-center">
             <NeonLogo size="small" />
           </div>
@@ -74,6 +75,15 @@ const Home = () => {
         {/* Main Content */}
         <main className="flex-1 overflow-auto pb-[120px]">
           <div className="p-4 sm:p-8 space-y-8">
+            {/* Search Bar */}
+            <div className="relative mb-6">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search music, artists, albums..."
+                className="pl-10 bg-input border-border rounded-lg h-10 text-sm"
+              />
+            </div>
+
             {/* Hero Section */}
             <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
               <div className="absolute inset-0 bg-gradient-glow opacity-50" />
@@ -86,7 +96,7 @@ const Home = () => {
                       size={isMobile ? "md" : "lg"}
                       className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
                     >
-                      <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" /> {/* Replaced SVG with Lucide Play icon */}
+                      <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" />
                     </Button>
                   </div>
                 </div>
