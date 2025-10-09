@@ -11,6 +11,8 @@ import { useYouTubeMusicSearch } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { useAlbums } from "@/hooks/use-albums"; // Import useAlbums hook
+import { useNewReleases } from "@/hooks/use-new-releases"; // Import useNewReleases hook
+import { useTracks } from "@/hooks/use-tracks"; // Import useTracks for Top Searches
 import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton for loading states
 
 const Home = () => {
@@ -21,7 +23,9 @@ const Home = () => {
   const { playTrack } = useMusicPlayer();
 
   const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
-  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useAlbums(); // Fetch albums
+  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useAlbums();
+  const { data: newReleases, isLoading: isNewReleasesLoading, isError: isNewReleasesError, error: newReleasesError } = useNewReleases();
+  const { data: allTracks, isLoading: isAllTracksLoading, isError: isAllTracksError, error: allTracksError } = useTracks(); // For Top Searches
 
   const navItems = [
     { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
@@ -109,7 +113,7 @@ const Home = () => {
               />
             </div>
 
-            {/* Conditional rendering for search results or hero/albums */}
+            {/* Conditional rendering for search results or hero/sections */}
             {searchTerm ? (
               <div className="mt-8">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
@@ -165,9 +169,89 @@ const Home = () => {
                   </div>
                 </div>
 
+                {/* Top Searches Section */}
+                <div className="mt-8">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
+                  {isAllTracksLoading && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                      ))}
+                    </div>
+                  )}
+                  {isAllTracksError && <p className="text-destructive">Error loading top searches: {allTracksError?.message}</p>}
+                  {allTracks && allTracks.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {allTracks.slice(0, 3).map((track) => ( // Display top 3 tracks as "Top Searches"
+                        <div 
+                          key={track.id} 
+                          className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
+                          onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+                        >
+                          {track.thumbnail ? (
+                            <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded-md object-cover" />
+                          ) : (
+                            <div className={`w-12 h-12 rounded-md bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center`}>
+                              <Music className="w-6 h-6 text-white opacity-70" />
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
+                            <p className="text-sm text-muted-foreground">{track.artist}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* New Releases Section */}
+                <div className="mt-8">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">New Releases</h2>
+                  {isNewReleasesLoading && (
+                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
+                          <Skeleton className="aspect-square rounded-xl mb-4" />
+                          <Skeleton className="h-6 w-3/4 mb-1" />
+                          <Skeleton className="h-4 w-1/2" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {isNewReleasesError && <p className="text-destructive">Error loading new releases: {newReleasesError?.message}</p>}
+                  {newReleases && newReleases.length > 0 && (
+                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                      {newReleases.map((track) => (
+                        <div
+                          key={track.id}
+                          className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
+                          onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+                        >
+                          {track.thumbnail ? (
+                            <img src={track.thumbnail} alt={track.title} className="aspect-square rounded-xl mb-4 object-cover" />
+                          ) : (
+                            <div className={`aspect-square rounded-xl bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} mb-4 flex items-center justify-center`}>
+                              <Music className="w-16 h-16 text-white opacity-50" />
+                            </div>
+                          )}
+                          <h3 className="font-semibold text-lg text-foreground mb-1">{track.title}</h3>
+                          <p className="text-sm text-muted-foreground">{track.artist}</p>
+                          <Button 
+                            size="icon" 
+                            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                          >
+                            <Play className="w-5 h-5 fill-current" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Albums Section */}
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Pessonse</h2>
+                <div className="mt-8">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
                   {isAlbumsLoading && (
                     <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                       {Array.from({ length: 4 }).map((_, i) => (
