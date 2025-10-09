@@ -16,6 +16,8 @@ const Player = () => {
     currentTime,
     duration,
     playerRef,
+    playNextTrack, // New: from context
+    playPreviousTrack, // New: from context
   } = useMusicPlayer();
   const isMobile = useIsMobile();
 
@@ -95,7 +97,7 @@ const Player = () => {
               variant="ghost" 
               size="icon" 
               className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" 
-              onClick={() => console.log("Skip Back clicked (future functionality)")}
+              onClick={playPreviousTrack} // Connected to context function
               disabled={!currentTrack}
             >
               <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -114,7 +116,7 @@ const Player = () => {
               variant="ghost" 
               size="icon" 
               className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" 
-              onClick={() => console.log("Skip Forward clicked (future functionality)")}
+              onClick={playNextTrack} // Connected to context function
               disabled={!currentTrack}
             >
               <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />

@@ -22,8 +22,10 @@ interface MusicPlayerContextType {
   currentTime: number; // in seconds
   setDuration: (duration: number) => void;
   setCurrentTime: (time: number) => void;
-  recentlySearched: Track[]; // New: List of recently searched tracks
-  addRecentlySearched: (track: Track) => void; // New: Function to add a track to recently searched
+  recentlySearched: Track[]; // List of recently searched tracks
+  addRecentlySearched: (track: Track) => void; // Function to add a track to recently searched
+  playNextTrack: () => void; // New: Play the next track in the recently searched list
+  playPreviousTrack: () => void; // New: Play the previous track in the recently searched list
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -31,20 +33,20 @@ const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(und
 const RECENTLY_SEARCHED_KEY = 'harmonix_recently_searched';
 const MAX_RECENTLY_SEARCHED = 5; // Limit the number of recent searches
 
-export const MusicPlayerProvider = ({ children }: { ReactNode }) => {
+export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackProgress, setPlaybackProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [recentlySearched, setRecentlySearched] = useState<Track[]>(() => {
-    // Initialize from localStorage
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(RECENTLY_SEARCHED_KEY);
       return stored ? JSON.parse(stored) : [];
     }
     return [];
   });
+  const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null); // New state for current track index
   const playerRef = useRef<any | null>(null);
 
   // Effect to save recently searched to localStorage whenever it changes
@@ -54,11 +56,19 @@ export const MusicPlayerProvider = ({ children }: { ReactNode }) => {
     }
   }, [recentlySearched]);
 
+  // Effect to update currentTrackIndex when currentTrack or recentlySearched changes
+  useEffect(() => {
+    if (currentTrack && recentlySearched.length > 0) {
+      const index = recentlySearched.findIndex(t => t.videoId === currentTrack.videoId);
+      setCurrentTrackIndex(index !== -1 ? index : null);
+    } else {
+      setCurrentTrackIndex(null);
+    }
+  }, [currentTrack, recentlySearched]);
+
   const addRecentlySearched = useCallback((track: Track) => {
     setRecentlySearched((prev) => {
-      // Remove if already exists to move it to the top
       const filtered = prev.filter((t) => t.videoId !== track.videoId);
-      // Add new track to the beginning and limit the array size
       return [track, ...filtered].slice(0, MAX_RECENTLY_SEARCHED);
     });
   }, []);
@@ -66,12 +76,40 @@ export const MusicPlayerProvider = ({ children }: { ReactNode }) => {
   const playTrack = useCallback((track: Track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
-    addRecentlySearched(track); // Add to recently searched when played
-    // If playerRef exists and is ready, load and play the video
+    addRecentlySearched(track); // This will trigger the useEffect above to update currentTrackIndex
+
     if (playerRef.current && playerRef.current.loadVideoById) {
       playerRef.current.loadVideoById(track.videoId);
     }
   }, [addRecentlySearched]);
+
+  const playNextTrack = useCallback(() => {
+    if (currentTrackIndex !== null && recentlySearched.length > 0) {
+      const nextIndex = (currentTrackIndex + 1) % recentlySearched.length;
+      const nextTrack = recentlySearched[nextIndex];
+      if (nextTrack) {
+        setCurrentTrack(nextTrack); // Directly set currentTrack
+        setIsPlaying(true);
+        if (playerRef.current && playerRef.current.loadVideoById) {
+          playerRef.current.loadVideoById(nextTrack.videoId);
+        }
+      }
+    }
+  }, [currentTrackIndex, recentlySearched, playerRef]);
+
+  const playPreviousTrack = useCallback(() => {
+    if (currentTrackIndex !== null && recentlySearched.length > 0) {
+      const prevIndex = (currentTrackIndex - 1 + recentlySearched.length) % recentlySearched.length;
+      const prevTrack = recentlySearched[prevIndex];
+      if (prevTrack) {
+        setCurrentTrack(prevTrack); // Directly set currentTrack
+        setIsPlaying(true);
+        if (playerRef.current && playerRef.current.loadVideoById) {
+          playerRef.current.loadVideoById(prevTrack.videoId);
+        }
+      }
+    }
+  }, [currentTrackIndex, recentlySearched, playerRef]);
 
   const pauseTrack = useCallback(() => {
     setIsPlaying(false);
@@ -109,8 +147,10 @@ export const MusicPlayerProvider = ({ children }: { ReactNode }) => {
     currentTime,
     setDuration,
     setCurrentTime,
-    recentlySearched, // New
-    addRecentlySearched, // New
+    recentlySearched,
+    addRecentlySearched,
+    playNextTrack,
+    playPreviousTrack,
   };
 
   return (

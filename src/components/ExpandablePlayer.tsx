@@ -25,6 +25,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     currentTime,
     duration,
     playerRef, // We need playerRef to seek
+    playNextTrack, // New: from context
+    playPreviousTrack, // New: from context
   } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home"); // State for internal navigation in expanded player
   const isMobile = useIsMobile();
@@ -179,7 +181,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                       variant="ghost" 
                       size="icon" 
                       className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
-                      onClick={() => console.log("Skip Back clicked (future functionality)")}
+                      onClick={playPreviousTrack} // Connected to context function
                     >
                       <SkipBack className="w-5 h-5 lg:w-7 lg:h-7" />
                     </Button>
@@ -194,7 +196,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                       variant="ghost" 
                       size="icon" 
                       className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
-                      onClick={() => console.log("Skip Forward clicked (future functionality)")}
+                      onClick={playNextTrack} // Connected to context function
                     >
                       <SkipForward className="w-5 h-5 lg:w-7 lg:h-7" />
                     </Button>
@@ -303,7 +305,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 variant="ghost" 
                 size="icon" 
                 className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
-                onClick={() => console.log("Skip Back clicked (future functionality)")}
+                onClick={playPreviousTrack} // Connected to context function
               >
                 <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
@@ -318,7 +320,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 variant="ghost" 
                 size="icon" 
                 className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
-                onClick={() => console.log("Skip Forward clicked (future functionality)")}
+                onClick={playNextTrack} // Connected to context function
               >
                 <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
