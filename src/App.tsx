@@ -23,8 +23,8 @@ const AppContent = () => {
   const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress } = useMusicPlayer();
 
   const handlePlayerReady = (event: any) => {
-    // You can perform actions when the player is ready, e.g., set initial volume
-    event.target.setVolume(50); // Set default volume to 50%
+    // Set default volume to 100% for a louder experience
+    event.target.setVolume(100); 
   };
 
   const handlePlayerStateChange = (event: any) => {
