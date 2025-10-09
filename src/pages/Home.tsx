@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play, Search } from "lucide-react"; // Added Play and Search icon
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeonLogo from "@/components/NeonLogo";
 import Visualizer from "@/components/Visualizer";
 import Player from "@/components/Player";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSidebar from "@/components/MobileSidebar";
-import { Input } from "@/components/ui/input"; // Import Input component
+import { Input } from "@/components/ui/input";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -39,12 +39,18 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Mobile Header with Sidebar Trigger */}
-        <header className="lg:hidden w-full p-4 flex items-center justify-between bg-card border-b border-border">
+        {/* Mobile Header with Sidebar Trigger and Search Bar */}
+        <header className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border">
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
           <NeonLogo size="small" />
-          {/* Placeholder for right side if needed, or just space-between */}
-          <div className="w-10 h-10"></div> {/* To balance the space if no other icon is needed */}
+          {/* Mobile Search Bar */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search..."
+              className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
+            />
+          </div>
         </header>
 
         {/* Left Sidebar (Desktop Only) */}
@@ -75,8 +81,8 @@ const Home = () => {
         {/* Main Content */}
         <main className="flex-1 overflow-auto pb-[120px]">
           <div className="p-4 sm:p-8 space-y-8">
-            {/* Search Bar */}
-            <div className="relative mb-6">
+            {/* Search Bar (Desktop Only) */}
+            <div className="relative mb-6 hidden lg:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search music, artists, albums..."
