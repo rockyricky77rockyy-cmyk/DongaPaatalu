@@ -1,25 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface VisualizerProps {
   barCount?: number;
   direction?: "horizontal" | "vertical";
   className?: string;
+  isPlaying?: boolean; // New prop to control animation
 }
 
-const Visualizer = ({ barCount = 40, direction = "horizontal", className = "" }: VisualizerProps) => {
+const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", isPlaying = false }: VisualizerProps) => {
   const [bars, setBars] = useState<number[]>([]);
+  const animationFrameRef = useRef<number | null>(null);
+
+  const generateBars = () => {
+    const newBars = Array.from({ length: barCount }, () => Math.random() * 100);
+    setBars(newBars);
+  };
 
   useEffect(() => {
-    const generateBars = () => {
-      const newBars = Array.from({ length: barCount }, () => Math.random() * 100);
-      setBars(newBars);
+    if (isPlaying) {
+      const animate = () => {
+        generateBars();
+        animationFrameRef.current = requestAnimationFrame(animate);
+      };
+      animationFrameRef.current = requestAnimationFrame(animate);
+    } else {
+      // When not playing, set bars to a static, low height
+      setBars(Array.from({ length: barCount }, () => 10)); 
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-
-    generateBars();
-    const interval = setInterval(generateBars, 200);
-
-    return () => clearInterval(interval);
-  }, [barCount]);
+  }, [barCount, isPlaying]);
 
   return (
     <div className={`flex ${direction === "horizontal" ? "items-end gap-1" : "flex-col justify-center gap-1"} ${className}`}>
