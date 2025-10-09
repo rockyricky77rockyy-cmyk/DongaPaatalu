@@ -43,19 +43,6 @@ const Home = () => {
     navigate(item.path);
   };
 
-  // Placeholder for playing an album's first track (or a representative track)
-  const handlePlayAlbum = (albumTitle: string, artistName: string) => {
-    // In a real app, you'd fetch tracks for this album and play the first one.
-    // For now, we'll simulate playing a generic track.
-    playTrack({
-      videoId: 'dQw4w9WgXcQ', // Example video ID
-      title: `Playing ${albumTitle}`,
-      artist: artistName,
-      thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
-      album: albumTitle,
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex flex-col lg:flex-row">
@@ -300,7 +287,7 @@ const Home = () => {
                         <div
                           key={album.id}
                           className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-                          onClick={() => handlePlayAlbum(album.title, album.artist_name)}
+                          onClick={() => navigate('/albums')} // Navigate to albums page
                         >
                           <TrackThumbnail 
                             thumbnail={undefined} // Albums don't have thumbnails in the current schema, so force fallback
