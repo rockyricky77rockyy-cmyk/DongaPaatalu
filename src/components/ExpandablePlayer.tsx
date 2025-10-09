@@ -126,18 +126,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   <div className="relative">
                     {/* Album Art with Neon H */}
                     <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
-                      {/* Animated bars in background */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                        <div className="grid grid-cols-8 gap-1 md:gap-2 h-3/4 w-3/4">
-                          {Array.from({ length: 64 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="bg-white/50 rounded-full animate-visualizer"
-                              style={{ animationDelay: `${i * 0.05}s` }}
-                            />
-                          ))}
-                        </div>
-                      </div>
                       {/* Album Thumbnail or H Logo */}
                       {currentTrack.thumbnail ? (
                         <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
@@ -245,7 +233,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-8 border-white/30 animate-pulse-glow" />
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
-                {/* Replaced custom bars with Visualizer component */}
+                {/* This Visualizer is already correctly placed and receives isPlaying */}
                 <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} />
               </div>
               {currentTrack.thumbnail && (

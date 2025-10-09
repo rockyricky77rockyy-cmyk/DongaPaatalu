@@ -13,12 +13,15 @@ const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", i
 
   const generateBars = () => {
     if (isPlaying) {
-      // When playing, bars fluctuate more dynamically, e.g., between 20% and 100%
-      const newBars = Array.from({ length: barCount }, () => Math.random() * (100 - 20) + 20);
+      // More dynamic and varied bar heights when playing
+      const newBars = Array.from({ length: barCount }, () => {
+        // Generate a random height between 30% and 80% for a more active look
+        return Math.random() * (80 - 30) + 30; 
+      });
       setBars(newBars);
     } else {
       // When not playing, bars are static and low
-      setBars(Array.from({ length: barCount }, () => 10));
+      setBars(Array.from({ length: barCount }, () => 10)); // Static 10% height
     }
   };
 
@@ -34,6 +37,7 @@ const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", i
       generateBars();
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null; // Clear the ref
       }
     }
 
