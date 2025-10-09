@@ -21,7 +21,8 @@ export const useYouTubeMusicSearch = (query: string) => {
       });
 
       if (error) {
-        throw new Error(error.message);
+        console.error("Supabase Edge Function Error:", error); // Log the full error object
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
       }
 
       // The Edge Function returns an object with 'tracks', 'albums', 'artists', etc.
