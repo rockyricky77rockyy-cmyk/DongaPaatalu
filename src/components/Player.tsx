@@ -6,6 +6,7 @@ import Visualizer from "./Visualizer";
 import ExpandablePlayer from "./ExpandablePlayer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
+import { cn } from "@/lib/utils"; // Import cn for conditional classnames
 
 const Player = () => {
   const {
@@ -16,8 +17,12 @@ const Player = () => {
     currentTime,
     duration,
     playerRef,
-    playNextTrack, // New: from context
-    playPreviousTrack, // New: from context
+    playNextTrack,
+    playPreviousTrack,
+    isShuffling, // New
+    toggleShuffle, // New
+    repeatMode, // New
+    toggleRepeatMode, // New
   } = useMusicPlayer();
   const isMobile = useIsMobile();
 
@@ -86,8 +91,11 @@ const Player = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" 
-              onClick={() => console.log("Shuffle clicked (future functionality)")}
+              className={cn(
+                "w-8 h-8 sm:w-10 sm:h-10",
+                isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+              )}
+              onClick={toggleShuffle} // Connected to context function
               disabled={!currentTrack}
             >
               <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -125,11 +133,15 @@ const Player = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" 
-              onClick={() => console.log("Repeat clicked (future functionality)")}
+              className={cn(
+                "w-8 h-8 sm:w-10 sm:h-10",
+                repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+              )}
+              onClick={toggleRepeatMode} // Connected to context function
               disabled={!currentTrack}
             >
               <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
+              {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
             </Button>
           </div>
 

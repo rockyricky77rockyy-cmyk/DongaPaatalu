@@ -9,6 +9,7 @@ import NeonLogo from "./NeonLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { useMusicPlayer } from "@/context/MusicPlayerContext"; // Import useMusicPlayer
+import { cn } from "@/lib/utils"; // Import cn for conditional classnames
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
@@ -25,8 +26,12 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     currentTime,
     duration,
     playerRef, // We need playerRef to seek
-    playNextTrack, // New: from context
-    playPreviousTrack, // New: from context
+    playNextTrack,
+    playPreviousTrack,
+    isShuffling, // New
+    toggleShuffle, // New
+    repeatMode, // New
+    toggleRepeatMode, // New
   } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home"); // State for internal navigation in expanded player
   const isMobile = useIsMobile();
@@ -172,8 +177,11 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="text-muted-foreground hover:text-foreground w-8 h-8 lg:w-10 lg:h-10"
-                      onClick={() => console.log("Shuffle clicked (future functionality)")}
+                      className={cn(
+                        "w-8 h-8 lg:w-10 lg:h-10",
+                        isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                      )}
+                      onClick={toggleShuffle} // Connected to context function
                     >
                       <Shuffle className="w-4 h-4 lg:w-5 lg:h-5" />
                     </Button>
@@ -203,10 +211,14 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="text-muted-foreground hover:text-foreground w-8 h-8 lg:w-10 lg:h-10"
-                      onClick={() => console.log("Repeat clicked (future functionality)")}
+                      className={cn(
+                        "w-8 h-8 lg:w-10 lg:h-10 relative",
+                        repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                      )}
+                      onClick={toggleRepeatMode} // Connected to context function
                     >
                       <Repeat className="w-4 h-4 lg:w-5 lg:h-5" />
+                      {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
                     </Button>
                   </div>
 
@@ -296,8 +308,11 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-muted-foreground w-9 h-9 sm:w-10 sm:h-10"
-                onClick={() => console.log("Shuffle clicked (future functionality)")}
+                className={cn(
+                  "text-muted-foreground w-9 h-9 sm:w-10 sm:h-10",
+                  isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                )}
+                onClick={toggleShuffle} // Connected to context function
               >
                 <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
@@ -327,10 +342,14 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-muted-foreground w-9 h-9 sm:w-10 sm:h-10"
-                onClick={() => console.log("Repeat clicked (future functionality)")}
+                className={cn(
+                  "text-muted-foreground w-9 h-9 sm:w-10 sm:h-10 relative",
+                  repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                )}
+                onClick={toggleRepeatMode} // Connected to context function
               >
                 <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
+                {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
               </Button>
             </div>
           </div>

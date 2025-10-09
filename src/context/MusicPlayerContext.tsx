@@ -8,6 +8,8 @@ interface Track {
   album?: string;
 }
 
+type RepeatMode = 'none' | 'track' | 'all';
+
 interface MusicPlayerContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
@@ -24,8 +26,12 @@ interface MusicPlayerContextType {
   setCurrentTime: (time: number) => void;
   recentlySearched: Track[]; // List of recently searched tracks
   addRecentlySearched: (track: Track) => void; // Function to add a track to recently searched
-  playNextTrack: () => void; // New: Play the next track in the recently searched list
-  playPreviousTrack: () => void; // New: Play the previous track in the recently searched list
+  playNextTrack: () => void; // Play the next track in the recently searched list
+  playPreviousTrack: () => void; // Play the previous track in the recently searched list
+  isShuffling: boolean; // New: State for shuffle mode
+  toggleShuffle: () => void; // New: Function to toggle shuffle mode
+  repeatMode: RepeatMode; // New: State for repeat mode
+  toggleRepeatMode: () => void; // New: Function to toggle repeat mode
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -46,7 +52,9 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
     return [];
   });
-  const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null); // New state for current track index
+  const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null);
+  const [isShuffling, setIsShuffling] = useState(false); // New state
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none'); // New state
   const playerRef = useRef<any | null>(null);
 
   // Effect to save recently searched to localStorage whenever it changes
@@ -76,7 +84,7 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
   const playTrack = useCallback((track: Track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
-    addRecentlySearched(track); // This will trigger the useEffect above to update currentTrackIndex
+    addRecentlySearched(track);
 
     if (playerRef.current && playerRef.current.loadVideoById) {
       playerRef.current.loadVideoById(track.videoId);
@@ -84,32 +92,70 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
   }, [addRecentlySearched]);
 
   const playNextTrack = useCallback(() => {
-    if (currentTrackIndex !== null && recentlySearched.length > 0) {
-      const nextIndex = (currentTrackIndex + 1) % recentlySearched.length;
+    if (!currentTrack || recentlySearched.length === 0) return;
+
+    if (repeatMode === 'track') {
+      playerRef.current?.seekTo(0);
+      playerRef.current?.playVideo();
+      return;
+    }
+
+    let nextIndex = currentTrackIndex;
+
+    if (isShuffling) {
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * recentlySearched.length);
+      } while (randomIndex === currentTrackIndex && recentlySearched.length > 1); // Ensure different track if more than one
+      nextIndex = randomIndex;
+    } else if (currentTrackIndex !== null) {
+      nextIndex = (currentTrackIndex + 1) % recentlySearched.length;
+    }
+
+    if (nextIndex !== null) {
       const nextTrack = recentlySearched[nextIndex];
       if (nextTrack) {
-        setCurrentTrack(nextTrack); // Directly set currentTrack
+        setCurrentTrack(nextTrack);
         setIsPlaying(true);
-        if (playerRef.current && playerRef.current.loadVideoById) {
-          playerRef.current.loadVideoById(nextTrack.videoId);
-        }
+        playerRef.current?.loadVideoById(nextTrack.videoId);
+      } else if (repeatMode === 'none') {
+        setIsPlaying(false); // Stop if no next track and not repeating
       }
     }
-  }, [currentTrackIndex, recentlySearched, playerRef]);
+  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef]);
 
   const playPreviousTrack = useCallback(() => {
-    if (currentTrackIndex !== null && recentlySearched.length > 0) {
-      const prevIndex = (currentTrackIndex - 1 + recentlySearched.length) % recentlySearched.length;
+    if (!currentTrack || recentlySearched.length === 0) return;
+
+    if (repeatMode === 'track') {
+      playerRef.current?.seekTo(0);
+      playerRef.current?.playVideo();
+      return;
+    }
+
+    let prevIndex = currentTrackIndex;
+
+    if (isShuffling) {
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * recentlySearched.length);
+      } while (randomIndex === currentTrackIndex && recentlySearched.length > 1);
+      prevIndex = randomIndex;
+    } else if (currentTrackIndex !== null) {
+      prevIndex = (currentTrackIndex - 1 + recentlySearched.length) % recentlySearched.length;
+    }
+
+    if (prevIndex !== null) {
       const prevTrack = recentlySearched[prevIndex];
       if (prevTrack) {
-        setCurrentTrack(prevTrack); // Directly set currentTrack
+        setCurrentTrack(prevTrack);
         setIsPlaying(true);
-        if (playerRef.current && playerRef.current.loadVideoById) {
-          playerRef.current.loadVideoById(prevTrack.videoId);
-        }
+        playerRef.current?.loadVideoById(prevTrack.videoId);
+      } else if (repeatMode === 'none') {
+        setIsPlaying(false);
       }
     }
-  }, [currentTrackIndex, recentlySearched, playerRef]);
+  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef]);
 
   const pauseTrack = useCallback(() => {
     setIsPlaying(false);
@@ -133,6 +179,31 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isPlaying, pauseTrack, resumeTrack]);
 
+  const toggleShuffle = useCallback(() => {
+    setIsShuffling((prev) => !prev);
+  }, []);
+
+  const toggleRepeatMode = useCallback(() => {
+    setRepeatMode((prev) => {
+      if (prev === 'none') return 'all';
+      if (prev === 'all') return 'track';
+      return 'none';
+    });
+  }, []);
+
+  // Handle track ending
+  const handleTrackEnd = useCallback(() => {
+    if (repeatMode === 'track') {
+      playerRef.current?.seekTo(0);
+      playerRef.current?.playVideo();
+    } else {
+      playNextTrack();
+    }
+  }, [repeatMode, playNextTrack, playerRef]);
+
+  // Attach handleTrackEnd to YouTubeEmbed's onEnd prop
+  // This will be done in App.tsx where YouTubeEmbed is rendered.
+
   const value = {
     currentTrack,
     isPlaying,
@@ -151,6 +222,10 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     addRecentlySearched,
     playNextTrack,
     playPreviousTrack,
+    isShuffling, // New
+    toggleShuffle, // New
+    repeatMode, // New
+    toggleRepeatMode, // New
   };
 
   return (

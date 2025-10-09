@@ -14,13 +14,13 @@ import NotFound from "./pages/NotFound";
 import Player from "./components/Player";
 import { MusicPlayerProvider, useMusicPlayer } from "./context/MusicPlayerContext"; // Import MusicPlayerProvider and useMusicPlayer
 import YouTubeEmbed from "./components/YouTubeEmbed"; // Import YouTubeEmbed
-import React from "react"; // Import React for functional component
+import React, { useCallback } from "react"; // Import useCallback
 
 const queryClient = new QueryClient();
 
 // Create a wrapper component to use the MusicPlayerContext
 const AppContent = () => {
-  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress } = useMusicPlayer();
+  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress, playNextTrack, repeatMode, playerRef } = useMusicPlayer();
 
   const handlePlayerReady = (event: any) => {
     // Set default volume to 100% for a louder experience
@@ -32,9 +32,15 @@ const AppContent = () => {
     if (event.data === window.YT.PlayerState.PLAYING) {
       setDuration(event.target.getDuration());
     } else if (event.data === window.YT.PlayerState.ENDED) {
-      setPlaybackProgress(0);
-      setCurrentTime(0);
-      // Optionally, handle playing the next track here
+      // If a track ends, handle repeat or play next
+      if (repeatMode === 'track') {
+        playerRef.current?.seekTo(0);
+        playerRef.current?.playVideo();
+      } else {
+        setPlaybackProgress(0);
+        setCurrentTime(0);
+        playNextTrack(); // Automatically play the next track
+      }
     }
   };
 
