@@ -1,10 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Music, Play } from 'lucide-react';
+import { ChevronLeft, Play } from 'lucide-react';
 import { useTracks } from '@/hooks/use-tracks';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import TrackThumbnail from '@/components/TrackThumbnail'; // Import the new component
 
 const MusicPage = () => {
   const navigate = useNavigate();
@@ -57,13 +58,13 @@ const MusicPage = () => {
               className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border relative overflow-hidden hover:border-primary/50 hover:shadow-neon transition-all"
               onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
             >
-              {track.thumbnail ? (
-                <img src={track.thumbnail} alt={track.title} className="w-full h-32 object-cover rounded-md mb-4" />
-              ) : (
-                <div className={`w-full h-32 rounded-md mb-4 bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center`}>
-                  <Music className="w-12 h-12 text-white opacity-70" />
-                </div>
-              )}
+              <TrackThumbnail 
+                thumbnail={track.thumbnail} 
+                title={track.title} 
+                color={track.color} 
+                className="w-full h-32 rounded-md mb-4" 
+                iconClassName="w-12 h-12 text-white opacity-70"
+              />
               <h2 className="text-xl font-semibold text-foreground mb-2">{track.title}</h2>
               <p className="text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
               <Button 

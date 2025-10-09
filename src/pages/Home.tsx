@@ -14,6 +14,7 @@ import { useAlbums } from "@/hooks/use-albums"; // Import useAlbums hook
 import { useNewReleases } from "@/hooks/use-new-releases"; // Import useNewReleases hook
 import { useTracks } from "@/hooks/use-tracks"; // Import useTracks for Top Searches
 import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton for loading states
+import TrackThumbnail from "@/components/TrackThumbnail"; // Import the new component
 
 const Home = () => {
   const navigate = useNavigate();
@@ -128,10 +129,12 @@ const Home = () => {
                           className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
                           onClick={() => playTrack(track)}
                         >
-                          {track.thumbnail && (
-                            <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded-md object-cover" />
-                          )}
-                          {!track.thumbnail && <Music className="w-6 h-6 text-primary" />}
+                          <TrackThumbnail 
+                            thumbnail={track.thumbnail} 
+                            title={track.title} 
+                            className="w-12 h-12 rounded-md" 
+                            iconClassName="w-6 h-6 text-primary"
+                          />
                           <div>
                             <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
                             <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
@@ -188,13 +191,13 @@ const Home = () => {
                           className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
                           onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
                         >
-                          {track.thumbnail ? (
-                            <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded-md object-cover" />
-                          ) : (
-                            <div className={`w-12 h-12 rounded-md bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center`}>
-                              <Music className="w-6 h-6 text-white opacity-70" />
-                            </div>
-                          )}
+                          <TrackThumbnail 
+                            thumbnail={track.thumbnail} 
+                            title={track.title} 
+                            color={track.color} 
+                            className="w-12 h-12 rounded-md" 
+                            iconClassName="w-6 h-6 text-white opacity-70"
+                          />
                           <div>
                             <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
                             <p className="text-sm text-muted-foreground">{track.artist}</p>
@@ -228,13 +231,13 @@ const Home = () => {
                           className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
                           onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
                         >
-                          {track.thumbnail ? (
-                            <img src={track.thumbnail} alt={track.title} className="aspect-square rounded-xl mb-4 object-cover" />
-                          ) : (
-                            <div className={`aspect-square rounded-xl bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} mb-4 flex items-center justify-center`}>
-                              <Music className="w-16 h-16 text-white opacity-50" />
-                            </div>
-                          )}
+                          <TrackThumbnail 
+                            thumbnail={track.thumbnail} 
+                            title={track.title} 
+                            color={track.color} 
+                            className="aspect-square rounded-xl mb-4" 
+                            iconClassName="w-16 h-16 text-white opacity-50"
+                          />
                           <h3 className="font-semibold text-lg text-foreground mb-1">{track.title}</h3>
                           <p className="text-sm text-muted-foreground">{track.artist}</p>
                           <Button 
@@ -272,9 +275,13 @@ const Home = () => {
                           className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
                           onClick={() => handlePlayAlbum(album.title, album.artist_name)}
                         >
-                          <div className={`aspect-square rounded-xl bg-gradient-to-br ${album.cover_color} mb-4 flex items-center justify-center`}>
-                            <Disc3 className="w-16 h-16 text-white opacity-50" />
-                          </div>
+                          <TrackThumbnail 
+                            thumbnail={undefined} // Albums don't have thumbnails in the current schema, so force fallback
+                            title={album.title} 
+                            color={album.cover_color} 
+                            className="aspect-square rounded-xl mb-4" 
+                            iconClassName="w-16 h-16 text-white opacity-50"
+                          />
                           <h3 className="font-semibold text-lg text-foreground mb-1">{album.title}</h3>
                           <p className="text-sm text-muted-foreground">{album.artist_name}</p>
                           <Button 
