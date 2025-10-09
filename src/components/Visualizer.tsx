@@ -5,11 +5,13 @@ interface VisualizerProps {
   direction?: "horizontal" | "vertical";
   className?: string;
   isPlaying?: boolean; // New prop to control animation
+  animationIntervalMs?: number; // New prop to control animation speed (in milliseconds)
 }
 
-const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", isPlaying = false }: VisualizerProps) => {
+const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", isPlaying = false, animationIntervalMs = 100 }: VisualizerProps) => {
   const [bars, setBars] = useState<number[]>([]);
   const animationFrameRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
 
   const generateBars = () => {
     if (isPlaying) {
@@ -27,8 +29,11 @@ const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", i
 
   useEffect(() => {
     if (isPlaying) {
-      const animate = () => {
-        generateBars(); // Generate dynamic bars
+      const animate = (currentTime: DOMHighResTimeStamp) => {
+        if (currentTime - lastUpdateTimeRef.current > animationIntervalMs) {
+          generateBars(); // Generate dynamic bars
+          lastUpdateTimeRef.current = currentTime;
+        }
         animationFrameRef.current = requestAnimationFrame(animate);
       };
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -46,7 +51,7 @@ const Visualizer = ({ barCount = 40, direction = "horizontal", className = "", i
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [barCount, isPlaying]); // isPlaying is a dependency
+  }, [barCount, isPlaying, animationIntervalMs]); // Add animationIntervalMs to dependencies
 
   return (
     <div className={`flex ${direction === "horizontal" ? "items-end gap-1" : "flex-col justify-center gap-1"} ${className}`}>

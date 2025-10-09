@@ -165,7 +165,7 @@ const Home = () => {
                   </div>
 
                   <div className="relative z-10 mt-4 sm:mt-8">
-                    <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" isPlaying={isPlaying} /> {/* Pass isPlaying */}
+                    <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Pass animationIntervalMs */}
                   </div>
                 </div>
 
