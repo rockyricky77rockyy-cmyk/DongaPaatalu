@@ -21,7 +21,7 @@ const Home = () => {
   const [activeNav, setActiveNav] = useState("home");
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
-  const { playTrack, isPlaying } = useMusicPlayer(); // Destructure isPlaying
+  const { playTrack, isPlaying, recentlySearched } = useMusicPlayer(); // Destructure isPlaying and recentlySearched
 
   const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
   const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useAlbums();
@@ -171,6 +171,33 @@ const Home = () => {
                     <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Pass animationIntervalMs */}
                   </div>
                 </div>
+
+                {/* Recently Searched Section */}
+                {recentlySearched.length > 0 && (
+                  <div className="mt-8">
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Recently Searched</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {recentlySearched.map((track, index) => (
+                        <div 
+                          key={index} 
+                          className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
+                          onClick={() => playTrack(track)}
+                        >
+                          <TrackThumbnail 
+                            thumbnail={track.thumbnail} 
+                            title={track.title} 
+                            className="w-12 h-12 rounded-md" 
+                            iconClassName="w-6 h-6 text-primary"
+                          />
+                          <div>
+                            <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
+                            <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Top Searches Section */}
                 <div className="mt-8">

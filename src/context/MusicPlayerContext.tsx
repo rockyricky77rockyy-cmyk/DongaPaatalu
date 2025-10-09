@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from 'react';
 
 interface Track {
   videoId: string;
@@ -22,26 +22,56 @@ interface MusicPlayerContextType {
   currentTime: number; // in seconds
   setDuration: (duration: number) => void;
   setCurrentTime: (time: number) => void;
+  recentlySearched: Track[]; // New: List of recently searched tracks
+  addRecentlySearched: (track: Track) => void; // New: Function to add a track to recently searched
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
 
-export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
+const RECENTLY_SEARCHED_KEY = 'harmonix_recently_searched';
+const MAX_RECENTLY_SEARCHED = 5; // Limit the number of recent searches
+
+export const MusicPlayerProvider = ({ children }: { ReactNode }) => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackProgress, setPlaybackProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const playerRef = React.useRef<any | null>(null);
+  const [recentlySearched, setRecentlySearched] = useState<Track[]>(() => {
+    // Initialize from localStorage
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(RECENTLY_SEARCHED_KEY);
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+  const playerRef = useRef<any | null>(null);
+
+  // Effect to save recently searched to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(RECENTLY_SEARCHED_KEY, JSON.stringify(recentlySearched));
+    }
+  }, [recentlySearched]);
+
+  const addRecentlySearched = useCallback((track: Track) => {
+    setRecentlySearched((prev) => {
+      // Remove if already exists to move it to the top
+      const filtered = prev.filter((t) => t.videoId !== track.videoId);
+      // Add new track to the beginning and limit the array size
+      return [track, ...filtered].slice(0, MAX_RECENTLY_SEARCHED);
+    });
+  }, []);
 
   const playTrack = useCallback((track: Track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
+    addRecentlySearched(track); // Add to recently searched when played
     // If playerRef exists and is ready, load and play the video
     if (playerRef.current && playerRef.current.loadVideoById) {
       playerRef.current.loadVideoById(track.videoId);
     }
-  }, []);
+  }, [addRecentlySearched]);
 
   const pauseTrack = useCallback(() => {
     setIsPlaying(false);
@@ -79,6 +109,8 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     currentTime,
     setDuration,
     setCurrentTime,
+    recentlySearched, // New
+    addRecentlySearched, // New
   };
 
   return (

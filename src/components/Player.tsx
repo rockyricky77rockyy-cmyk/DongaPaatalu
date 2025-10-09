@@ -81,11 +81,23 @@ const Player = () => {
 
           {/* Center: Playback Controls */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" disabled={!currentTrack}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" 
+              onClick={() => console.log("Shuffle clicked (future functionality)")}
+              disabled={!currentTrack}
+            >
               <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" disabled={!currentTrack}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" 
+              onClick={() => console.log("Skip Back clicked (future functionality)")}
+              disabled={!currentTrack}
+            >
               <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             
@@ -98,11 +110,23 @@ const Player = () => {
               {isPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-1" />}
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" disabled={!currentTrack}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-foreground hover:text-primary w-10 h-10 sm:w-12 sm:h-12" 
+              onClick={() => console.log("Skip Forward clicked (future functionality)")}
+              disabled={!currentTrack}
+            >
               <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" disabled={!currentTrack}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-10 sm:h-10" 
+              onClick={() => console.log("Repeat clicked (future functionality)")}
+              disabled={!currentTrack}
+            >
               <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>

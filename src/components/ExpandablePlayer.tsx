@@ -167,10 +167,20 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
                   {/* Center Controls */}
                   <div className="flex items-center gap-4 lg:gap-6">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 lg:w-10 lg:h-10">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-muted-foreground hover:text-foreground w-8 h-8 lg:w-10 lg:h-10"
+                      onClick={() => console.log("Shuffle clicked (future functionality)")}
+                    >
                       <Shuffle className="w-4 h-4 lg:w-5 lg:h-5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
+                      onClick={() => console.log("Skip Back clicked (future functionality)")}
+                    >
                       <SkipBack className="w-5 h-5 lg:w-7 lg:h-7" />
                     </Button>
                     <Button
@@ -180,10 +190,20 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     >
                       {isPlaying ? <Pause className="w-5 h-5 lg:w-7 lg:h-7" /> : <Play className="w-5 h-5 lg:w-7 lg:h-7 ml-1" />}
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
+                      onClick={() => console.log("Skip Forward clicked (future functionality)")}
+                    >
                       <SkipForward className="w-5 h-5 lg:w-7 lg:h-7" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground w-8 h-8 lg:w-10 lg:h-10">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-muted-foreground hover:text-foreground w-8 h-8 lg:w-10 lg:h-10"
+                      onClick={() => console.log("Repeat clicked (future functionality)")}
+                    >
                       <Repeat className="w-4 h-4 lg:w-5 lg:h-5" />
                     </Button>
                   </div>
@@ -205,7 +225,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
               {/* Right Sidebar - Playlist */}
               <aside className="w-72 lg:w-96 border-l border-border">
-                <PlaylistQueue activeTrackId={3} />
+                <PlaylistQueue activeTrackId={currentTrack?.id} />
               </aside>
             </div>
           </div>
@@ -271,10 +291,20 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
           {/* Controls */}
           <div className="px-6 mb-6">
             <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6">
-              <Button variant="ghost" size="icon" className="text-muted-foreground w-9 h-9 sm:w-10 sm:h-10">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground w-9 h-9 sm:w-10 sm:h-10"
+                onClick={() => console.log("Shuffle clicked (future functionality)")}
+              >
                 <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
+                onClick={() => console.log("Skip Back clicked (future functionality)")}
+              >
                 <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
               <Button
@@ -284,10 +314,20 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               >
                 {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 sm:h-8 ml-1" />}
               </Button>
-              <Button variant="ghost" size="icon" className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
+                onClick={() => console.log("Skip Forward clicked (future functionality)")}
+              >
                 <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-muted-foreground w-9 h-9 sm:w-10 sm:h-10">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground w-9 h-9 sm:w-10 sm:h-10"
+                onClick={() => console.log("Repeat clicked (future functionality)")}
+              >
                 <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </div>
@@ -295,7 +335,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
           {/* Playlist Section */}
           <div className="flex-1 min-h-0 bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden">
-            <PlaylistQueue activeTrackId={2} isMobile />
+            <PlaylistQueue activeTrackId={currentTrack?.id} isMobile />
           </div>
         </div>
       )}
