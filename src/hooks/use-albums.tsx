@@ -6,7 +6,7 @@ export interface Album {
   title: string;
   artist_name: string;
   cover_color: string;
-  language?: string; -- Added language field
+  language?: string; // Added language field
   created_at: string;
   updated_at: string;
 }
