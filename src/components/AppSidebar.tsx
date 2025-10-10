@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
 
 const AppSidebar = ({ activeNav, onNavigate, className }: AppSidebarProps) => {
   return (
-    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 sticky top-0 h-screen overflow-y-auto ${className}`}>
+    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 sticky top-0 h-full overflow-y-auto ${className}`}>
       <div className="mb-8 flex justify-center">
         <NeonLogo size="small" />
       </div>
