@@ -1,18 +1,13 @@
 import React from 'react';
-// Removed unused Play icon import
-// Removed unused Button component import
-import NeonLogo from '@/components/NeonLogo';
 import Visualizer from '@/components/Visualizer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-// Removed unused useNewReleases hook import
 import { cn } from '@/lib/utils';
 import TrackThumbnail from '../TrackThumbnail';
 
 const HomeHeroSection = () => {
   const isMobile = useIsMobile();
-  const { isPlaying, playTrack, currentTrack, togglePlayPause } = useMusicPlayer();
-  // Removed unused newReleases data fetch
+  const { isPlaying, currentTrack, togglePlayPause } = useMusicPlayer();
 
   return (
     <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-4 sm:p-8 overflow-hidden border border-primary/20 shadow-card">
@@ -41,7 +36,9 @@ const HomeHeroSection = () => {
                 iconClassName="w-12 h-12 text-white"
               />
             ) : (
-              <NeonLogo size={isMobile ? "small" : "medium"} />
+              <div className="text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+                DP
+              </div>
             )}
           </div>
 
