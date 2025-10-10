@@ -65,7 +65,7 @@ const Player = () => {
           {/* Left: Track Info & Visualizer */}
           <div className="flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => currentTrack && setIsExpanded(true)}>
             {currentTrack?.thumbnail ? (
-              <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0" /> {/* Reduced size */}
+              <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0" /> /* Reduced size */
             ) : (
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0"> {/* Reduced size */}
                 <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" /> {/* Reduced icon size */}
