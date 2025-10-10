@@ -5,14 +5,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
 import { useAlbums } from '@/hooks/use-albums';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const HomeAlbumsSection = () => {
+interface HomeAlbumsSectionProps {
+  className?: string;
+}
+
+const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
   const navigate = useNavigate();
   const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useAlbums();
 
   if (isAlbumsLoading) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -29,7 +34,7 @@ const HomeAlbumsSection = () => {
 
   if (isAlbumsError) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
         <p className="text-destructive">Error loading albums: {albumsError?.message}</p>
       </div>
@@ -41,7 +46,7 @@ const HomeAlbumsSection = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {albums.map((album) => (

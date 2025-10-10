@@ -1,8 +1,13 @@
 import React from 'react';
 import TrackThumbnail from '@/components/TrackThumbnail';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
+import { cn } from '@/lib/utils';
 
-const HomeRecentlySearched = () => {
+interface HomeRecentlySearchedProps {
+  className?: string;
+}
+
+const HomeRecentlySearched = ({ className }: HomeRecentlySearchedProps) => {
   const { recentlySearched, playTrack } = useMusicPlayer();
 
   if (recentlySearched.length === 0) {
@@ -10,13 +15,13 @@ const HomeRecentlySearched = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Recently Searched</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:space-x-0 md:pb-0">
         {recentlySearched.map((track, index) => (
           <div 
             key={index} 
-            className="flex items-center gap-3 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="flex items-center gap-3 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack(track)}
           >
             <TrackThumbnail 

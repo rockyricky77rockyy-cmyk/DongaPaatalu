@@ -5,14 +5,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
 import { useNewReleases } from '@/hooks/use-new-releases';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
+import { cn } from '@/lib/utils';
 
-const HomeNewReleases = () => {
+interface HomeNewReleasesProps {
+  className?: string;
+}
+
+const HomeNewReleases = ({ className }: HomeNewReleasesProps) => {
   const { data: newReleases, isLoading: isNewReleasesLoading, isError: isNewReleasesError, error: newReleasesError } = useNewReleases();
   const { playTrack } = useMusicPlayer();
 
   if (isNewReleasesLoading) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">New Releases</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -29,7 +34,7 @@ const HomeNewReleases = () => {
 
   if (isNewReleasesError) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">New Releases</h2>
         <p className="text-destructive">Error loading new releases: {newReleasesError?.message}</p>
       </div>
@@ -41,7 +46,7 @@ const HomeNewReleases = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">New Releases</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {newReleases.map((track) => (

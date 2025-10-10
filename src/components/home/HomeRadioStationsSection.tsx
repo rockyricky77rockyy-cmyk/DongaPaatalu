@@ -4,14 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRadioStations } from '@/hooks/use-radio-stations';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const HomeRadioStationsSection = () => {
+interface HomeRadioStationsSectionProps {
+  className?: string;
+}
+
+const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) => {
   const navigate = useNavigate();
   const { data: radioStations, isLoading, isError, error } = useRadioStations();
 
   if (isLoading) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -30,7 +35,7 @@ const HomeRadioStationsSection = () => {
 
   if (isError) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <p className="text-destructive">Error loading radio stations: {error?.message}</p>
       </div>
@@ -42,7 +47,7 @@ const HomeRadioStationsSection = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {radioStations.slice(0, 4).map((station) => (
@@ -51,7 +56,7 @@ const HomeRadioStationsSection = () => {
             className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/radio')}
           >
-            <Radio className={`w-6 h-6 ${station.icon_color}`} />
+            <Radio className={`w-5 h-5 ${station.icon_color}`} />
             <div className="flex-1 min-w-0">
               <h3 className="text-base font-semibold text-foreground truncate">{station.name}</h3>
               <p className="text-xs text-muted-foreground truncate">{station.genre}</p>

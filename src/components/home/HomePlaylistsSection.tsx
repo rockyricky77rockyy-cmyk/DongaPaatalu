@@ -4,14 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePlaylists } from '@/hooks/use-playlists';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const HomePlaylistsSection = () => {
+interface HomePlaylistsSectionProps {
+  className?: string;
+}
+
+const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
   const navigate = useNavigate();
   const { data: playlists, isLoading, isError, error } = usePlaylists();
 
   if (isLoading) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -30,7 +35,7 @@ const HomePlaylistsSection = () => {
 
   if (isError) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
         <p className="text-destructive">Error loading playlists: {error?.message}</p>
       </div>
@@ -42,7 +47,7 @@ const HomePlaylistsSection = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {playlists.slice(0, 4).map((playlist) => (

@@ -5,18 +5,23 @@ import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
 import { useNewReleases } from '@/hooks/use-new-releases';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
+import { cn } from '@/lib/utils';
 
-const HomeTopSearches = () => {
+interface HomeTopSearchesProps {
+  className?: string;
+}
+
+const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
   const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useNewReleases();
   const { playTrack } = useMusicPlayer();
 
   if (isTopTracksLoading) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:space-x-0 md:pb-0">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-[200px] flex-shrink-0 rounded-lg" />
+            <Skeleton key={i} className="h-16 w-[220px] flex-shrink-0 rounded-lg" />
           ))}
         </div>
       </div>
@@ -25,7 +30,7 @@ const HomeTopSearches = () => {
 
   if (isTopTracksError) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
         <p className="text-destructive">Error loading top searches: {topTracksError?.message}</p>
       </div>
@@ -37,13 +42,13 @@ const HomeTopSearches = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md::grid-cols-2 lg:grid-cols-3 md:space-x-0 md:pb-0">
         {topTracks.slice(0, 3).map((track) => (
           <div 
             key={track.id} 
-            className="flex items-center gap-3 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="flex items-center gap-3 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
           >
             <TrackThumbnail 

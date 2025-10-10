@@ -4,14 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGenres } from '@/hooks/use-genres';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const HomeGenresSection = () => {
+interface HomeGenresSectionProps {
+  className?: string;
+}
+
+const HomeGenresSection = ({ className }: HomeGenresSectionProps) => {
   const navigate = useNavigate();
   const { data: genres, isLoading, isError, error } = useGenres();
 
   if (isLoading) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Genres</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -24,7 +29,7 @@ const HomeGenresSection = () => {
 
   if (isError) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Genres</h2>
         <p className="text-destructive">Error loading genres: {error?.message}</p>
       </div>
@@ -36,13 +41,13 @@ const HomeGenresSection = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Genres</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {genres.slice(0, 4).map((genre) => (
           <div
             key={genre.id}
-            className={`group cursor-pointer ${genre.color} rounded-xl p-4 text-center shadow-card border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink`}
+            className={`group cursor-pointer ${genre.color} rounded-xl p-3 text-center shadow-card border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink`}
             onClick={() => navigate('/genre')}
           >
             <Mic2 className="w-8 h-8 text-white opacity-70 mx-auto mb-2" />

@@ -4,19 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useArtists } from '@/hooks/use-artists';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const HomeArtistsSection = () => {
+interface HomeArtistsSectionProps {
+  className?: string;
+}
+
+const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
   const navigate = useNavigate();
   const { data: artists, isLoading, isError, error } = useArtists();
 
   if (isLoading) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="group cursor-pointer bg-card rounded-2xl p-3 text-center w-[140px] flex-shrink-0 md:w-auto md:flex-shrink">
-              <Skeleton className="w-16 h-16 rounded-full mx-auto mb-3" />
+              <Skeleton className="w-14 h-14 rounded-full mx-auto mb-3" />
               <Skeleton className="h-4 w-3/4 mb-1 mx-auto" />
               <Skeleton className="h-3 w-1/2 mx-auto" />
             </div>
@@ -28,7 +33,7 @@ const HomeArtistsSection = () => {
 
   if (isError) {
     return (
-      <div className="mt-8">
+      <div className={cn("mt-8", className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
         <p className="text-destructive">Error loading artists: {error?.message}</p>
       </div>
@@ -40,7 +45,7 @@ const HomeArtistsSection = () => {
   }
 
   return (
-    <div className="mt-8">
+    <div className={cn("mt-8", className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {artists.slice(0, 4).map((artist) => (
@@ -49,7 +54,7 @@ const HomeArtistsSection = () => {
             className="group cursor-pointer bg-card rounded-2xl p-3 text-center hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/artists')}
           >
-            <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-br ${artist.avatar_color} mb-3 flex items-center justify-center`}>
+            <div className={`w-14 h-14 mx-auto rounded-full bg-gradient-to-br ${artist.avatar_color} mb-3 flex items-center justify-center`}>
               <Headphones className="w-8 h-8 text-white opacity-50" />
             </div>
             <h3 className="font-semibold text-sm text-foreground mb-1 truncate">{artist.name}</h3>
