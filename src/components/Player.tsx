@@ -66,7 +66,8 @@ const Player = () => {
           {/* Left: Track Info & Visualizer */}
           <div className="flex items-center gap-2 sm:gap-4 cursor-pointer flex-1" onClick={() => currentTrack && setIsExpanded(true)}>
             <div className={cn(
-              "relative w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center overflow-hidden border border-primary/50 shadow-neon"
+              "relative w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center overflow-hidden border border-primary/50 shadow-neon",
+              isPlaying && "animate-spin-slow" // Apply spin animation when playing
             )}>
               <TrackThumbnail
                 thumbnail={currentTrack?.thumbnail}

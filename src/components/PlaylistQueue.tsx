@@ -25,7 +25,7 @@ interface PlaylistQueueProps {
 }
 
 const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [], isOpen = true, onToggle, currentTrack }: PlaylistQueueProps) => {
-  const { playTrack, isPlaying } = useMusicPlayer(); // Destructure isPlaying
+  const { playTrack } = useMusicPlayer();
   const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
   // For mobile, we still show recently searched. For desktop, we show related tracks.
@@ -149,16 +149,12 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [],
                   onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
                 >
                   {/* Album Art */}
-                  <div className={cn(
-                    "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center overflow-hidden border border-primary/50 shadow-neon flex-shrink-0",
-                    track.videoId === activeVideoId && isPlaying && "animate-spin-slow" // Apply spin animation conditionally
-                  )}>
-                    <TrackThumbnail 
-                      thumbnail={track.thumbnail} 
-                      title={track.title} 
-                      className="w-full h-full object-cover rounded-full" // Ensure thumbnail itself is round
-                      iconClassName="w-5 h-5 sm:w-6 sm:h-6 text-white/70" 
-                    />
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
+                    {track.thumbnail ? (
+                      <img src={track.thumbnail} alt={track.title} className="w-full h-full object-cover rounded-md sm:rounded-lg" />
+                    ) : (
+                      <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" />
+                    )}
                   </div>
 
                   {/* Track Info */}
