@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search } from "lucide-react"; // Added missing imports
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import MobileSidebar from "@/components/MobileSidebar";
 import NeonLogo from "@/components/NeonLogo";
@@ -14,20 +14,20 @@ import HomeArtistsSection from "@/components/home/HomeArtistsSection";
 import HomeGenresSection from "@/components/home/HomeGenresSection";
 import HomePlaylistsSection from "@/components/home/HomePlaylistsSection";
 import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection";
-import AppSidebar from "@/components/AppSidebar"; // Import the new AppSidebar
-import { Button } from "@/components/ui/button"; // Button is used in AppSidebar, but not directly in Home.tsx, so it can be removed if not used elsewhere. Keeping for now.
-import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music"; // Import the new hook
-import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea for suggestions
+import AppSidebar from "@/components/AppSidebar";
+import { Button } from "@/components/ui/button";
+import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const [searchTerm, setSearchTerm] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false); // State to control suggestion visibility
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
-  const navItems = [ // Define navItems here for MobileSidebar
+  const navItems = [
     { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
     { id: "music", label: "Music", icon: Music, path: "/music" },
     { id: "albums", label: "Albums", icon: Disc3, path: "/albums" },
@@ -44,12 +44,12 @@ const Home = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setShowSuggestions(e.target.value.length > 0); // Show suggestions if there's a search term
+    setShowSuggestions(e.target.value.length > 0);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
-    setShowSuggestions(false); // Hide suggestions after clicking one
+    setShowSuggestions(false);
   };
 
   return (
@@ -68,10 +68,10 @@ const Home = () => {
               value={searchTerm}
               onChange={handleSearchChange}
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Delay hiding to allow click
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
             {showSuggestions && suggestions && suggestions.length > 0 && (
-              <ScrollArea className="absolute z-20 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <ScrollArea className="absolute z-50 w-full top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 {suggestions.map((suggestion, index) => (
                   <div
                     key={index}
@@ -101,10 +101,10 @@ const Home = () => {
                 value={searchTerm}
                 onChange={handleSearchChange}
                 onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Delay hiding to allow click
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
               />
               {showSuggestions && suggestions && suggestions.length > 0 && (
-                <ScrollArea className="absolute z-20 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <ScrollArea className="absolute z-50 w-full top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {suggestions.map((suggestion, index) => (
                     <div
                       key={index}
