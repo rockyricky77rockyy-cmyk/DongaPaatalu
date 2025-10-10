@@ -16,7 +16,7 @@ const HomeHeroSection = () => {
     if (newReleases && newReleases.length > 0) {
       const firstNewRelease = newReleases[0];
       playTrack({
-        videoId: firstNewRelease.video_id || '',
+        videoId: firstNewRelease.videoId || '', // Corrected from video_id to videoId
         title: firstNewRelease.title,
         artist: firstNewRelease.artist,
         thumbnail: firstNewRelease.thumbnail,
