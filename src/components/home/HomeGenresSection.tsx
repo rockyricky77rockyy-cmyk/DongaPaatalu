@@ -3,7 +3,7 @@ import { Mic2, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGenres } from '@/hooks/use-genres';
-import { useNavigate } => 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 interface HomeGenresSectionProps {
