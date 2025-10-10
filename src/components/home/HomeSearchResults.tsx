@@ -99,7 +99,6 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                     className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
                     onClick={(e) => { // Explicitly navigate to album details
                       e.stopPropagation(); 
-                      console.log(`Button click: Navigating to album details for: ${album.title} (ID: ${album.albumId})`);
                       navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
                     }}
                   >
