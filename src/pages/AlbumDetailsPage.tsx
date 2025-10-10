@@ -11,7 +11,7 @@ const AlbumDetailsPage = () => {
   const navigate = useNavigate();
   const { albumId } = useParams<{ albumId: string }>();
   const location = useLocation();
-  const { albumTitle, albumArtist } = (location.state || {}) as { albumTitle?: string; albumArtist?: string };
+  const { albumTitle: initialAlbumTitle, albumArtist: initialAlbumArtist, albumThumbnail: initialAlbumThumbnail } = (location.state || {}) as { albumTitle?: string; albumArtist?: string; albumThumbnail?: string };
 
   // Add a client-side check for invalid albumId from URL params
   if (!albumId || albumId === 'undefined') {
@@ -31,10 +31,14 @@ const AlbumDetailsPage = () => {
 
   console.log("AlbumDetailsPage loaded.");
   console.log("Received albumId from URL params:", albumId);
-  console.log("Received state from location:", { albumTitle, albumArtist });
+  console.log("Received state from location:", { initialAlbumTitle, initialAlbumArtist, initialAlbumThumbnail });
 
   const { data, isLoading, isError, error } = useYouTubeAlbumTracks(albumId); // albumId is now guaranteed to be a valid string here
   const { playTrack, addRecentlySearched } = useMusicPlayer();
+
+  const albumTitle = data?.albumTitle || initialAlbumTitle || 'Unknown Album';
+  const albumArtist = data?.albumArtist || initialAlbumArtist || 'Unknown Artist';
+  const albumCover = data?.albumThumbnail || initialAlbumThumbnail || data?.tracks[0]?.thumbnail; // Prioritize explicit albumThumbnail
 
   const handlePlayAll = () => {
     if (data && data.tracks.length > 0) {
@@ -102,8 +106,6 @@ const AlbumDetailsPage = () => {
     );
   }
 
-  const albumCover = data?.tracks[0]?.thumbnail; // Use first track's thumbnail as album cover
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 p-4 sm:p-8">
@@ -114,13 +116,13 @@ const AlbumDetailsPage = () => {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8">
           <TrackThumbnail
             thumbnail={albumCover}
-            title={albumTitle || data?.albumTitle || 'Unknown Album'}
+            title={albumTitle}
             className="w-32 h-32 sm:w-48 sm:h-48 rounded-xl shadow-neon-strong flex-shrink-0"
             iconClassName="w-16 h-16 text-white opacity-50"
           />
           <div className="text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">{albumTitle || data?.albumTitle || 'Unknown Album'}</h1>
-            <p className="text-lg sm:text-xl text-muted-foreground">{albumArtist || data?.albumArtist || 'Unknown Artist'}</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">{albumTitle}</h1>
+            <p className="text-lg sm:text-xl text-muted-foreground">{albumArtist}</p>
             {data && data.tracks.length > 0 && (
               <Button
                 className="mt-4 bg-primary text-primary-foreground hover:bg-accent shadow-neon"

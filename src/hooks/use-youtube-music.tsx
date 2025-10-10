@@ -67,7 +67,7 @@ export const useYouTubeMusicSearch = (query: string) => {
 };
 
 export const useYouTubeAlbumTracks = (albumId: string | null) => {
-  return useQuery<{ tracks: YouTubeMusicTrack[], albumTitle: string, albumArtist: string }, Error>({
+  return useQuery<{ tracks: YouTubeMusicTrack[], albumTitle: string, albumArtist: string, albumThumbnail?: string }, Error>({
     queryKey: ["youtubeAlbumTracks", albumId],
     queryFn: async () => {
       if (!albumId) throw new Error("Album ID is required to fetch tracks.");
@@ -86,9 +86,10 @@ export const useYouTubeAlbumTracks = (albumId: string | null) => {
           tracks: data.tracks as YouTubeMusicTrack[],
           albumTitle: data.albumTitle,
           albumArtist: data.albumArtist,
+          albumThumbnail: data.albumThumbnail, // Include albumThumbnail
         };
       }
-      return { tracks: [], albumTitle: '', albumArtist: '' };
+      return { tracks: [], albumTitle: '', albumArtist: '', albumThumbnail: undefined };
     },
     enabled: !!albumId,
   });

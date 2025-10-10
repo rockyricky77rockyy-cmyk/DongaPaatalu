@@ -157,6 +157,7 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] Raw albumTracks count for ${albumId}: ${albumTracks.length}`);
       console.log(`[yt-music-proxy] First 3 raw albumTracks for ${albumId}:`, JSON.stringify(albumTracks.slice(0, 3), null, 2));
 
+      const albumThumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
 
       const formattedTracks = albumTracks.map((item: any) => {
         const videoId = item.videoId;
@@ -176,7 +177,7 @@ serve(async (req) => {
           }
         }
         const album = albumInfo.title; // Use the album title from getAlbum response
-        const thumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : albumThumbnail; // Use track thumbnail or album thumbnail
         const duration = item.duration; // Duration might be available
 
         return {
@@ -191,7 +192,12 @@ serve(async (req) => {
       }).filter(Boolean); // Filter out null entries
       console.log(`[yt-music-proxy] Formatted album tracks count for ${albumId}: ${formattedTracks.length}`);
 
-      return new Response(JSON.stringify({ tracks: formattedTracks, albumTitle: albumInfo.title, albumArtist: albumInfo.artist }), {
+      return new Response(JSON.stringify({ 
+        tracks: formattedTracks, 
+        albumTitle: albumInfo.title, 
+        albumArtist: albumInfo.artist,
+        albumThumbnail: albumThumbnail, // Explicitly return album thumbnail
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
@@ -427,6 +433,8 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] Raw playlistTracks count for ${playlistId}: ${playlistTracks.length}`);
       console.log(`[yt-music-proxy] First 3 raw playlistTracks for ${playlistId}:`, JSON.stringify(playlistTracks.slice(0, 3), null, 2));
 
+      const playlistThumbnail = playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined;
+
 
       const formattedTracks = playlistTracks.map((item: any) => {
         const videoId = item.videoId;
@@ -446,7 +454,7 @@ serve(async (req) => {
           }
         }
         const album = item.album ? item.album.name : undefined;
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : playlistThumbnail; // Use track thumbnail or playlist thumbnail
         const duration = item.duration;
 
         return {
@@ -463,7 +471,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         tracks: formattedTracks,
         playlistName: playlistInfo.title,
-        playlistThumbnail: playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined,
+        playlistThumbnail: playlistThumbnail, // Explicitly return playlist thumbnail
         trackCount: playlistInfo.itemCount || 0,
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
