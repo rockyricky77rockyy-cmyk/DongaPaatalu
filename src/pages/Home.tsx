@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search } from "lucide-react"; // Added missing imports
 import { Input } from "@/components/ui/input";
 import MobileSidebar from "@/components/MobileSidebar";
 import NeonLogo from "@/components/NeonLogo";
@@ -15,6 +15,7 @@ import HomeGenresSection from "@/components/home/HomeGenresSection";
 import HomePlaylistsSection from "@/components/home/HomePlaylistsSection";
 import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection";
 import AppSidebar from "@/components/AppSidebar"; // Import the new AppSidebar
+import { Button } from "@/components/ui/button"; // Button is used in AppSidebar, but not directly in Home.tsx, so it can be removed if not used elsewhere. Keeping for now.
 
 const Home = () => {
   const navigate = useNavigate();
