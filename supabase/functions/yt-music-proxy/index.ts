@@ -187,7 +187,8 @@ serve(async (req) => {
         const searchRes = await ytmusic.search(query, 'albums');
         albumResults = searchRes;
       } else {
-        const newReleases = await ytmusic.getNewReleases();
+        // Corrected: Use search for 'new releases' instead of getNewReleases
+        const newReleases = await ytmusic.search('new releases', 'albums');
         // Filter for items that are clearly albums
         albumResults = newReleases.filter((item: any) => item.type === 'Album');
       }
