@@ -402,7 +402,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 step={1}
                 className="w-full"
               />
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
+              <div className="flex justify-between text-sm text-muted-foreground mt-2"> {/* Changed text-xs to text-sm */}
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
