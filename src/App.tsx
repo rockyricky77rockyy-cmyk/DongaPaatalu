@@ -21,7 +21,7 @@ const queryClient = new QueryClient();
 
 // Create a wrapper component to use the MusicPlayerContext
 const AppContent = () => {
-  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress, playNextTrack, repeatMode, playerRef, setIsPlaying } = useMusicPlayer();
+  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress, playNextTrack, repeatMode, playerRef, setIsPlaying, setCurrentTrack } = useMusicPlayer(); // Added setCurrentTrack
 
   const handlePlayerReady = (event: any) => {
     // Set default volume to 100% for a louder experience
@@ -51,7 +51,8 @@ const AppContent = () => {
       } else {
         setPlaybackProgress(0);
         setCurrentTime(0);
-        playNextTrack(); // Automatically play the next track
+        // Let MusicPlayerContext handle playing the next track or stopping playback
+        playNextTrack(); 
       }
     }
   };

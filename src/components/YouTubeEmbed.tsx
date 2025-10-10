@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils'; // Import cn for conditional classnames
@@ -28,8 +28,27 @@ const YouTubeEmbed = ({
   onPlaybackQualityChange,
   className,
 }: YouTubeEmbedProps) => {
-  const { playerRef, setDuration, setCurrentTime, setPlaybackProgress } = useMusicPlayer();
+  const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
+  const [internalVideoId, setInternalVideoId] = useState<string | undefined>(undefined); // Use undefined initially
+
+  // This effect manages the videoId passed to the YouTube component
+  useEffect(() => {
+    if (videoId) {
+      setInternalVideoId(videoId);
+    } else {
+      // If videoId becomes null, stop the player and clear the internal videoId
+      if (playerRef.current) {
+        playerRef.current.stopVideo();
+        setPlaybackProgress(0);
+        setCurrentTime(0);
+        setDuration(0);
+        setIsPlaying(false);
+      }
+      setInternalVideoId(undefined); // Clear the videoId in the player
+    }
+  }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration, setIsPlaying]);
+
 
   const opts: YouTubeProps['opts'] = {
     height: '1', // Set to 1px to ensure API functions, but visually hidden
@@ -50,6 +69,10 @@ const YouTubeEmbed = ({
   const handleReady = (event: any) => {
     playerRef.current = event.target;
     onReady?.(event);
+    // If a videoId was set before ready, ensure it starts playing
+    if (internalVideoId && playerRef.current.getPlayerState() !== window.YT.PlayerState.PLAYING) {
+      playerRef.current.playVideo();
+    }
   };
 
   const handlePlay = (event: any) => {
@@ -76,6 +99,7 @@ const YouTubeEmbed = ({
     // You can add more specific error handling here, e.g., show a toast notification
     // or try to play the next track.
     onError?.(event); // Call the prop if provided
+    setIsPlaying(false); // Stop playing on error
   };
 
   const startProgressInterval = (player: any) => {
@@ -83,11 +107,13 @@ const YouTubeEmbed = ({
       clearInterval(intervalRef.current);
     }
     intervalRef.current = setInterval(() => {
-      const current = player.getCurrentTime();
-      const total = player.getDuration();
-      setCurrentTime(current);
-      if (total > 0) {
-        setPlaybackProgress((current / total) * 100);
+      if (player && typeof player.getCurrentTime === 'function' && typeof player.getDuration === 'function') {
+        const current = player.getCurrentTime();
+        const total = player.getDuration();
+        setCurrentTime(current);
+        if (total > 0) {
+          setPlaybackProgress((current / total) * 100);
+        }
       }
     }, 1000) as unknown as number; // Cast to number for clearInterval
   };
@@ -100,29 +126,18 @@ const YouTubeEmbed = ({
   };
 
   useEffect(() => {
-    // When videoId changes, if there's a player instance and a new videoId, load it.
-    // If videoId becomes null, the component will unmount, handling cleanup.
-    if (playerRef.current && videoId) {
-      playerRef.current.loadVideoById(videoId);
-    }
-  }, [videoId, playerRef]);
-
-  useEffect(() => {
     return () => {
-      // Cleanup function: clear interval and playerRef when component unmounts
+      // Cleanup function: clear interval when component unmounts
       stopProgressInterval();
-      playerRef.current = null; // Explicitly clear the ref
+      // Do NOT clear playerRef.current here, as it's managed by the context
     };
   }, []); // Empty dependency array ensures this runs once on mount and once on unmount
 
-  if (!videoId) {
-    return null; // Don't render the player if no videoId is provided
-  }
-
+  // Always render the YouTube component, but pass internalVideoId
   return (
     <div className={cn("hidden", className)}> {/* Use 'hidden' class to hide it visually */}
       <YouTube
-        videoId={videoId}
+        videoId={internalVideoId} // Use internalVideoId
         opts={opts}
         onReady={handleReady}
         onPlay={handlePlay}
