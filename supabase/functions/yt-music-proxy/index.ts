@@ -176,7 +176,7 @@ serve(async (req) => {
       });
     }
 
-    // New endpoint for fetching albums (new releases or search)
+    // Endpoint for fetching albums (new releases or search)
     if (pathname.endsWith('/albums')) {
       const requestBody = await req.json();
       const query = requestBody.query;
@@ -217,6 +217,58 @@ serve(async (req) => {
       });
 
       return new Response(JSON.stringify({ albums: formattedAlbums }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    // NEW: Endpoint for fetching artists (simulated browse via search)
+    if (pathname.endsWith('/artists')) {
+      console.log(`[yt-music-proxy] Fetching popular artists.`);
+      const artistResults = await ytmusic.search('popular artists', 'artists');
+
+      const formattedArtists = artistResults.map((item: any) => {
+        const name = item.title || item.name || 'Unknown Artist';
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const artistId = item.artistId; // YouTube Music specific artist ID
+
+        return {
+          type: 'artist',
+          name,
+          thumbnail,
+          artistId,
+          // Genre is not directly available from this search, can be added if needed from another source
+          genre: 'Various', 
+        };
+      });
+
+      return new Response(JSON.stringify({ artists: formattedArtists }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    // NEW: Endpoint for fetching playlists (simulated browse via search)
+    if (pathname.endsWith('/playlists')) {
+      console.log(`[yt-music-proxy] Fetching trending playlists.`);
+      const playlistResults = await ytmusic.search('trending playlists', 'playlists');
+
+      const formattedPlaylists = playlistResults.map((item: any) => {
+        const name = item.title || item.name || 'Unknown Playlist';
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const playlistId = item.playlistId; // YouTube Music specific playlist ID
+        const trackCount = item.itemCount || 0; // Number of tracks in playlist
+
+        return {
+          type: 'playlist',
+          name,
+          thumbnail,
+          playlistId,
+          trackCount,
+        };
+      });
+
+      return new Response(JSON.stringify({ playlists: formattedPlaylists }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });

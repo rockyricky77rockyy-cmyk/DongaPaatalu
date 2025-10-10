@@ -21,8 +21,26 @@ export interface YouTubeMusicAlbum {
   albumId: string; // YouTube Music specific album ID
 }
 
+// Define the expected structure of a YouTube Music artist
+export interface YouTubeMusicArtist {
+  type: 'artist';
+  name: string;
+  thumbnail?: string;
+  artistId: string; // YouTube Music specific artist ID
+  genre?: string; // Added genre, though it might be generic from search
+}
+
+// Define the expected structure of a YouTube Music playlist
+export interface YouTubeMusicPlaylist {
+  type: 'playlist';
+  name: string;
+  thumbnail?: string;
+  playlistId: string; // YouTube Music specific playlist ID
+  trackCount?: number;
+}
+
 // Union type for search results
-export type YouTubeSearchResult = YouTubeMusicTrack | YouTubeMusicAlbum;
+export type YouTubeSearchResult = YouTubeMusicTrack | YouTubeMusicAlbum | YouTubeMusicArtist | YouTubeMusicPlaylist;
 
 export const useYouTubeMusicSearch = (query: string) => {
   return useQuery<YouTubeSearchResult[], Error>({
@@ -117,6 +135,46 @@ export const useYouTubeMusicAlbums = (query?: string | null) => {
 
       if (data && data.albums) {
         return data.albums as YouTubeMusicAlbum[];
+      }
+      return [];
+    },
+    enabled: true,
+  });
+};
+
+export const useYouTubeMusicArtists = () => {
+  return useQuery<YouTubeMusicArtist[], Error>({
+    queryKey: ["youtubeMusicArtists"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/artists');
+
+      if (error) {
+        console.error("Supabase Edge Function Error (artists):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.artists) {
+        return data.artists as YouTubeMusicArtist[];
+      }
+      return [];
+    },
+    enabled: true,
+  });
+};
+
+export const useYouTubeMusicPlaylists = () => {
+  return useQuery<YouTubeMusicPlaylist[], Error>({
+    queryKey: ["youtubeMusicPlaylists"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/playlists');
+
+      if (error) {
+        console.error("Supabase Edge Function Error (playlists):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.playlists) {
+        return data.playlists as YouTubeMusicPlaylist[];
       }
       return [];
     },

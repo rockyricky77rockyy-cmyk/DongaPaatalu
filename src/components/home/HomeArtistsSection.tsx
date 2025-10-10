@@ -2,9 +2,10 @@ import React from 'react';
 import { Headphones, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useArtists } from '@/hooks/use-artists';
+import { useYouTubeMusicArtists } from '@/hooks/use-youtube-music'; // Changed to useYouTubeMusicArtists
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import TrackThumbnail from '../TrackThumbnail'; // Import TrackThumbnail
 
 interface HomeArtistsSectionProps {
   className?: string;
@@ -12,7 +13,7 @@ interface HomeArtistsSectionProps {
 
 const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
   const navigate = useNavigate();
-  const { data: artists, isLoading, isError, error } = useArtists();
+  const { data: artists, isLoading, isError, error } = useYouTubeMusicArtists();
 
   if (isLoading) {
     return (
@@ -50,15 +51,18 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {artists.slice(0, 4).map((artist) => (
           <div
-            key={artist.id}
+            key={artist.artistId} // Use artistId as key
             className="group cursor-pointer bg-card rounded-2xl p-3 text-center transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => navigate('/artists')}
+            onClick={() => navigate('/artists')} // Navigate to the Artists overview page
           >
-            <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-br ${artist.avatar_color} mb-3 flex items-center justify-center`}>
-              <Headphones className="w-8 h-8 text-white opacity-50" />
-            </div>
+            <TrackThumbnail // Reusing TrackThumbnail for artist avatars
+              thumbnail={artist.thumbnail}
+              title={artist.name}
+              className="w-16 h-16 mx-auto rounded-full mb-3"
+              iconClassName="w-8 h-8 text-white opacity-50"
+            />
             <h3 className="font-semibold text-sm text-foreground mb-1 truncate">{artist.name}</h3>
-            <p className="text-xs text-muted-foreground truncate">{artist.genre}</p>
+            <p className="text-xs text-muted-foreground truncate">{artist.genre || 'Artist'}</p>
             <Button 
               size="icon" 
               className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg w-7 h-7"

@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, List } from 'lucide-react';
-import { usePlaylists } from '@/hooks/use-playlists';
+import { ChevronLeft, List, Play } from 'lucide-react';
+import { useYouTubeMusicPlaylists } from '@/hooks/use-youtube-music'; // Changed to useYouTubeMusicPlaylists
 import { Skeleton } from '@/components/ui/skeleton';
+import TrackThumbnail from '@/components/TrackThumbnail'; // Reusing TrackThumbnail for playlist covers
 
 const PlaylistsPage = () => {
   const navigate = useNavigate();
-  const { data: playlists, isLoading, isError, error } = usePlaylists();
+  const { data: playlists, isLoading, isError, error } = useYouTubeMusicPlaylists();
 
   if (isLoading) {
     return (
@@ -56,14 +57,27 @@ const PlaylistsPage = () => {
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Playlists</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {playlists?.map((playlist) => (
-            <div key={playlist.id} className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon">
-              <div className={`w-16 h-16 rounded-md bg-gradient-to-br ${playlist.cover_color} flex items-center justify-center flex-shrink-0`}>
-                <List className="w-8 h-8 text-white opacity-70" />
-              </div>
+            <div 
+              key={playlist.playlistId} // Use playlistId as key
+              className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
+              onClick={() => console.log(`Navigate to playlist: ${playlist.name}`)} // Placeholder for playlist details navigation
+            >
+              <TrackThumbnail // Reusing TrackThumbnail for playlist covers
+                thumbnail={playlist.thumbnail}
+                title={playlist.name}
+                className="w-16 h-16 rounded-md flex-shrink-0"
+                iconClassName="w-8 h-8 text-white opacity-70"
+              />
               <div>
                 <h2 className="text-xl font-semibold text-foreground">{playlist.name}</h2>
-                <p className="text-muted-foreground text-sm">{playlist.track_count} tracks</p>
+                <p className="text-muted-foreground text-sm">{playlist.trackCount} tracks</p>
               </div>
+              <Button 
+                size="icon" 
+                className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+              >
+                <Play className="w-5 h-5 fill-current" />
+              </Button>
             </div>
           ))}
         </div>
