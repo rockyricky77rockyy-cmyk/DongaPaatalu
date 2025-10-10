@@ -28,7 +28,7 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden"> {/* Only show on small screens */}
+        <Button variant="ghost" size="icon"> {/* Temporarily removed lg:hidden */}
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
