@@ -17,7 +17,7 @@ const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
 
   if (isTopTracksLoading) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -30,7 +30,7 @@ const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
 
   if (isTopTracksError) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
         <p className="text-destructive">Error loading top searches: {topTracksError?.message}</p>
       </div>
@@ -42,13 +42,13 @@ const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
   }
 
   return (
-    <div className={cn(className)}> {/* Removed mt-8 */}
+    <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-x-0 md:pb-0">
         {topTracks.slice(0, 3).map((track) => (
           <div 
             key={track.id} 
-            className="flex items-center gap-3 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="flex items-center gap-3 p-3 bg-card rounded-lg transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
           >
             <TrackThumbnail 

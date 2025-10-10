@@ -16,7 +16,7 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
 
   if (isLoading) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -35,7 +35,7 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
 
   if (isError) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
         <p className="text-destructive">Error loading playlists: {error?.message}</p>
       </div>
@@ -47,13 +47,13 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
   }
 
   return (
-    <div className={cn(className)}> {/* Removed mt-8 */}
+    <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {playlists.slice(0, 4).map((playlist) => (
           <div
             key={playlist.id}
-            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/playlists')}
           >
             <div className={`w-10 h-10 rounded-md bg-gradient-to-br ${playlist.cover_color} flex items-center justify-center flex-shrink-0`}>

@@ -15,13 +15,13 @@ const HomeRecentlySearched = ({ className }: HomeRecentlySearchedProps) => {
   }
 
   return (
-    <div className={cn(className)}> {/* Removed mt-8 */}
+    <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Recently Searched</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-x-0 md:pb-0">
         {recentlySearched.map((track, index) => (
           <div 
             key={index} 
-            className="flex items-center gap-3 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="flex items-center gap-3 p-3 bg-card rounded-lg transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack(track)}
           >
             <TrackThumbnail 
@@ -32,7 +32,7 @@ const HomeRecentlySearched = ({ className }: HomeRecentlySearchedProps) => {
             />
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-base text-foreground truncate">{track.title}</h3>
-              <p className="text-xs text-muted-foreground truncate">{track.artist} {track.album && `• ${track.album}`}</p>
+              <p className="text-xs text-muted-foreground truncate">{track.album && `• ${track.album}`}</p>
             </div>
           </div>
         ))}

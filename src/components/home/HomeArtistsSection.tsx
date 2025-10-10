@@ -16,7 +16,7 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
 
   if (isLoading) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -33,7 +33,7 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
 
   if (isError) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
         <p className="text-destructive">Error loading artists: {error?.message}</p>
       </div>
@@ -45,13 +45,13 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
   }
 
   return (
-    <div className={cn(className)}> {/* Removed mt-8 */}
+    <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {artists.slice(0, 4).map((artist) => (
           <div
             key={artist.id}
-            className="group cursor-pointer bg-card rounded-2xl p-3 text-center hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="group cursor-pointer bg-card rounded-2xl p-3 text-center transition-all border border-border hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/artists')}
           >
             <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-br ${artist.avatar_color} mb-3 flex items-center justify-center`}>

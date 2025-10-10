@@ -3,7 +3,7 @@ import { Radio, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRadioStations } from '@/hooks/use-radio-stations';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } => 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 interface HomeRadioStationsSectionProps {
@@ -16,7 +16,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
 
   if (isLoading) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -35,7 +35,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
 
   if (isError) {
     return (
-      <div className={cn(className)}> {/* Removed mt-8 */}
+      <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <p className="text-destructive">Error loading radio stations: {error?.message}</p>
       </div>
@@ -47,13 +47,13 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
   }
 
   return (
-    <div className={cn(className)}> {/* Removed mt-8 */}
+    <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {radioStations.slice(0, 4).map((station) => (
           <div
             key={station.id}
-            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/radio')}
           >
             <Radio className={`w-6 h-6 ${station.icon_color}`} />
