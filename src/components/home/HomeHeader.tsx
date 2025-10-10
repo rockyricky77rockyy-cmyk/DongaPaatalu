@@ -16,16 +16,21 @@ const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, se
 
   return (
     <div ref={ref} className="sticky top-0 z-20 bg-background p-4 sm:p-8 border-b border-border hidden lg:block min-h-[4.5rem] lg:min-h-[6.5rem]">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Search music, artists, albums..."
-          className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-        />
+      <div className="flex items-center justify-between mb-4"> {/* Added flex container for title and search */}
+        <h1 className="text-3xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+          Donga Paatalu
+        </h1>
+        <div className="relative flex-1 ml-8"> {/* Adjusted margin-left for spacing */}
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search music, artists, albums..."
+            className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+          />
+        </div>
       </div>
       {/* Suggestions are rendered in Home.tsx */}
     </div>

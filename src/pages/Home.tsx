@@ -151,13 +151,6 @@ const Home = () => {
           )}
 
           <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12"> {/* Adjusted spacing */}
-            {/* "Donga Paatalu" title for desktop home page */}
-            {!searchTerm && (
-              <h1 className="hidden lg:block text-4xl font-bold bg-gradient-neon bg-clip-text text-transparent mb-8">
-                Donga Paatalu
-              </h1>
-            )}
-
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
