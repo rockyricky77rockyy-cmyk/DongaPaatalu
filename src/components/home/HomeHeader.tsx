@@ -1,30 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useYouTubeMusicSuggestions } from '@/hooks/use-youtube-music';
+// Removed ScrollArea import as suggestions will be handled in Home.tsx
+// Removed useYouTubeMusicSuggestions import as suggestions will be handled in Home.tsx
 
 interface HomeHeaderProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+  setShowSuggestions: (show: boolean) => void; // New prop to control visibility
 }
 
-const HomeHeader = ({ searchTerm, setSearchTerm }: HomeHeaderProps) => {
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
-
+const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, setSearchTerm, setShowSuggestions }, ref) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setShowSuggestions(e.target.value.length > 0);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchTerm(suggestion);
-    setShowSuggestions(false);
-  };
-
   return (
-    <div className="sticky top-0 z-20 bg-background p-4 sm:p-8 border-b border-border hidden lg:block min-h-[4.5rem] lg:min-h-[6.5rem]"> {/* Added min-h classes */}
+    <div ref={ref} className="sticky top-0 z-20 bg-background p-4 sm:p-8 border-b border-border hidden lg:block min-h-[4.5rem] lg:min-h-[6.5rem]">
       <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       <Input
         placeholder="Search music, artists, albums..."
@@ -34,21 +27,11 @@ const HomeHeader = ({ searchTerm, setSearchTerm }: HomeHeaderProps) => {
         onFocus={() => setShowSuggestions(searchTerm.length > 0)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
       />
-      {showSuggestions && suggestions && suggestions.length > 0 && (
-        <ScrollArea className="absolute z-50 w-[calc(100%-4rem)] top-full left-8 right-8 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-          {suggestions.map((suggestion, index) => (
-            <div
-              key={index}
-              className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
-              onClick={() => handleSuggestionClick(suggestion)}
-            >
-              {suggestion}
-            </div>
-          ))}
-        </ScrollArea>
-      )}
+      {/* Suggestions are no longer rendered here */}
     </div>
   );
-};
+});
+
+HomeHeader.displayName = 'HomeHeader'; // Add display name for forwardRef
 
 export default HomeHeader;

@@ -26,7 +26,10 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const mobileHeaderRef = useRef<HTMLElement>(null); // Ref for mobile header
+  const desktopHeaderRef = useRef<HTMLDivElement>(null); // Ref for desktop header
   const [mobileSuggestionsTop, setMobileSuggestionsTop] = useState(0);
+  const [desktopSuggestionsTop, setDesktopSuggestionsTop] = useState(0);
+
 
   const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
@@ -41,17 +44,19 @@ const Home = () => {
   ];
 
   useEffect(() => {
-    const updateSuggestionsTop = () => {
+    const updateSuggestionsPositions = () => {
       if (mobileHeaderRef.current) {
-        // Calculate the height of the mobile header + a small offset for visual separation
         setMobileSuggestionsTop(mobileHeaderRef.current.offsetHeight + 4); // 4px for mt-1
+      }
+      if (desktopHeaderRef.current) {
+        setDesktopSuggestionsTop(desktopHeaderRef.current.offsetHeight + 4); // 4px for mt-1
       }
     };
 
-    updateSuggestionsTop(); // Set initial position
-    window.addEventListener('resize', updateSuggestionsTop); // Update on resize
+    updateSuggestionsPositions(); // Set initial position
+    window.addEventListener('resize', updateSuggestionsPositions); // Update on resize
 
-    return () => window.removeEventListener('resize', updateSuggestionsTop);
+    return () => window.removeEventListener('resize', updateSuggestionsPositions);
   }, []);
 
   const handleNavClick = (item: typeof navItems[0]) => {
@@ -70,11 +75,11 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative"> {/* Added relative here */}
+    <div className="min-h-screen bg-background flex flex-col relative">
       <div className="flex-1 flex flex-col lg:flex-row">
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
         <header
-          ref={mobileHeaderRef} // Attach ref here
+          ref={mobileHeaderRef}
           className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border sticky top-0 z-20"
         >
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
@@ -90,7 +95,6 @@ const Home = () => {
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
-            {/* Mobile suggestions are now rendered outside this header, below */}
           </div>
         </header>
 
@@ -98,7 +102,7 @@ const Home = () => {
         {showSuggestions && suggestions && suggestions.length > 0 && (
           <ScrollArea
             className="absolute z-50 w-[calc(100%-2rem)] left-4 right-4 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto lg:hidden"
-            style={{ top: `${mobileSuggestionsTop}px` }} // Dynamic top position
+            style={{ top: `${mobileSuggestionsTop}px` }}
           >
             {suggestions.map((suggestion, index) => (
               <div
@@ -116,11 +120,29 @@ const Home = () => {
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col relative"> {/* Added relative here for desktop suggestions positioning */}
           {/* Desktop Search Bar (now in HomeHeader) */}
-          <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} setShowSuggestions={setShowSuggestions} ref={desktopHeaderRef} /> {/* Pass ref and setShowSuggestions */}
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 lg:mt-[112px] mt-[64px]">
+          {/* Desktop Search Suggestions */}
+          {showSuggestions && suggestions && suggestions.length > 0 && (
+            <ScrollArea
+              className="absolute z-50 w-[calc(100%-4rem)] left-8 right-8 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto hidden lg:block"
+              style={{ top: `${desktopSuggestionsTop}px` }}
+            >
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion}
+                </div>
+              ))}
+            </ScrollArea>
+          )}
+
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 lg:mt-[112px] mt-[72px]"> {/* Adjusted mobile mt to 72px */}
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
