@@ -5,10 +5,25 @@ import NeonLogo from '@/components/NeonLogo';
 import Visualizer from '@/components/Visualizer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
+import { useNewReleases } from '@/hooks/use-new-releases'; // Import useNewReleases
 
 const HomeHeroSection = () => {
   const isMobile = useIsMobile();
-  const { isPlaying } = useMusicPlayer();
+  const { isPlaying, playTrack } = useMusicPlayer();
+  const { data: newReleases } = useNewReleases(); // Fetch new releases
+
+  const handlePlayFeatured = () => {
+    if (newReleases && newReleases.length > 0) {
+      const firstNewRelease = newReleases[0];
+      playTrack({
+        videoId: firstNewRelease.video_id || '',
+        title: firstNewRelease.title,
+        artist: firstNewRelease.artist,
+        thumbnail: firstNewRelease.thumbnail,
+        album: firstNewRelease.album,
+      });
+    }
+  };
 
   return (
     <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
@@ -21,6 +36,8 @@ const HomeHeroSection = () => {
             <Button
               size={isMobile ? "md" : "lg"}
               className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
+              onClick={handlePlayFeatured} // Add onClick handler
+              disabled={!newReleases || newReleases.length === 0} // Disable if no new releases
             >
               <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" />
             </Button>
