@@ -1,0 +1,58 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import NeonLogo from "@/components/NeonLogo";
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  path: string;
+}
+
+interface AppSidebarProps {
+  activeNav: string;
+  onNavigate: (item: NavItem) => void;
+  className?: string;
+}
+
+const navItems: NavItem[] = [
+  { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
+  { id: "music", label: "Music", icon: Music, path: "/music" },
+  { id: "albums", label: "Albums", icon: Disc3, path: "/albums" },
+  { id: "artists", label: "Artists", icon: Headphones, path: "/artists" },
+  { id: "radio", label: "Radio", icon: Radio, path: "/radio" },
+  { id: "genre", label: "Genre", icon: Mic2, path: "/genre" },
+  { id: "playlists", label: "Playlists", icon: List, path: "/playlists" },
+];
+
+const AppSidebar = ({ activeNav, onNavigate, className }: AppSidebarProps) => {
+  return (
+    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 sticky top-0 h-screen overflow-y-auto ${className}`}>
+      <div className="mb-8 flex justify-center">
+        <NeonLogo size="small" />
+      </div>
+
+      <nav className="space-y-1">
+        {navItems.map((item) => (
+          <Button
+            key={item.id}
+            variant={activeNav === item.id ? "default" : "ghost"}
+            className={`w-full justify-start gap-3 ${
+              activeNav === item.id
+                ? "bg-primary text-primary-foreground shadow-neon"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+            onClick={() => onNavigate(item)}
+          >
+            <item.icon className="w-5 h-5" />
+            {item.label}
+          </Button>
+        ))}
+      </nav>
+    </aside>
+  );
+};
+
+export default AppSidebar;

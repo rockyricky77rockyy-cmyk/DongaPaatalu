@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import MobileSidebar from "@/components/MobileSidebar";
 import NeonLogo from "@/components/NeonLogo";
@@ -10,18 +10,18 @@ import HomeRecentlySearched from "@/components/home/HomeRecentlySearched";
 import HomeTopSearches from "@/components/home/HomeTopSearches";
 import HomeNewReleases from "@/components/home/HomeNewReleases";
 import HomeAlbumsSection from "@/components/home/HomeAlbumsSection";
-import HomeArtistsSection from "@/components/home/HomeArtistsSection"; // New import
-import HomeGenresSection from "@/components/home/HomeGenresSection";   // New import
-import HomePlaylistsSection from "@/components/home/HomePlaylistsSection"; // New import
-import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection"; // New import
-import { Button } from "@/components/ui/button";
+import HomeArtistsSection from "@/components/home/HomeArtistsSection";
+import HomeGenresSection from "@/components/home/HomeGenresSection";
+import HomePlaylistsSection from "@/components/home/HomePlaylistsSection";
+import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection";
+import AppSidebar from "@/components/AppSidebar"; // Import the new AppSidebar
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const navItems = [
+  const navItems = [ // Define navItems here for MobileSidebar
     { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
     { id: "music", label: "Music", icon: Music, path: "/music" },
     { id: "albums", label: "Albums", icon: Disc3, path: "/albums" },
@@ -56,29 +56,7 @@ const Home = () => {
         </header>
 
         {/* Left Sidebar (Desktop Only) */}
-        <aside className="w-64 bg-card border-r border-border p-6 space-y-2 hidden lg:block sticky top-0 h-screen overflow-y-auto">
-          <div className="mb-8 flex justify-center">
-            <NeonLogo size="small" />
-          </div>
-
-          <nav className="space-y-1">
-            {navItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={activeNav === item.id ? "default" : "ghost"}
-                className={`w-full justify-start gap-3 ${
-                  activeNav === item.id
-                    ? "bg-primary text-primary-foreground shadow-neon"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-                onClick={() => handleNavClick(item)}
-              >
-                <item.icon className="w-5 h-5" />
-                {item.label}
-              </Button>
-            ))}
-          </nav>
-        </aside>
+        <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
@@ -104,10 +82,10 @@ const Home = () => {
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />
-                <HomeArtistsSection /> {/* New section */}
-                <HomeGenresSection /> {/* New section */}
-                <HomePlaylistsSection /> {/* New section */}
-                <HomeRadioStationsSection /> {/* New section */}
+                <HomeArtistsSection />
+                <HomeGenresSection />
+                <HomePlaylistsSection />
+                <HomeRadioStationsSection />
               </>
             )}
           </div>
