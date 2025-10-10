@@ -80,7 +80,9 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
                     <Menu className="w-4 h-4 lg:w-5 lg:h-5" />
                   </Button>
-                  <span className="text-xs lg:text-sm text-muted-foreground">{currentTrack.title} - {currentTrack.artist}</span>
+                  <span className="flex-1 min-w-0 text-center text-xs lg:text-sm text-muted-foreground truncate"> {/* Added flex-1, min-w-0, text-center, truncate */}
+                    {currentTrack.title} - {currentTrack.artist}
+                  </span>
                   <div className="flex items-center gap-1 lg:gap-2">
                     <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
                       <Search className="w-4 h-4 lg:w-5 lg:h-5" />
@@ -260,8 +262,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
             {/* Track Info */}
             <div className="text-center px-6 mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">{currentTrack.title}</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">{currentTrack.artist}</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack.title}</h2> {/* Added truncate */}
+              <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack.artist}</p> {/* Added truncate */}
             </div>
 
             {/* Progress Bar */}

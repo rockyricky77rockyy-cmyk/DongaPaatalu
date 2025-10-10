@@ -63,7 +63,7 @@ const Player = () => {
         {/* Controls */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-8 sm:py-6">
           {/* Left: Track Info & Visualizer */}
-          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => currentTrack && setIsExpanded(true)}> {/* Removed flex-1 */}
+          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => currentTrack && setIsExpanded(true)}>
             {currentTrack?.thumbnail ? (
               <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0" />
             ) : (
@@ -71,7 +71,7 @@ const Player = () => {
                 <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
             )}
-            <div className="flex flex-col min-w-0">
+            <div className="flex flex-col min-w-0 max-w-[150px] sm:max-w-[200px]"> {/* Added max-w classes */}
               <span className="text-sm sm:text-base font-medium text-foreground truncate">
                 {currentTrack ? currentTrack.title : 'No track playing'}
               </span>
@@ -80,8 +80,8 @@ const Player = () => {
               </span>
             </div>
             {!isMobile && currentTrack && ( // Hide visualizer on very small screens in compact player, and if no track
-              <div className="hidden md:block ml-4 flex-shrink-0"> {/* Added flex-shrink-0 */}
-                <Visualizer barCount={20} className="h-12 w-32 sm:h-16 sm:w-48" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Pass animationIntervalMs */}
+              <div className="hidden md:block ml-4 flex-shrink-0">
+                <Visualizer barCount={20} className="h-12 w-32 sm:h-16 sm:w-48" isPlaying={isPlaying} animationIntervalMs={100} />
               </div>
             )}
           </div>
