@@ -156,8 +156,8 @@ const Home = () => {
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
             ) : (
               <>
-                <HomeHeroSection />
-                <HomeRecentlySearched className="mt-8" /> {/* Added mt-8 for gap */}
+                <HomeHeroSection className="mb-8" /> {/* Added mb-8 here */}
+                <HomeRecentlySearched className="mt-0" /> {/* Overriding space-y with mt-0 */}
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />

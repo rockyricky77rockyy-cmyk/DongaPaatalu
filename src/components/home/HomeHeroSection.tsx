@@ -5,12 +5,19 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 import TrackThumbnail from '../TrackThumbnail';
 
-const HomeHeroSection = () => {
+interface HomeHeroSectionProps {
+  className?: string;
+}
+
+const HomeHeroSection = ({ className }: HomeHeroSectionProps) => {
   const isMobile = useIsMobile();
   const { isPlaying, currentTrack, togglePlayPause } = useMusicPlayer();
 
   return (
-    <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-3 sm:p-6 overflow-hidden border border-primary/20 shadow-card">
+    <div className={cn(
+      "relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-3 sm:p-6 overflow-hidden border border-primary/20 shadow-card",
+      className // Apply external classNames here
+    )}>
       <div className="absolute inset-0 bg-gradient-glow opacity-50" />
       
       <div className="relative z-10 flex flex-col items-center justify-center py-6 sm:py-10">
