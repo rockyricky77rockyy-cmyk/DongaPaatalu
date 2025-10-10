@@ -33,6 +33,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     toggleShuffle,
     repeatMode,
     toggleRepeatMode,
+    recentlySearched, // Added recentlySearched for mobile playlist
   } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home"); // State for internal navigation in expanded player
   const isMobile = useIsMobile();
@@ -63,7 +64,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     <div className="fixed inset-0 z-50 bg-background animate-slide-up">
       {/* Desktop Version */}
       {!isMobile ? (
-        <div className="h-full flex flex-col p-4 md:p-8"> {/* Padding moved here */}
+        <div className="h-full flex flex-col p-4 md:p-8">
           {/* Neon Border Container */}
           <div className="flex-1 rounded-2xl md:rounded-3xl border-4 border-transparent bg-gradient-to-br from-primary via-accent to-secondary p-1 shadow-neon-strong">
             <div className="h-full rounded-2xl md:rounded-3xl bg-background flex overflow-hidden">
@@ -222,22 +223,35 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               <div className="flex-1 flex justify-center">
                 <NeonLogo size="small" />
               </div>
-              <Button variant="ghost" size="icon" className="w-9 h-9">
-                <Menu className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="w-9 h-9">
+                  <Search className="w-5 h-5" />
+                </Button>
+                <MobileSidebar navItems={[
+                  { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
+                  { id: "music", label: "Music", icon: Music, path: "/music" },
+                  { id: "albums", label: "Albums", icon: Disc3, path: "/albums" },
+                  { id: "artists", label: "Artists", icon: Headphones, path: "/artists" },
+                  { id: "radio", label: "Radio", icon: Radio, path: "/radio" },
+                  { id: "genre", label: "Genre", icon: Mic2, path: "/genre" },
+                  { id: "playlists", label: "Playlists", icon: List, path: "/playlists" },
+                ]} activeNav={activeNav} onNavigate={handleNavClick} />
+              </div>
             </header>
 
             {/* Album Art */}
             <div className="flex justify-center p-6">
               <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
+                {/* Visualizer behind the thumbnail */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-40">
-                  <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-8 border-white/30 animate-pulse-glow" />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
                   <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
                 </div>
-                {currentTrack.thumbnail && (
+                {currentTrack.thumbnail ? (
                   <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
+                ) : (
+                  <div className="relative z-10">
+                    <NeonLogo size="large" />
+                  </div>
                 )}
               </div>
             </div>
@@ -323,7 +337,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
           {/* Playlist Section */}
           <div className="flex-none h-[300px] sm:h-[400px] bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden">
-            <PlaylistQueue activeTrackId={currentTrack?.id} isMobile />
+            <PlaylistQueue activeTrackId={currentTrack?.id} isMobile recentlySearched={recentlySearched} />
           </div>
         </div>
       )}
