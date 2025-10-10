@@ -7,7 +7,7 @@ import Visualizer from "./Visualizer";
 import PlaylistQueue from "./PlaylistQueue";
 import NeonLogo from "./NeonLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate } from "react-router-dom"; // Corrected import path
+import { useNavigate } from "react-router-dom";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { cn } from "@/lib/utils";
 import AppSidebar from "./AppSidebar";
@@ -42,7 +42,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     playTrack,
   } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home");
-  const [isPlaylistQueueOpen, setIsPlaylistQueueOpen] = useState(true);
+  const [isPlaylistQueueOpen, setIsPlaylistQueueOpen] = useState(false); // Changed to false to be closed by default
   const isMobile = useIsMobile();
 
   // Search states
@@ -468,7 +468,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
           {/* Playlist Section */}
           <div className={cn(
-            "flex-none bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden transition-all duration-300 ease-in-out",
+            "flex-none bg-gradient-glow rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden transition-all duration-300 ease-in-out", // Changed background to bg-gradient-glow
             isPlaylistQueueOpen ? "h-[300px] sm:h-[400px]" : "h-16" // Dynamic height
           )}>
             <PlaylistQueue
