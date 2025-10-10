@@ -60,7 +60,7 @@ const PlaylistsPage = () => {
             <div 
               key={playlist.playlistId} // Use playlistId as key
               className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-              onClick={() => console.log(`Navigate to playlist: ${playlist.name}`)} // Placeholder for playlist details navigation
+              onClick={() => navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } })} // Navigate to PlaylistDetailsPage
             >
               <TrackThumbnail // Reusing TrackThumbnail for playlist covers
                 thumbnail={playlist.thumbnail}

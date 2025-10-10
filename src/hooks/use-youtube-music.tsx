@@ -211,3 +211,33 @@ export const useYouTubeMusicPlaylists = () => {
     enabled: true,
   });
 };
+
+// New hook for fetching playlist tracks
+export const useYouTubePlaylistTracks = (playlistId: string | null) => {
+  return useQuery<{ tracks: YouTubeMusicTrack[], playlistName: string, playlistThumbnail?: string, trackCount: number }, Error>({
+    queryKey: ["youtubePlaylistTracks", playlistId],
+    queryFn: async () => {
+      if (!playlistId) throw new Error("Playlist ID is required to fetch tracks.");
+
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/playlist-tracks', {
+        body: { playlistId },
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error (playlist-tracks):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.tracks) {
+        return {
+          tracks: data.tracks as YouTubeMusicTrack[],
+          playlistName: data.playlistName,
+          playlistThumbnail: data.playlistThumbnail,
+          trackCount: data.trackCount,
+        };
+      }
+      return { tracks: [], playlistName: '', playlistThumbnail: undefined, trackCount: 0 };
+    },
+    enabled: !!playlistId,
+  });
+};

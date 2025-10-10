@@ -361,6 +361,65 @@ serve(async (req) => {
       });
     }
 
+    // NEW: Endpoint for fetching playlist tracks
+    if (pathname.endsWith('/playlist-tracks')) {
+      const requestBody = await req.json();
+      const { playlistId } = requestBody;
+      console.log(`[yt-music-proxy] Fetching tracks for playlistId: "${playlistId}"`);
+
+      if (!playlistId) {
+        return new Response(JSON.stringify({ error: 'Missing playlistId' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const playlistInfo = await ytmusic.getPlaylist(playlistId);
+      const playlistTracks = playlistInfo.tracks || [];
+
+      const formattedTracks = playlistTracks.map((item: any) => {
+        const videoId = item.videoId;
+        if (!videoId) {
+          console.log(`[yt-music-proxy] Skipping playlist track "${item.title}" due to missing videoId.`);
+          return null;
+        }
+        const title = item.title || item.name || 'Unknown Title';
+        let artist = 'Unknown Artist';
+        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
+          artist = item.artists[0].name;
+        } else if (item.artist) {
+          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
+            artist = item.artist.name;
+          } else if (typeof item.artist === 'string') {
+            artist = item.artist;
+          }
+        }
+        const album = item.album ? item.album.name : undefined;
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const duration = item.duration;
+
+        return {
+          type: 'track',
+          title,
+          artist,
+          album,
+          thumbnail,
+          videoId,
+          duration,
+        };
+      }).filter(Boolean);
+
+      return new Response(JSON.stringify({
+        tracks: formattedTracks,
+        playlistName: playlistInfo.title,
+        playlistThumbnail: playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined,
+        trackCount: playlistInfo.itemCount || 0,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
 
     console.log(`[yt-music-proxy] Path not found: ${pathname}`);
     return new Response(JSON.stringify({ error: 'Not Found' }), {

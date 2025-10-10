@@ -50,12 +50,12 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
   return (
     <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
-      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
+      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md::grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {playlists.slice(0, 4).map((playlist) => (
           <div
             key={playlist.playlistId} // Use playlistId as key
             className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => navigate('/playlists')} // Navigate to the Playlists overview page
+            onClick={() => navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } })} // Navigate to PlaylistDetailsPage
           >
             <TrackThumbnail // Reusing TrackThumbnail for playlist covers
               thumbnail={playlist.thumbnail}
@@ -70,6 +70,10 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
             <Button 
               size="icon" 
               className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg w-7 h-7"
+              onClick={(e) => { // Explicitly navigate to playlist details
+                e.stopPropagation();
+                navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } });
+              }}
             >
               <Play className="w-4 h-4 fill-current" />
             </Button>
