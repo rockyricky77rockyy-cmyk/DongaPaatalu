@@ -1,35 +1,46 @@
-import { Music, ChevronRight, Search, ChevronUp, ChevronDown } from "lucide-react"; // Added ChevronUp, ChevronDown
+import { Music, ChevronRight, Search, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import { useTracks } from "@/hooks/use-tracks";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
-import { cn } from "@/lib/utils"; // Import cn for conditional classnames
+import { cn } from "@/lib/utils";
+import { Track as MusicPlayerTrack } from "@/context/MusicPlayerContext"; // Import Track from MusicPlayerContext
 
-interface Track {
-  videoId: string;
-  title: string;
-  artist: string;
-  thumbnail?: string;
-  album?: string;
-  color?: string; // Added color for fallback
-  duration?: string; // Added duration
+// Define a local interface for tracks displayed in the playlist queue,
+// combining properties from MusicPlayerTrack and useTracks.
+interface DisplayTrack extends MusicPlayerTrack {
+  id?: string; // Optional id from Supabase
+  color?: string;
+  duration?: string;
 }
 
 interface PlaylistQueueProps {
-  activeTrackId?: string;
+  activeVideoId?: string; // Renamed from activeTrackId to activeVideoId
   isMobile?: boolean;
-  recentlySearched?: Track[];
-  isOpen?: boolean; // New prop to control open/close state
-  onToggle?: () => void; // New prop for toggle function
+  recentlySearched?: MusicPlayerTrack[]; // Use MusicPlayerTrack for consistency
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
-const PlaylistQueue = ({ activeTrackId, isMobile = false, recentlySearched = [], isOpen = true, onToggle }: PlaylistQueueProps) => {
+const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [], isOpen = true, onToggle }: PlaylistQueueProps) => {
   const { data: tracks, isLoading, isError, error } = useTracks();
   const { playTrack } = useMusicPlayer();
 
-  const tracksToDisplay = isMobile ? recentlySearched : tracks;
+  // Map Supabase tracks to DisplayTrack format, ensuring videoId is present
+  const supabaseTracks: DisplayTrack[] = tracks?.map(track => ({
+    videoId: track.video_id || '', // Map video_id to videoId
+    title: track.title,
+    artist: track.artist,
+    thumbnail: track.thumbnail,
+    album: track.album,
+    id: track.id,
+    color: track.color,
+    duration: track.duration,
+  })) || [];
+
+  const tracksToDisplay = isMobile ? recentlySearched : supabaseTracks;
   const isLoadingData = isMobile ? false : isLoading;
   const isErrorData = isMobile ? false : isError;
   const errorData = isMobile ? null : error;
@@ -140,7 +151,7 @@ const PlaylistQueue = ({ activeTrackId, isMobile = false, recentlySearched = [],
                 <div
                   key={track.videoId}
                   className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
-                    track.videoId === activeTrackId
+                    track.videoId === activeVideoId
                       ? 'bg-primary/20 border border-primary/50 shadow-neon'
                       : 'hover:bg-muted/50'
                   }`}

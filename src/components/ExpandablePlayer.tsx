@@ -208,7 +208,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
               {/* Right Sidebar - Playlist */}
               <aside className="w-72 lg:w-96 border-l border-border">
-                <PlaylistQueue activeTrackId={currentTrack?.id} />
+                <PlaylistQueue activeVideoId={currentTrack?.videoId} />
               </aside>
             </div>
           </div>
@@ -343,7 +343,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             isPlaylistQueueOpen ? "h-[300px] sm:h-[400px]" : "h-16" // Dynamic height
           )}>
             <PlaylistQueue 
-              activeTrackId={currentTrack?.id} 
+              activeVideoId={currentTrack?.videoId} 
               isMobile 
               recentlySearched={recentlySearched} 
               isOpen={isPlaylistQueueOpen} // Pass isOpen prop
