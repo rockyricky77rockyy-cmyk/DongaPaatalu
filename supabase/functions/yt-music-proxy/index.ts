@@ -140,7 +140,17 @@ serve(async (req) => {
         });
       }
 
-      const albumInfo = await ytmusic.getAlbum(albumId);
+      let albumInfo;
+      try {
+        albumInfo = await ytmusic.getAlbum(albumId);
+      } catch (ytError) {
+        console.error(`[yt-music-proxy] Error fetching album ${albumId}:`, ytError.message);
+        return new Response(JSON.stringify({ error: `Album not found or inaccessible: ${ytError.message}` }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       const albumTracks = albumInfo.tracks || [];
 
       const formattedTracks = albumTracks.map((item: any) => {
@@ -194,7 +204,17 @@ serve(async (req) => {
         });
       }
 
-      const artistInfo = await ytmusic.getArtist(artistId);
+      let artistInfo;
+      try {
+        artistInfo = await ytmusic.getArtist(artistId);
+      } catch (ytError) {
+        console.error(`[yt-music-proxy] Error fetching artist ${artistId}:`, ytError.message);
+        return new Response(JSON.stringify({ error: `Artist not found or inaccessible: ${ytError.message}` }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const topSongs = artistInfo.topSongs || [];
 
       const formattedTracks = topSongs.map((item: any) => {
@@ -384,7 +404,17 @@ serve(async (req) => {
         });
       }
 
-      const playlistInfo = await ytmusic.getPlaylist(playlistId);
+      let playlistInfo;
+      try {
+        playlistInfo = await ytmusic.getPlaylist(playlistId);
+      } catch (ytError) {
+        console.error(`[yt-music-proxy] Error fetching playlist ${playlistId}:`, ytError.message);
+        return new Response(JSON.stringify({ error: `Playlist not found or inaccessible: ${ytError.message}` }), {
+          status: 404, // Return 404 if playlist is not found or inaccessible
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       const playlistTracks = playlistInfo.tracks || [];
 
       const formattedTracks = playlistTracks.map((item: any) => {
