@@ -16,7 +16,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
 
   if (isLoading) {
     return (
-      <div className={cn("mt-8", className)}>
+      <div className={cn(className)}> {/* Removed mt-8 */}
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -35,7 +35,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
 
   if (isError) {
     return (
-      <div className={cn("mt-8", className)}>
+      <div className={cn(className)}> {/* Removed mt-8 */}
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <p className="text-destructive">Error loading radio stations: {error?.message}</p>
       </div>
@@ -47,7 +47,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
   }
 
   return (
-    <div className={cn("mt-8", className)}>
+    <div className={cn(className)}> {/* Removed mt-8 */}
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {radioStations.slice(0, 4).map((station) => (

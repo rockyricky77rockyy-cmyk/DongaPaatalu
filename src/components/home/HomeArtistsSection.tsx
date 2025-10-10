@@ -16,7 +16,7 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
 
   if (isLoading) {
     return (
-      <div className={cn("mt-8", className)}>
+      <div className={cn(className)}> {/* Removed mt-8 */}
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -33,7 +33,7 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
 
   if (isError) {
     return (
-      <div className={cn("mt-8", className)}>
+      <div className={cn(className)}> {/* Removed mt-8 */}
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
         <p className="text-destructive">Error loading artists: {error?.message}</p>
       </div>
@@ -45,7 +45,7 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
   }
 
   return (
-    <div className={cn("mt-8", className)}>
+    <div className={cn(className)}> {/* Removed mt-8 */}
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {artists.slice(0, 4).map((artist) => (

@@ -15,7 +15,7 @@ const HomeRecentlySearched = ({ className }: HomeRecentlySearchedProps) => {
   }
 
   return (
-    <div className={cn("mt-8", className)}>
+    <div className={cn(className)}> {/* Removed mt-8 */}
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Recently Searched</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-x-0 md:pb-0">
         {recentlySearched.map((track, index) => (

@@ -45,7 +45,7 @@ const Player = () => {
     <>
       <div className="fixed bottom-0 left-0 right-0 w-full z-50 bg-card border-t border-border">
         {/* Progress Bar */}
-        <div className="px-4 pt-1 sm:px-8 sm:pt-2"> {/* Reduced padding-top */}
+        <div className="px-4 pt-1 sm:px-8 sm:pt-2">
           <Slider
             value={[playbackProgress]}
             onValueChange={handleSliderChange}
@@ -61,14 +61,14 @@ const Player = () => {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between px-4 py-2 sm:px-8 sm:py-4"> {/* Reduced padding-y */}
+        <div className="flex items-center justify-between px-4 py-2 sm:px-8 sm:py-4">
           {/* Left: Track Info & Visualizer */}
-          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => currentTrack && setIsExpanded(true)}>
+          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer flex-1" onClick={() => currentTrack && setIsExpanded(true)}>
             {currentTrack?.thumbnail ? (
-              <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0" /> /* Reduced size */
+              <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0" />
             ) : (
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0"> {/* Reduced size */}
-                <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" /> {/* Reduced icon size */}
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
             )}
             <div className="flex flex-col min-w-0 max-w-[150px] sm:max-w-[200px]">
@@ -81,21 +81,21 @@ const Player = () => {
             </div>
             {!isMobile && currentTrack && ( // Hide visualizer on very small screens in compact player, and if no track
               <div className="hidden md:block ml-4 flex-shrink-0">
-                <Visualizer barCount={20} className="h-10 w-28 sm:h-12 sm:w-36" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Reduced height/width */}
+                <Visualizer barCount={20} className="h-10 w-28 sm:h-12 sm:w-36" isPlaying={isPlaying} animationIntervalMs={100} />
               </div>
             )}
           </div>
 
           {/* Center: Playback Controls */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 justify-center"> {/* Added justify-center */}
             <Button 
               variant="ghost" 
               size="icon" 
               className={cn(
-                "w-7 h-7 sm:w-9 sm:h-9", // Reduced size
+                "w-7 h-7 sm:w-9 sm:h-9",
                 isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
               )}
-              onClick={toggleShuffle} // Connected to context function
+              onClick={toggleShuffle}
               disabled={!currentTrack}
             >
               <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -104,8 +104,8 @@ const Player = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-foreground hover:text-primary w-9 h-9 sm:w-10 sm:h-10" // Reduced size
-              onClick={playPreviousTrack} // Connected to context function
+              className="text-foreground hover:text-primary w-9 h-9 sm:w-10 sm:h-10"
+              onClick={playPreviousTrack}
               disabled={!currentTrack}
             >
               <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -113,9 +113,9 @@ const Player = () => {
             
             <Button
               size="icon"
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon" // Reduced size
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
               onClick={togglePlayPause}
-              disabled={!currentTrack} // Disable play/pause if no track
+              disabled={!currentTrack}
             >
               {isPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-1" />}
             </Button>
@@ -123,8 +123,8 @@ const Player = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-foreground hover:text-primary w-9 h-9 sm:w-10 sm:h-10" // Reduced size
-              onClick={playNextTrack} // Connected to context function
+              className="text-foreground hover:text-primary w-9 h-9 sm:w-10 sm:h-10"
+              onClick={playNextTrack}
               disabled={!currentTrack}
             >
               <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -134,10 +134,10 @@ const Player = () => {
               variant="ghost" 
               size="icon" 
               className={cn(
-                "w-7 h-7 sm:w-9 sm:h-9", // Reduced size
+                "w-7 h-7 sm:w-9 sm:h-9",
                 repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
               )}
-              onClick={toggleRepeatMode} // Connected to context function
+              onClick={toggleRepeatMode}
               disabled={!currentTrack}
             >
               <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -151,9 +151,9 @@ const Player = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-muted-foreground hover:text-primary w-7 h-7 sm:w-9 sm:h-9" // Reduced size
-                onClick={() => currentTrack && setIsExpanded(true)} // Only expand if a track is playing
-                disabled={!currentTrack} // Disable expand if no track
+                className="text-muted-foreground hover:text-primary w-7 h-7 sm:w-9 sm:h-9"
+                onClick={() => currentTrack && setIsExpanded(true)}
+                disabled={!currentTrack}
               >
                 <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>

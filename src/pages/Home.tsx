@@ -147,21 +147,21 @@ const Home = () => {
             </ScrollArea>
           )}
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0"> {/* Changed space-y-8 to space-y-0 */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 lg:space-y-12"> {/* Adjusted spacing */}
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
             ) : (
               <>
                 <HomeHeroSection />
-                <HomeRecentlySearched className="mt-6" /> {/* Added mt-6 */}
-                <HomeTopSearches className="mt-6" /> {/* Added mt-6 */}
-                <HomeNewReleases className="mt-6" /> {/* Added mt-6 */}
-                <HomeAlbumsSection className="mt-6" /> {/* Added mt-6 */}
-                <HomeArtistsSection className="mt-6" /> {/* Added mt-6 */}
-                <HomeGenresSection className="mt-6" /> {/* Added mt-6 */}
-                <HomePlaylistsSection className="mt-6" /> {/* Added mt-6 */}
-                <HomeRadioStationsSection className="mt-6" /> {/* Added mt-6 */}
+                <HomeRecentlySearched />
+                <HomeTopSearches />
+                <HomeNewReleases />
+                <HomeAlbumsSection />
+                <HomeArtistsSection />
+                <HomeGenresSection />
+                <HomePlaylistsSection />
+                <HomeRadioStationsSection />
               </>
             )}
           </main>
