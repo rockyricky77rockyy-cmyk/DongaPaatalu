@@ -35,7 +35,7 @@ const HomeHeroSection = ({ className }: HomeHeroSectionProps) => {
             )}
             onClick={togglePlayPause} // Click disc to play/pause
           >
-            {currentTrack && isPlaying ? (
+            {currentTrack ? ( // Changed condition: show thumbnail if currentTrack exists
               <TrackThumbnail
                 thumbnail={currentTrack.thumbnail}
                 title={currentTrack.title}
