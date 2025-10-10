@@ -449,10 +449,30 @@ serve(async (req) => {
       try {
         playlistInfo = await ytmusic.getPlaylist(playlistId);
         console.log(`[yt-music-proxy] Raw playlistInfo for ${playlistId}:`, JSON.stringify(playlistInfo, null, 2));
-      } catch (ytError) {
+      } catch (ytError: any) {
         console.error(`[yt-music-proxy] Error fetching playlist ${playlistId}:`, ytError.message);
-        return new Response(JSON.stringify({ error: `Playlist not found or inaccessible: ${ytError.message}` }), {
-          status: 404, // Return 404 if playlist is not found or inaccessible
+        let statusCode = 500; // Default to internal server error
+        let errorMessage = `Error fetching playlist: ${ytError.message}`;
+
+        // Attempt to parse status code from error message if it's a string
+        if (typeof ytError.message === 'string' && ytError.message.includes('status code')) {
+          const match = ytError.message.match(/status code (\d{3})/);
+          if (match && match[1]) {
+            statusCode = parseInt(match[1], 10);
+          }
+        } else if (ytError.statusCode) { // If the error object itself has a statusCode
+            statusCode = ytError.statusCode;
+        }
+
+        // Specific handling for 400 and 404
+        if (statusCode === 400) {
+            errorMessage = `Invalid playlist ID or bad request: ${ytError.message}`;
+        } else if (statusCode === 404) {
+            errorMessage = `Playlist not found or inaccessible: ${ytError.message}`;
+        }
+
+        return new Response(JSON.stringify({ error: errorMessage }), {
+          status: statusCode,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
