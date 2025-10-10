@@ -100,23 +100,20 @@ const YouTubeEmbed = ({
   };
 
   useEffect(() => {
-    if (playerRef.current) {
-      if (videoId) {
-        playerRef.current.loadVideoById(videoId);
-      } else {
-        playerRef.current.stopVideo();
-        setPlaybackProgress(0);
-        setCurrentTime(0);
-        setDuration(0);
-      }
+    // When videoId changes, if there's a player instance and a new videoId, load it.
+    // If videoId becomes null, the component will unmount, handling cleanup.
+    if (playerRef.current && videoId) {
+      playerRef.current.loadVideoById(videoId);
     }
-  }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration]);
+  }, [videoId, playerRef]);
 
   useEffect(() => {
     return () => {
+      // Cleanup function: clear interval and playerRef when component unmounts
       stopProgressInterval();
+      playerRef.current = null; // Explicitly clear the ref
     };
-  }, []);
+  }, []); // Empty dependency array ensures this runs once on mount and once on unmount
 
   if (!videoId) {
     return null; // Don't render the player if no videoId is provided
