@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils'; // Import cn for conditional classnames
+import { toast } from 'sonner'; // Import toast from sonner
 
 interface YouTubeEmbedProps {
   videoId: string | null;
@@ -28,7 +29,7 @@ const YouTubeEmbed = ({
   onPlaybackQualityChange,
   className,
 }: YouTubeEmbedProps) => {
-  const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying } = useMusicPlayer();
+  const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying, currentTrack } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
   const [internalVideoId, setInternalVideoId] = useState<string | undefined>(undefined); // Use undefined initially
 
@@ -96,8 +97,11 @@ const YouTubeEmbed = ({
   // New error handler to catch errors from the YouTube player
   const handlePlayerError = (event: any) => {
     console.error("YouTube Player encountered an error:", event);
-    // You can add more specific error handling here, e.g., show a toast notification
-    // or try to play the next track.
+    // Display a toast notification to the user
+    toast.error(`Failed to play "${currentTrack?.title || 'this track'}". It might be unavailable or restricted.`, {
+      description: `Error code: ${event.data}`,
+      duration: 5000,
+    });
     onError?.(event); // Call the prop if provided
     setIsPlaying(false); // Stop playing on error
   };
