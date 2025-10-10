@@ -75,3 +75,29 @@ export const useYouTubeAlbumTracks = (albumId: string | null) => {
     enabled: !!albumId,
   });
 };
+
+export const useYouTubeMusicSuggestions = (query: string) => {
+  return useQuery<string[], Error>({
+    queryKey: ["youtubeMusicSuggestions", query],
+    queryFn: async () => {
+      if (!query || query.length < 2) return []; // Only fetch suggestions for queries with at least 2 characters
+
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/suggestions', {
+        body: { query },
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error (suggestions):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.suggestions) {
+        return data.suggestions as string[];
+      }
+      return [];
+    },
+    enabled: !!query && query.length >= 2, // Only enable query if query exists and is at least 2 characters
+    staleTime: 5 * 60 * 1000, // Cache suggestions for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+  });
+};

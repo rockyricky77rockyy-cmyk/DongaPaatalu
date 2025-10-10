@@ -16,11 +16,16 @@ import HomePlaylistsSection from "@/components/home/HomePlaylistsSection";
 import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection";
 import AppSidebar from "@/components/AppSidebar"; // Import the new AppSidebar
 import { Button } from "@/components/ui/button"; // Button is used in AppSidebar, but not directly in Home.tsx, so it can be removed if not used elsewhere. Keeping for now.
+import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music"; // Import the new hook
+import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea for suggestions
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false); // State to control suggestion visibility
+
+  const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
   const navItems = [ // Define navItems here for MobileSidebar
     { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
@@ -37,6 +42,16 @@ const Home = () => {
     navigate(item.path);
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setShowSuggestions(e.target.value.length > 0); // Show suggestions if there's a search term
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setShowSuggestions(false); // Hide suggestions after clicking one
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex flex-col lg:flex-row">
@@ -51,8 +66,23 @@ const Home = () => {
               placeholder="Search..."
               className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
+              onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Delay hiding to allow click
             />
+            {showSuggestions && suggestions && suggestions.length > 0 && (
+              <ScrollArea className="absolute z-20 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </ScrollArea>
+            )}
           </div>
         </header>
 
@@ -69,8 +99,23 @@ const Home = () => {
                 placeholder="Search music, artists, albums..."
                 className="pl-10 bg-input border-border rounded-lg h-10 text-sm"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
+                onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Delay hiding to allow click
               />
+              {showSuggestions && suggestions && suggestions.length > 0 && (
+                <ScrollArea className="absolute z-20 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {suggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion}
+                    </div>
+                  ))}
+                </ScrollArea>
+              )}
             </div>
 
             {/* Conditional rendering for search results or home sections */}
