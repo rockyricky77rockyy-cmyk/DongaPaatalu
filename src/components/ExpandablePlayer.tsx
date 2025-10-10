@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2 } from "lucide-react";
+import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2, Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat } from "lucide-react";
@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { cn } from "@/lib/utils";
 import AppSidebar from "./AppSidebar";
-import MobileSidebar from "./MobileSidebar"; // Added missing import
+import MobileSidebar from "./MobileSidebar";
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
