@@ -38,31 +38,9 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 bg-white border-r border-border p-6 space-y-2 relative"> {/* Changed bg-card to bg-white */}
-        {/* Transparent neon glow overlay */}
-        <div className="absolute inset-0 bg-gradient-glow opacity-30 pointer-events-none" />
-
-        <SheetHeader className="mb-8 flex justify-center relative z-10">
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <NeonLogo size="small" />
-        </SheetHeader>
-        <nav className="space-y-1 relative z-10">
-          {navItems.map((item) => (
-            <Button
-              key={item.id}
-              variant={activeNav === item.id ? "default" : "ghost"}
-              className={`w-full justify-start gap-3 ${
-                activeNav === item.id
-                  ? "bg-primary text-primary-foreground shadow-neon"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-              onClick={() => handleItemClick(item)}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </Button>
-          ))}
-        </nav>
+      <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2 relative">
+        {/* Temporarily simplified content for debugging */}
+        <div className="text-white text-xl font-bold">Sidebar Content Here</div>
       </SheetContent>
     </Sheet>
   );
