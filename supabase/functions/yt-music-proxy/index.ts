@@ -255,16 +255,16 @@ serve(async (req) => {
     // Endpoint for fetching albums (new releases or search)
     if (pathname.endsWith('/albums')) {
       const requestBody = await req.json();
-      const query = requestBody.query;
-      console.log(`[yt-music-proxy] Fetching albums for query: "${query || 'new releases'}"`);
+      const query = requestBody.query; // Allow custom query, default to Telugu
+      console.log(`[yt-music-proxy] Fetching albums for query: "${query || 'Telugu new releases albums'}"`);
 
       let albumResults: any[] = [];
       if (query) {
         const searchRes = await ytmusic.search(query, 'albums');
         albumResults = searchRes;
       } else {
-        const newReleases = await ytmusic.search('new releases', 'albums');
-        albumResults = newReleases; // Use all results from the search
+        const newReleases = await ytmusic.search('Telugu new releases albums', 'albums'); // Default to Telugu
+        albumResults = newReleases;
       }
 
       const formattedAlbums = albumResults.map((item: any) => {
@@ -327,8 +327,18 @@ serve(async (req) => {
 
     // NEW: Endpoint for fetching playlists (simulated browse via search)
     if (pathname.endsWith('/playlists')) {
-      console.log(`[yt-music-proxy] Fetching trending playlists.`);
-      const playlistResults = await ytmusic.search('trending playlists', 'playlists');
+      const requestBody = await req.json();
+      const query = requestBody.query; // Allow custom query, default to Telugu
+      console.log(`[yt-music-proxy] Fetching trending playlists for query: "${query || 'Telugu trending playlists'}"`);
+      
+      let playlistResults: any[] = [];
+      if (query) {
+        const searchRes = await ytmusic.search(query, 'playlists');
+        playlistResults = searchRes;
+      } else {
+        const trendingPlaylists = await ytmusic.search('Telugu trending playlists', 'playlists'); // Default to Telugu
+        playlistResults = trendingPlaylists;
+      }
 
       const formattedPlaylists = playlistResults.map((item: any) => {
         const name = item.title || item.name || 'Unknown Playlist';

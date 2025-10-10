@@ -153,7 +153,7 @@ export const useYouTubeMusicAlbums = (query?: string | null) => {
     queryKey: ["youtubeMusicAlbums", query],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/albums', {
-        body: { query },
+        body: { query: query || 'Telugu new releases albums' }, // Default to Telugu albums
       });
 
       if (error) {
@@ -194,7 +194,9 @@ export const useYouTubeMusicPlaylists = () => {
   return useQuery<YouTubeMusicPlaylist[], Error>({
     queryKey: ["youtubeMusicPlaylists"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('yt-music-proxy/playlists');
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/playlists', {
+        body: { query: 'Telugu trending playlists' }, // Default to Telugu playlists
+      });
 
       if (error) {
         console.error("Supabase Edge Function Error (playlists):", error);
