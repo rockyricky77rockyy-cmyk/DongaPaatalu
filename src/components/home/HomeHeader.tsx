@@ -24,7 +24,7 @@ const HomeHeader = ({ searchTerm, setSearchTerm }: HomeHeaderProps) => {
   };
 
   return (
-    <div className="bg-background p-4 sm:p-8 border-b border-border hidden lg:block relative z-20"> {/* Removed sticky, added relative z-20 */}
+    <div className="sticky top-0 z-20 bg-background p-4 sm:p-8 border-b border-border hidden lg:block"> {/* Re-added sticky, top-0, z-20 */}
       <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       <Input
         placeholder="Search music, artists, albums..."

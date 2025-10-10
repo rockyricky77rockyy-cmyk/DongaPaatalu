@@ -95,7 +95,7 @@ const Home = () => {
           {/* Desktop Search Bar (now in HomeHeader) */}
           <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-          <main className="p-4 sm:p-8 space-y-8"> {/* Removed pt-28, as HomeHeader is now inside the scrollable area */}
+          <main className="p-4 sm:p-8 space-y-8 mt-[112px]"> {/* Added mt-[112px] to account for sticky header */}
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
