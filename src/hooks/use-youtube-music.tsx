@@ -153,7 +153,7 @@ export const useYouTubeMusicAlbums = (query?: string | null) => {
     queryKey: ["youtubeMusicAlbums", query],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/albums', {
-        body: { query: query || 'Telugu new releases albums' }, // Default to Telugu albums
+        body: { query: query || 'popular albums' }, // Default to popular albums
       });
 
       if (error) {
@@ -195,7 +195,7 @@ export const useYouTubeMusicPlaylists = () => {
     queryKey: ["youtubeMusicPlaylists"],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/playlists', {
-        body: { query: 'Telugu trending playlists' }, // Default to Telugu playlists
+        body: { query: 'trending playlists' }, // Default to trending playlists
       });
 
       if (error) {

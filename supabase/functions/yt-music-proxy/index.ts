@@ -255,16 +255,16 @@ serve(async (req) => {
     // Endpoint for fetching albums (new releases or search)
     if (pathname.endsWith('/albums')) {
       const requestBody = await req.json();
-      const query = requestBody.query; // Allow custom query, default to Telugu
-      console.log(`[yt-music-proxy] Fetching albums for query: "${query || 'Telugu new releases albums'}"`);
+      const query = requestBody.query; // Allow custom query, default to 'popular albums'
+      console.log(`[yt-music-proxy] Fetching albums for query: "${query || 'popular albums'}"`);
 
       let albumResults: any[] = [];
       if (query) {
         const searchRes = await ytmusic.search(query, 'albums');
         albumResults = searchRes;
       } else {
-        const newReleases = await ytmusic.search('Telugu new releases albums', 'albums'); // Default to Telugu
-        albumResults = newReleases;
+        const popularAlbums = await ytmusic.search('popular albums', 'albums'); // Default to popular albums
+        albumResults = popularAlbums;
       }
 
       const formattedAlbums = albumResults.map((item: any) => {
@@ -328,15 +328,15 @@ serve(async (req) => {
     // NEW: Endpoint for fetching playlists (simulated browse via search)
     if (pathname.endsWith('/playlists')) {
       const requestBody = await req.json();
-      const query = requestBody.query; // Allow custom query, default to Telugu
-      console.log(`[yt-music-proxy] Fetching trending playlists for query: "${query || 'Telugu trending playlists'}"`);
+      const query = requestBody.query; // Allow custom query, default to 'trending playlists'
+      console.log(`[yt-music-proxy] Fetching trending playlists for query: "${query || 'trending playlists'}"`);
       
       let playlistResults: any[] = [];
       if (query) {
         const searchRes = await ytmusic.search(query, 'playlists');
         playlistResults = searchRes;
       } else {
-        const trendingPlaylists = await ytmusic.search('Telugu trending playlists', 'playlists'); // Default to Telugu
+        const trendingPlaylists = await ytmusic.search('trending playlists', 'playlists'); // Default to trending playlists
         playlistResults = trendingPlaylists;
       }
 
