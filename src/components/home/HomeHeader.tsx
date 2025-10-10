@@ -1,13 +1,11 @@
 import React, { useState, forwardRef } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-// Removed ScrollArea import as suggestions will be handled in Home.tsx
-// Removed useYouTubeMusicSuggestions import as suggestions will be handled in Home.tsx
 
 interface HomeHeaderProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  setShowSuggestions: (show: boolean) => void; // New prop to control visibility
+  setShowSuggestions: (show: boolean) => void;
 }
 
 const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, setSearchTerm, setShowSuggestions }, ref) => {
@@ -18,20 +16,22 @@ const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, se
 
   return (
     <div ref={ref} className="sticky top-0 z-20 bg-background p-4 sm:p-8 border-b border-border hidden lg:block min-h-[4.5rem] lg:min-h-[6.5rem]">
-      <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-      <Input
-        placeholder="Search music, artists, albums..."
-        className="pl-10 bg-input border-border rounded-lg h-10 text-sm"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-      />
-      {/* Suggestions are no longer rendered here */}
+      <div className="relative"> {/* New wrapper for input and icon */}
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Search music, artists, albums..."
+          className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full" {/* Added w-full */}
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+        />
+      </div>
+      {/* Suggestions are rendered in Home.tsx */}
     </div>
   );
 });
 
-HomeHeader.displayName = 'HomeHeader'; // Add display name for forwardRef
+HomeHeader.displayName = 'HomeHeader';
 
 export default HomeHeader;

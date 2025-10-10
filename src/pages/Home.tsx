@@ -25,8 +25,8 @@ const Home = () => {
   const [activeNav, setActiveNav] = useState("home");
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const mobileHeaderRef = useRef<HTMLElement>(null); // Ref for mobile header
-  const desktopHeaderRef = useRef<HTMLDivElement>(null); // Ref for desktop header
+  const mobileHeaderRef = useRef<HTMLElement>(null);
+  const desktopHeaderRef = useRef<HTMLDivElement>(null);
   const [mobileSuggestionsTop, setMobileSuggestionsTop] = useState(0);
   const [desktopSuggestionsTop, setDesktopSuggestionsTop] = useState(0);
 
@@ -53,8 +53,8 @@ const Home = () => {
       }
     };
 
-    updateSuggestionsPositions(); // Set initial position
-    window.addEventListener('resize', updateSuggestionsPositions); // Update on resize
+    updateSuggestionsPositions();
+    window.addEventListener('resize', updateSuggestionsPositions);
 
     return () => window.removeEventListener('resize', updateSuggestionsPositions);
   }, []);
@@ -75,7 +75,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative">
+    <div className="h-full bg-background flex flex-col relative"> {/* Changed min-h-screen to h-full */}
       <div className="flex-1 flex flex-col lg:flex-row">
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
         <header
@@ -120,9 +120,9 @@ const Home = () => {
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col relative"> {/* Added relative here for desktop suggestions positioning */}
+        <div className="flex-1 flex flex-col relative">
           {/* Desktop Search Bar (now in HomeHeader) */}
-          <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} setShowSuggestions={setShowSuggestions} ref={desktopHeaderRef} /> {/* Pass ref and setShowSuggestions */}
+          <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} setShowSuggestions={setShowSuggestions} ref={desktopHeaderRef} />
 
           {/* Desktop Search Suggestions */}
           {showSuggestions && suggestions && suggestions.length > 0 && (
@@ -142,7 +142,7 @@ const Home = () => {
             </ScrollArea>
           )}
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 lg:mt-[112px] mt-[72px]"> {/* Adjusted mobile mt to 72px */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 lg:mt-[112px] mt-[72px]">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
