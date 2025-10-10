@@ -89,7 +89,7 @@ const Home = () => {
         >
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
           {/* Replaced NeonLogo with "DPaata" text */}
-          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]"> {/* Added ml-[-3px] */}
+          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]">
             DPaata
           </div>
           {/* Mobile Search Bar */}
@@ -150,14 +150,14 @@ const Home = () => {
             </ScrollArea>
           )}
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12"> {/* Adjusted spacing */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
             ) : (
               <>
                 <HomeHeroSection />
-                <HomeRecentlySearched />
+                <HomeRecentlySearched className="mt-8" /> {/* Added mt-8 for gap */}
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />

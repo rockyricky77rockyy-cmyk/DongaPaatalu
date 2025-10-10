@@ -10,10 +10,10 @@ const HomeHeroSection = () => {
   const { isPlaying, currentTrack, togglePlayPause } = useMusicPlayer();
 
   return (
-    <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-4 sm:p-8 overflow-hidden border border-primary/20 shadow-card">
+    <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-3 sm:p-6 overflow-hidden border border-primary/20 shadow-card">
       <div className="absolute inset-0 bg-gradient-glow opacity-50" />
       
-      <div className="relative z-10 flex flex-col items-center justify-center py-8 sm:py-12">
+      <div className="relative z-10 flex flex-col items-center justify-center py-6 sm:py-10">
         <div className="relative flex items-center justify-center">
           {/* Left Visualizer - behind the disc */}
           <div className="absolute -left-16 md:-left-24 top-1/2 -translate-y-1/2 h-32 md:h-48 z-[1]">
