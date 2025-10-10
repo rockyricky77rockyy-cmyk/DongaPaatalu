@@ -187,10 +187,8 @@ serve(async (req) => {
         const searchRes = await ytmusic.search(query, 'albums');
         albumResults = searchRes;
       } else {
-        // Corrected: Use search for 'new releases' instead of getNewReleases
         const newReleases = await ytmusic.search('new releases', 'albums');
-        // Filter for items that are clearly albums
-        albumResults = newReleases.filter((item: any) => item.type === 'Album');
+        albumResults = newReleases; // Use all results from the search
       }
 
       const formattedAlbums = albumResults.map((item: any) => {
@@ -215,7 +213,9 @@ serve(async (req) => {
           thumbnail,
           albumId,
         };
-      });
+      }).filter(album => album.albumId); // Filter out any items that genuinely don't have an albumId
+
+      console.log(`[yt-music-proxy] Formatted album results count: ${formattedAlbums.length}`);
 
       return new Response(JSON.stringify({ albums: formattedAlbums }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
