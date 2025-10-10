@@ -47,6 +47,11 @@ serve(async (req) => {
 
       // Process song results
       songResults.forEach((item: any) => {
+        const videoId = item.videoId;
+        if (!videoId) { // Only include tracks that have a videoId
+          console.log(`[yt-music-proxy] Skipping track "${item.title}" due to missing videoId.`);
+          return;
+        }
         const title = item.title || item.name || 'Unknown Title';
         let artist = 'Unknown Artist';
         if (item.artists && item.artists.length > 0 && item.artists[0].name) {
@@ -60,7 +65,6 @@ serve(async (req) => {
         }
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
-        const videoId = item.videoId;
         const duration = item.duration;
 
         formattedResults.push({
@@ -140,6 +144,11 @@ serve(async (req) => {
       const albumTracks = albumInfo.tracks || [];
 
       const formattedTracks = albumTracks.map((item: any) => {
+        const videoId = item.videoId;
+        if (!videoId) { // Only include tracks that have a videoId
+          console.log(`[yt-music-proxy] Skipping album track "${item.title}" due to missing videoId.`);
+          return null; // Return null for unplayable tracks
+        }
         const title = item.title || item.name || 'Unknown Title';
         let artist = 'Unknown Artist';
         if (item.artists && item.artists.length > 0 && item.artists[0].name) {
@@ -153,7 +162,6 @@ serve(async (req) => {
         }
         const album = albumInfo.title; // Use the album title from getAlbum response
         const thumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
-        const videoId = item.videoId;
         const duration = item.duration; // Duration might be available
 
         return {
@@ -165,7 +173,7 @@ serve(async (req) => {
           videoId,
           duration,
         };
-      });
+      }).filter(Boolean); // Filter out null entries
 
       return new Response(JSON.stringify({ tracks: formattedTracks, albumTitle: albumInfo.title, albumArtist: albumInfo.artist }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -190,11 +198,15 @@ serve(async (req) => {
       const topSongs = artistInfo.topSongs || [];
 
       const formattedTracks = topSongs.map((item: any) => {
+        const videoId = item.videoId;
+        if (!videoId) { // Only include tracks that have a videoId
+          console.log(`[yt-music-proxy] Skipping artist track "${item.title}" due to missing videoId.`);
+          return null; // Return null for unplayable tracks
+        }
         const title = item.title || item.name || 'Unknown Title';
         let artist = artistInfo.name || 'Unknown Artist'; // Use artistInfo.name for consistency
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
-        const videoId = item.videoId;
         const duration = item.duration;
 
         return {
@@ -206,7 +218,7 @@ serve(async (req) => {
           videoId,
           duration,
         };
-      });
+      }).filter(Boolean); // Filter out null entries
 
       return new Response(JSON.stringify({
         artistName: artistInfo.name,
