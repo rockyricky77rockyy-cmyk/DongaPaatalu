@@ -34,16 +34,16 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden"> {/* Re-added lg:hidden */}
+        <Button variant="ghost" size="icon" className="lg:hidden">
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2 relative">
+      <SheetContent side="left" className="w-64 bg-white border-r border-border p-6 space-y-2 relative"> {/* Changed bg-card to bg-white */}
         {/* Transparent neon glow overlay */}
         <div className="absolute inset-0 bg-gradient-glow opacity-30 pointer-events-none" />
 
         <SheetHeader className="mb-8 flex justify-center relative z-10">
-          <SheetTitle className="sr-only">Navigation</SheetTitle> {/* Accessibility */}
+          <SheetTitle className="sr-only">Navigation</SheetTitle>
           <NeonLogo size="small" />
         </SheetHeader>
         <nav className="space-y-1 relative z-10">
