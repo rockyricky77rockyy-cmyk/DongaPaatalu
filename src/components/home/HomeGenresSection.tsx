@@ -47,7 +47,7 @@ const HomeGenresSection = ({ className }: HomeGenresSectionProps) => {
         {genres.slice(0, 4).map((genre) => (
           <div
             key={genre.id}
-            className={`group cursor-pointer ${genre.color} rounded-xl p-3 text-center shadow-card border border-border transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink`}
+            className={`group cursor-pointer ${genre.color} rounded-xl p-3 text-center shadow-card border border-border transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink`}
             onClick={() => navigate('/genre')}
           >
             <Mic2 className="w-8 h-8 text-white opacity-70 mx-auto mb-2" />

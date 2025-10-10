@@ -53,7 +53,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
         {radioStations.slice(0, 4).map((station) => (
           <div
             key={station.id}
-            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/radio')}
           >
             <Radio className={`w-6 h-6 ${station.icon_color}`} />

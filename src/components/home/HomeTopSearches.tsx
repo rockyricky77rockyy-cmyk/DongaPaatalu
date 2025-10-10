@@ -48,7 +48,7 @@ const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
         {topTracks.slice(0, 3).map((track) => (
           <div 
             key={track.id} 
-            className="flex items-center gap-3 p-3 bg-card rounded-lg transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="flex items-center gap-3 p-3 bg-card rounded-lg transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
           >
             <TrackThumbnail 

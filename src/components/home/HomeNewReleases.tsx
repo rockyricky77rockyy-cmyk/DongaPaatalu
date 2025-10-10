@@ -52,7 +52,7 @@ const HomeNewReleases = ({ className }: HomeNewReleasesProps) => {
         {newReleases.map((track) => (
           <div
             key={track.id}
-            className="group cursor-pointer bg-card rounded-2xl p-3 transition-all border border-border hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="group cursor-pointer bg-card rounded-2xl p-3 transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
           >
             <TrackThumbnail 

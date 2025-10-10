@@ -53,7 +53,7 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
         {playlists.slice(0, 4).map((playlist) => (
           <div
             key={playlist.id}
-            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-transparent hover:bg-gradient-neon hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/playlists')}
           >
             <div className={`w-10 h-10 rounded-md bg-gradient-to-br ${playlist.cover_color} flex items-center justify-center flex-shrink-0`}>
