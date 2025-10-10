@@ -399,7 +399,7 @@ serve(async (req) => {
         const searchRes = await ytmusic.search(query, 'playlists');
         playlistResults = searchRes;
       } else {
-        const trendingPlaylists = await ytmusic.search('trending playlists', 'playlists'); // Default to trending playlists
+        const trendingPlaylists = await ytmusic.search('popular playlists', 'playlists'); // Changed to 'popular playlists' for potentially better results
         playlistResults = trendingPlaylists;
       }
 
@@ -436,7 +436,7 @@ serve(async (req) => {
     if (pathname.endsWith('/playlist-tracks')) {
       const requestBody = await req.json();
       const { playlistId } = requestBody;
-      console.log(`[yt-music-proxy] Attempting to fetch playlist details for playlistId: "${playlistId}"`); // Added log
+      console.log(`[yt-music-proxy] Received playlistId for /playlist-tracks: "${playlistId}"`); // Added log here
 
       if (!playlistId || playlistId === 'undefined') { // Added check for 'undefined' string
         console.error('[yt-music-proxy] Missing or invalid playlistId for /playlist-tracks');
@@ -448,6 +448,7 @@ serve(async (req) => {
 
       let playlistInfo;
       try {
+        console.log(`[yt-music-proxy] Calling ytmusic.getPlaylist with ID: "${playlistId}"`); // Added log before API call
         playlistInfo = await ytmusic.getPlaylist(playlistId);
         console.log(`[yt-music-proxy] Raw playlistInfo for ${playlistId}:`, JSON.stringify(playlistInfo, null, 2));
       } catch (ytError: any) {
