@@ -224,7 +224,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 ) : (
                   <>
                     {/* Album Art & Visualizer */}
-                    <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+                    <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8"> {/* Added mb-8 */}
                       <div className="relative">
                         {/* Album Art with Neon H */}
                         <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
@@ -246,7 +246,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="px-6 lg:px-12 pb-4">
+                    <div className="px-6 lg:px-12 pb-4 mb-6"> {/* Added mb-6 */}
                       <Slider
                         value={[playbackProgress]}
                         onValueChange={handleSliderChange}
@@ -261,10 +261,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
 
                     {/* Bottom Controls */}
-                    <div className="p-4 lg:p-8 border-t border-border flex items-center">
+                    <div className="p-3 lg:p-6 border-t border-border flex items-center"> {/* Reduced padding */}
                       {/* Left Visualizer */}
                       <div className="flex-1">
-                        <Visualizer barCount={25} className="h-16 w-48 lg:h-24 lg:w-64" isPlaying={isPlaying} animationIntervalMs={100} />
+                        <Visualizer barCount={25} className="h-12 w-48 lg:h-16 lg:w-64" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Reduced height */}
                       </div>
 
                       {/* Center Controls */}
@@ -273,7 +273,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           variant="ghost"
                           size="icon"
                           className={cn(
-                            "w-8 h-8 lg:w-10 lg:h-10",
+                            "w-8 h-8 lg:w-10 lg:h-10", // Reduced size
                             isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                           )}
                           onClick={toggleShuffle}
@@ -283,14 +283,14 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
+                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12" // Reduced size
                           onClick={playPreviousTrack}
                         >
                           <SkipBack className="w-5 h-5 lg:w-7 lg:h-7" />
                         </Button>
                         <Button
                           size="icon"
-                          className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
+                          className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon" // Reduced size
                           onClick={togglePlayPause}
                         >
                           {isPlaying ? <Pause className="w-5 h-5 lg:w-7 lg:h-7" /> : <Play className="w-5 h-5 lg:w-7 lg:h-7 ml-1" />}
@@ -298,7 +298,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
+                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12" // Reduced size
                           onClick={playNextTrack}
                         >
                           <SkipForward className="w-5 h-5 lg:w-7 lg:h-7" />
@@ -307,7 +307,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           variant="ghost"
                           size="icon"
                           className={cn(
-                            "w-8 h-8 lg:w-10 lg:h-10 relative",
+                            "w-8 h-8 lg:w-10 lg:h-10 relative", // Reduced size
                             repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                           )}
                           onClick={toggleRepeatMode}
