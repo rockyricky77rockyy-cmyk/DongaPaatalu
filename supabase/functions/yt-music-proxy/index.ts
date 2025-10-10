@@ -321,6 +321,13 @@ serve(async (req) => {
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const albumId = item.albumId;
 
+        console.log(`[yt-music-proxy] Processing album "${title}" (ID: ${albumId}) raw itemCount: ${item.itemCount || 'N/A'}`); // Log itemCount for albums
+
+        if (!albumId) {
+          console.warn(`[yt-music-proxy] Skipping album "${title}" due to missing albumId.`);
+          return null; // Filter out albums without a valid ID
+        }
+
         return {
           type: 'album',
           title,
@@ -328,7 +335,7 @@ serve(async (req) => {
           thumbnail,
           albumId,
         };
-      }).filter(album => album.albumId); // Filter out any items that genuinely don't have an albumId
+      }).filter(Boolean); // Filter out any items that genuinely don't have an albumId
 
       console.log(`[yt-music-proxy] Formatted album results count: ${formattedAlbums.length}`);
 
@@ -394,8 +401,12 @@ serve(async (req) => {
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const playlistId = item.playlistId; // YouTube Music specific playlist ID
         const trackCount = item.itemCount || 0; // Number of tracks in playlist
-        console.log(`[yt-music-proxy] Playlist "${name}" (ID: ${playlistId}) raw itemCount: ${item.itemCount}, formatted trackCount: ${trackCount}`);
+        console.log(`[yt-music-proxy] Processing playlist "${name}" (ID: ${playlistId}) raw itemCount: ${item.itemCount}, formatted trackCount: ${trackCount}`);
 
+        if (!playlistId) {
+          console.warn(`[yt-music-proxy] Skipping playlist "${name}" due to missing playlistId.`);
+          return null; // Filter out playlists without a valid ID
+        }
 
         return {
           type: 'playlist',
@@ -404,7 +415,9 @@ serve(async (req) => {
           playlistId,
           trackCount,
         };
-      });
+      }).filter(Boolean); // Filter out null entries
+
+      console.log(`[yt-music-proxy] Formatted playlist results count: ${formattedPlaylists.length}`);
 
       return new Response(JSON.stringify({ playlists: formattedPlaylists }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
