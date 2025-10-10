@@ -16,17 +16,17 @@ const HomeRecentlySearched = () => {
         {recentlySearched.map((track, index) => (
           <div 
             key={index} 
-            className="flex items-center gap-3 p-2 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[180px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="flex items-center gap-3 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack(track)}
           >
             <TrackThumbnail 
               thumbnail={track.thumbnail} 
               title={track.title} 
-              className="w-8 h-8 rounded-md" 
-              iconClassName="w-4 h-4 text-primary"
+              className="w-10 h-10 rounded-md" 
+              iconClassName="w-5 h-5 text-primary"
             />
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-foreground truncate">{track.title}</h3>
+              <h3 className="font-semibold text-base text-foreground truncate">{track.title}</h3>
               <p className="text-xs text-muted-foreground truncate">{track.artist} {track.album && `• ${track.album}`}</p>
             </div>
           </div>
