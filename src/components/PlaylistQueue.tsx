@@ -124,38 +124,44 @@ const PlaylistQueue = ({ activeTrackId, isMobile = false, recentlySearched = [] 
       {/* Playlist / Similarities */}
       <ScrollArea className="flex-1">
         <div className="px-4 pb-4 space-y-2">
-          {tracksToDisplay?.map((track) => (
-            <div
-              key={track.videoId} // Use videoId as key for recently searched tracks
-              className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
-                track.videoId === activeTrackId
-                  ? 'bg-primary/20 border border-primary/50 shadow-neon'
-                  : 'hover:bg-muted/50'
-              }`}
-              onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
-            >
-              {/* Album Art */}
-              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
-                {track.thumbnail ? (
-                  <img src={track.thumbnail} alt={track.title} className="w-full h-full object-cover rounded-md sm:rounded-lg" />
-                ) : (
-                  <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" />
-                )}
-              </div>
+          {tracksToDisplay && tracksToDisplay.length > 0 ? (
+            tracksToDisplay.map((track) => (
+              <div
+                key={track.videoId} // Use videoId as key for recently searched tracks
+                className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
+                  track.videoId === activeTrackId
+                    ? 'bg-primary/20 border border-primary/50 shadow-neon'
+                    : 'hover:bg-muted/50'
+                }`}
+                onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+              >
+                {/* Album Art */}
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
+                  {track.thumbnail ? (
+                    <img src={track.thumbnail} alt={track.title} className="w-full h-full object-cover rounded-md sm:rounded-lg" />
+                  ) : (
+                    <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" />
+                  )}
+                </div>
 
-              {/* Track Info */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{track.title}</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate">{track.artist}</p>
-              </div>
+                {/* Track Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{track.title}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">{track.artist}</p>
+                </div>
 
-              {/* Duration & Action */}
-              <div className="flex items-center gap-1 sm:gap-2">
-                <span className="text-xs sm:text-sm text-muted-foreground">{track.duration}</span>
-                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                {/* Duration & Action */}
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="text-xs sm:text-sm text-muted-foreground">{track.duration}</span>
+                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-muted-foreground text-center py-8">
+              {isMobile ? "No recently played tracks." : "No tracks in playlist."}
+            </p>
+          )}
         </div>
       </ScrollArea>
     </div>
