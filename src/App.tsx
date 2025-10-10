@@ -12,9 +12,10 @@ import GenrePage from "./pages/GenrePage";
 import PlaylistsPage from "./pages/PlaylistsPage";
 import NotFound from "./pages/NotFound";
 import Player from "./components/Player";
-import { MusicPlayerProvider, useMusicPlayer } from "./context/MusicPlayerContext"; // Import MusicPlayerProvider and useMusicPlayer
-import YouTubeEmbed from "./components/YouTubeEmbed"; // Import YouTubeEmbed
-import React, { useCallback } from "react"; // Import useCallback
+import { MusicPlayerProvider, useMusicPlayer } from "./context/MusicPlayerContext";
+import YouTubeEmbed from "./components/YouTubeEmbed";
+import React, { useCallback } from "react";
+import AlbumDetailsPage from "./pages/AlbumDetailsPage"; // Import the new AlbumDetailsPage
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const AppContent = () => {
           <Route path="/radio" element={<RadioPage />} />
           <Route path="/genre" element={<GenrePage />} />
           <Route path="/playlists" element={<PlaylistsPage />} />
+          <Route path="/album/:albumId" element={<AlbumDetailsPage />} /> {/* New route for album details */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
