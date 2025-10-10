@@ -1,32 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Play, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import NeonLogo from "@/components/NeonLogo";
-import Visualizer from "@/components/Visualizer";
-import { useIsMobile } from "@/hooks/use-mobile";
-import MobileSidebar from "@/components/MobileSidebar";
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useYouTubeMusicSearch } from "@/hooks/use-youtube-music";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMusicPlayer } from "@/context/MusicPlayerContext";
-import { useAlbums } from "@/hooks/use-albums"; // Import useAlbums hook
-import { useNewReleases } from "@/hooks/use-new-releases"; // Import useNewReleases hook
-import { useTracks } from "@/hooks/use-tracks"; // Import useTracks for Top Searches
-import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton for loading states
-import TrackThumbnail from "@/components/TrackThumbnail"; // Import the new component
+import MobileSidebar from "@/components/MobileSidebar";
+import NeonLogo from "@/components/NeonLogo";
+import HomeHeroSection from "@/components/home/HomeHeroSection";
+import HomeSearchResults from "@/components/home/HomeSearchResults";
+import HomeRecentlySearched from "@/components/home/HomeRecentlySearched";
+import HomeTopSearches from "@/components/home/HomeTopSearches";
+import HomeNewReleases from "@/components/home/HomeNewReleases";
+import HomeAlbumsSection from "@/components/home/HomeAlbumsSection";
+import { Button } from "@/components/ui/button"; // Import Button for nav items
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
-  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
-  const { playTrack, isPlaying, recentlySearched } = useMusicPlayer(); // Destructure isPlaying and recentlySearched
-
-  const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
-  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useAlbums();
-  const { data: newReleases, isLoading: isNewReleasesLoading, isError: isNewReleasesError, error: newReleasesError } = useNewReleases();
-  const { data: allTracks, isLoading: isAllTracksLoading, isError: isAllTracksError, error: allTracksError } = useTracks(); // For Top Searches
 
   const navItems = [
     { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
@@ -101,214 +90,16 @@ const Home = () => {
               />
             </div>
 
-            {/* Conditional rendering for search results or hero/sections */}
+            {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
-              <div className="mt-8">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
-                {isSearchLoading && <p className="text-muted-foreground">Searching...</p>}
-                {isSearchError && <p className="text-destructive">Error: {searchError?.message}</p>}
-                {searchResults && searchResults.length > 0 ? (
-                  <ScrollArea className="h-[400px] rounded-md border border-border p-4">
-                    <div className="space-y-4">
-                      {searchResults.map((track, index) => (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
-                          onClick={() => playTrack(track)}
-                        >
-                          <TrackThumbnail 
-                            thumbnail={track.thumbnail} 
-                            title={track.title} 
-                            className="w-12 h-12 rounded-md" 
-                            iconClassName="w-6 h-6 text-primary"
-                          />
-                          <div>
-                            <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
-                            <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                ) : (
-                  !isSearchLoading && !isSearchError && <p className="text-muted-foreground">No results found.</p>
-                )}
-              </div>
+              <HomeSearchResults searchTerm={searchTerm} />
             ) : (
               <>
-                {/* Hero Section */}
-                <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
-                  <div className="absolute inset-0 bg-gradient-glow opacity-50" />
-                  
-                  <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between">
-                    <div className="flex-1 flex justify-center mb-8 sm:mb-0">
-                      <div className="relative">
-                        <NeonLogo size={isMobile ? "medium" : "large"} />
-                        <Button
-                          size={isMobile ? "md" : "lg"}
-                          className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
-                        >
-                          <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="relative z-10 mt-4 sm:mt-8">
-                    <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Pass animationIntervalMs */}
-                  </div>
-                </div>
-
-                {/* Recently Searched Section */}
-                {recentlySearched.length > 0 && (
-                  <div className="mt-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Recently Searched</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {recentlySearched.map((track, index) => (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
-                          onClick={() => playTrack(track)}
-                        >
-                          <TrackThumbnail 
-                            thumbnail={track.thumbnail} 
-                            title={track.title} 
-                            className="w-12 h-12 rounded-md" 
-                            iconClassName="w-6 h-6 text-primary"
-                          />
-                          <div>
-                            <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
-                            <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Top Searches Section */}
-                <div className="mt-8">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
-                  {isAllTracksLoading && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                      ))}
-                    </div>
-                  )}
-                  {isAllTracksError && <p className="text-destructive">Error loading top searches: {allTracksError?.message}</p>}
-                  {allTracks && allTracks.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {allTracks.slice(0, 3).map((track) => ( // Display top 3 tracks as "Top Searches"
-                        <div 
-                          key={track.id} 
-                          className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
-                          onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
-                        >
-                          <TrackThumbnail 
-                            thumbnail={track.thumbnail} 
-                            title={track.title} 
-                            color={track.color} 
-                            className="w-12 h-12 rounded-md" 
-                            iconClassName="w-6 h-6 text-white opacity-70"
-                          />
-                          <div>
-                            <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
-                            <p className="text-sm text-muted-foreground">{track.artist}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* New Releases Section */}
-                <div className="mt-8">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">New Releases</h2>
-                  {isNewReleasesLoading && (
-                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
-                          <Skeleton className="aspect-square rounded-xl mb-4" />
-                          <Skeleton className="h-6 w-3/4 mb-1" />
-                          <Skeleton className="h-4 w-1/2" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {isNewReleasesError && <p className="text-destructive">Error loading new releases: {newReleasesError?.message}</p>}
-                  {newReleases && newReleases.length > 0 && (
-                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                      {newReleases.map((track) => (
-                        <div
-                          key={track.id}
-                          className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-                          onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
-                        >
-                          <TrackThumbnail 
-                            thumbnail={track.thumbnail} 
-                            title={track.title} 
-                            color={track.color} 
-                            className="aspect-square rounded-xl mb-4" 
-                            iconClassName="w-16 h-16 text-white opacity-50"
-                          />
-                          <h3 className="font-semibold text-lg text-foreground mb-1">{track.title}</h3>
-                          <p className="text-sm text-muted-foreground">{track.artist}</p>
-                          <Button 
-                            size="icon" 
-                            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
-                          >
-                            <Play className="w-5 h-5 fill-current" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Albums Section */}
-                <div className="mt-8">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
-                  {isAlbumsLoading && (
-                    <div className="flex flex-col md:grid md::grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
-                          <Skeleton className="aspect-square rounded-xl mb-4" />
-                          <Skeleton className="h-6 w-3/4 mb-1" />
-                          <Skeleton className="h-4 w-1/2" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {isAlbumsError && <p className="text-destructive">Error loading albums: {albumsError?.message}</p>}
-                  {albums && albums.length > 0 && (
-                    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                      {albums.map((album) => (
-                        <div
-                          key={album.id}
-                          className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-                          onClick={() => navigate('/albums')} // Navigate to albums page
-                        >
-                          <TrackThumbnail 
-                            thumbnail={undefined} // Albums don't have thumbnails in the current schema, so force fallback
-                            title={album.title} 
-                            color={album.cover_color} 
-                            className="aspect-square rounded-xl mb-4" 
-                            iconClassName="w-16 h-16 text-white opacity-50"
-                          />
-                          <h3 className="font-semibold text-lg text-foreground mb-1">{album.title}</h3>
-                          <p className="text-sm text-muted-foreground">{album.artist_name}</p>
-                          <Button 
-                            size="icon" 
-                            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
-                          >
-                            <Play className="w-5 h-5 fill-current" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <HomeHeroSection />
+                <HomeRecentlySearched />
+                <HomeTopSearches />
+                <HomeNewReleases />
+                <HomeAlbumsSection />
               </>
             )}
           </div>

@@ -1,0 +1,38 @@
+import React from 'react';
+import { Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import NeonLogo from '@/components/NeonLogo';
+import Visualizer from '@/components/Visualizer';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useMusicPlayer } from '@/context/MusicPlayerContext';
+
+const HomeHeroSection = () => {
+  const isMobile = useIsMobile();
+  const { isPlaying } = useMusicPlayer();
+
+  return (
+    <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
+      <div className="absolute inset-0 bg-gradient-glow opacity-50" />
+      
+      <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between">
+        <div className="flex-1 flex justify-center mb-8 sm:mb-0">
+          <div className="relative">
+            <NeonLogo size={isMobile ? "medium" : "large"} />
+            <Button
+              size={isMobile ? "md" : "lg"}
+              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
+            >
+              <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-4 sm:mt-8">
+        <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" isPlaying={isPlaying} animationIntervalMs={100} />
+      </div>
+    </div>
+  );
+};
+
+export default HomeHeroSection;
