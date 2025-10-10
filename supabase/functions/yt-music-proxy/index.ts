@@ -394,6 +394,8 @@ serve(async (req) => {
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const playlistId = item.playlistId; // YouTube Music specific playlist ID
         const trackCount = item.itemCount || 0; // Number of tracks in playlist
+        console.log(`[yt-music-proxy] Playlist "${name}" (ID: ${playlistId}) raw itemCount: ${item.itemCount}, formatted trackCount: ${trackCount}`);
+
 
         return {
           type: 'playlist',
