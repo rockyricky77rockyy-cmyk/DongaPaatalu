@@ -69,13 +69,13 @@ const Player = () => {
                 src={currentTrack.thumbnail} 
                 alt={currentTrack.title} 
                 className={cn(
-                  "w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0",
+                  "w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0 border border-primary/50 shadow-neon", // Added border and shadow
                   isPlaying && "animate-zoom-pulse" // Apply animation when playing
                 )} 
               />
             ) : (
               <div className={cn(
-                "w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0",
+                "w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0 border border-primary/50 shadow-neon", // Added border and shadow
                 isPlaying && "animate-zoom-pulse" // Apply animation when playing
               )}>
                 <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" />

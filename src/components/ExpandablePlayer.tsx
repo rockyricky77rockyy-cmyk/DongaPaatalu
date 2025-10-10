@@ -379,21 +379,29 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             <>
               {/* Album Art */}
               <div className="flex justify-center p-6">
-                <div className={cn(
-                  "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden",
-                  isPlaying && "animate-zoom-pulse" // Apply animation when playing
-                )}>
-                  {/* Visualizer behind the thumbnail */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-40">
-                    <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
+                <div className="relative">
+                  {/* Left Visualizer */}
+                  <div className="absolute -left-16 top-1/2 -translate-y-1/2 h-48">
+                    <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
                   </div>
-                  {currentTrack?.thumbnail ? (
-                    <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
-                  ) : (
-                    <div className="relative z-10">
-                      <NeonLogo size="large" />
-                    </div>
-                  )}
+
+                  <div className={cn(
+                    "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10",
+                    isPlaying && "animate-zoom-pulse" // Apply animation when playing
+                  )}>
+                    {currentTrack?.thumbnail ? (
+                      <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
+                    ) : (
+                      <div className="relative z-10">
+                        <NeonLogo size="large" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Visualizer */}
+                  <div className="absolute -right-16 top-1/2 -translate-y-1/2 h-48">
+                    <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
+                  </div>
                 </div>
               </div>
 
