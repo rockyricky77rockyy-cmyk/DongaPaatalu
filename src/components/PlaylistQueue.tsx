@@ -1,10 +1,11 @@
-import { Music, ChevronRight, Search } from "lucide-react";
+import { Music, ChevronRight, Search, ChevronUp, ChevronDown } from "lucide-react"; // Added ChevronUp, ChevronDown
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
-import { useTracks } from "@/hooks/use-tracks"; // Import useTracks hook
-import { useMusicPlayer } from "@/context/MusicPlayerContext"; // Import useMusicPlayer
+import { useTracks } from "@/hooks/use-tracks";
+import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
+import { cn } from "@/lib/utils"; // Import cn for conditional classnames
 
 interface Track {
   videoId: string;
@@ -12,21 +13,25 @@ interface Track {
   artist: string;
   thumbnail?: string;
   album?: string;
+  color?: string; // Added color for fallback
+  duration?: string; // Added duration
 }
 
 interface PlaylistQueueProps {
-  activeTrackId?: string; // Changed to string for UUID
+  activeTrackId?: string;
   isMobile?: boolean;
-  recentlySearched?: Track[]; // Added recentlySearched prop for mobile
+  recentlySearched?: Track[];
+  isOpen?: boolean; // New prop to control open/close state
+  onToggle?: () => void; // New prop for toggle function
 }
 
-const PlaylistQueue = ({ activeTrackId, isMobile = false, recentlySearched = [] }: PlaylistQueueProps) => {
+const PlaylistQueue = ({ activeTrackId, isMobile = false, recentlySearched = [], isOpen = true, onToggle }: PlaylistQueueProps) => {
   const { data: tracks, isLoading, isError, error } = useTracks();
   const { playTrack } = useMusicPlayer();
 
   const tracksToDisplay = isMobile ? recentlySearched : tracks;
-  const isLoadingData = isMobile ? false : isLoading; // No loading state for recently searched
-  const isErrorData = isMobile ? false : isError; // No error state for recently searched
+  const isLoadingData = isMobile ? false : isLoading;
+  const isErrorData = isMobile ? false : isError;
   const errorData = isMobile ? null : error;
 
   if (isLoadingData) {
@@ -91,6 +96,11 @@ const PlaylistQueue = ({ activeTrackId, isMobile = false, recentlySearched = [] 
           <h2 className="text-lg sm:text-xl font-bold text-foreground">
             {isMobile ? "Similarities" : "Soru Pejje"}
           </h2>
+          {isMobile && onToggle && ( // Show toggle button only on mobile
+            <Button variant="ghost" size="icon" onClick={onToggle} className="w-8 h-8 text-muted-foreground hover:text-foreground">
+              {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+            </Button>
+          )}
           {!isMobile && <Search className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />}
         </div>
         
@@ -122,48 +132,50 @@ const PlaylistQueue = ({ activeTrackId, isMobile = false, recentlySearched = [] 
       </div>
 
       {/* Playlist / Similarities */}
-      <ScrollArea className="flex-1">
-        <div className="px-4 pb-4 space-y-2">
-          {tracksToDisplay && tracksToDisplay.length > 0 ? (
-            tracksToDisplay.map((track) => (
-              <div
-                key={track.videoId} // Use videoId as key for recently searched tracks
-                className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
-                  track.videoId === activeTrackId
-                    ? 'bg-primary/20 border border-primary/50 shadow-neon'
-                    : 'hover:bg-muted/50'
-                }`}
-                onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
-              >
-                {/* Album Art */}
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
-                  {track.thumbnail ? (
-                    <img src={track.thumbnail} alt={track.title} className="w-full h-full object-cover rounded-md sm:rounded-lg" />
-                  ) : (
-                    <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" />
-                  )}
-                </div>
+      {isOpen && ( // Conditionally render content based on isOpen
+        <ScrollArea className="flex-1">
+          <div className="px-4 pb-4 space-y-2">
+            {tracksToDisplay && tracksToDisplay.length > 0 ? (
+              tracksToDisplay.map((track) => (
+                <div
+                  key={track.videoId}
+                  className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
+                    track.videoId === activeTrackId
+                      ? 'bg-primary/20 border border-primary/50 shadow-neon'
+                      : 'hover:bg-muted/50'
+                  }`}
+                  onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+                >
+                  {/* Album Art */}
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
+                    {track.thumbnail ? (
+                      <img src={track.thumbnail} alt={track.title} className="w-full h-full object-cover rounded-md sm:rounded-lg" />
+                    ) : (
+                      <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" />
+                    )}
+                  </div>
 
-                {/* Track Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{track.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">{track.artist}</p>
-                </div>
+                  {/* Track Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{track.title}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{track.artist}</p>
+                  </div>
 
-                {/* Duration & Action */}
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <span className="text-xs sm:text-sm text-muted-foreground">{track.duration}</span>
-                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  {/* Duration & Action */}
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <span className="text-xs sm:text-sm text-muted-foreground">{track.duration}</span>
+                    <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              {isMobile ? "No recently played tracks." : "No tracks in playlist."}
-            </p>
-          )}
-        </div>
-      </ScrollArea>
+              ))
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                {isMobile ? "No recently played tracks." : "No tracks in playlist."}
+              </p>
+            )}
+          </div>
+        </ScrollArea>
+      )}
     </div>
   );
 };

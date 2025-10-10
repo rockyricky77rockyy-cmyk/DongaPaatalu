@@ -34,15 +34,16 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     toggleShuffle,
     repeatMode,
     toggleRepeatMode,
-    recentlySearched, // Added recentlySearched for mobile playlist
+    recentlySearched,
   } = useMusicPlayer();
-  const [activeNav, setActiveNav] = useState("home"); // State for internal navigation in expanded player
+  const [activeNav, setActiveNav] = useState("home");
+  const [isPlaylistQueueOpen, setIsPlaylistQueueOpen] = useState(true); // New state for mobile playlist queue
   const isMobile = useIsMobile();
 
   const handleNavClick = (item: { id: string; path: string }) => {
     setActiveNav(item.id);
     navigate(item.path);
-    onClose(); // Close the expanded player after navigating
+    onClose();
   };
 
   const formatTime = (seconds: number) => {
@@ -337,8 +338,17 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
           </div>
 
           {/* Playlist Section */}
-          <div className="flex-none h-[300px] sm:h-[400px] bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden">
-            <PlaylistQueue activeTrackId={currentTrack?.id} isMobile recentlySearched={recentlySearched} />
+          <div className={cn(
+            "flex-none bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden transition-all duration-300 ease-in-out",
+            isPlaylistQueueOpen ? "h-[300px] sm:h-[400px]" : "h-16" // Dynamic height
+          )}>
+            <PlaylistQueue 
+              activeTrackId={currentTrack?.id} 
+              isMobile 
+              recentlySearched={recentlySearched} 
+              isOpen={isPlaylistQueueOpen} // Pass isOpen prop
+              onToggle={() => setIsPlaylistQueueOpen(prev => !prev)} // Pass toggle function
+            />
           </div>
         </div>
       )}
