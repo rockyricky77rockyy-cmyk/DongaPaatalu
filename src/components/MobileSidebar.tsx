@@ -2,7 +2,7 @@ import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import NeonLogo from "./NeonLogo";
+// import NeonLogo from "./NeonLogo"; // Removed NeonLogo import
 
 interface NavItem {
   id: string;
@@ -35,7 +35,10 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
       <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2">
         <SheetHeader className="mb-8 flex justify-center">
           <SheetTitle className="sr-only">Navigation</SheetTitle> {/* Accessibility */}
-          <NeonLogo size="small" />
+          {/* Replaced NeonLogo with text */}
+          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+            Donga Paatalu
+          </div>
         </SheetHeader>
         <nav className="space-y-1">
           {navItems.map((item) => (
