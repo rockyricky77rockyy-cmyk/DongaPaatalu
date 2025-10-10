@@ -170,11 +170,13 @@ export const useYouTubeMusicAlbums = (query?: string | null) => {
   });
 };
 
-export const useYouTubeMusicArtists = () => {
+export const useYouTubeMusicArtists = (query?: string | null) => {
   return useQuery<YouTubeMusicArtist[], Error>({
-    queryKey: ["youtubeMusicArtists"],
+    queryKey: ["youtubeMusicArtists", query],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('yt-music-proxy/artists');
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/artists', {
+        body: { query: query || 'popular artists' }, // Default to popular artists
+      });
 
       if (error) {
         console.error("Supabase Edge Function Error (artists):", error);
@@ -190,12 +192,12 @@ export const useYouTubeMusicArtists = () => {
   });
 };
 
-export const useYouTubeMusicPlaylists = () => {
+export const useYouTubeMusicPlaylists = (query?: string | null) => {
   return useQuery<YouTubeMusicPlaylist[], Error>({
-    queryKey: ["youtubeMusicPlaylists"],
+    queryKey: ["youtubeMusicPlaylists", query],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/playlists', {
-        body: { query: 'trending playlists' }, // Default to trending playlists
+        body: { query: query || 'trending playlists' }, // Default to trending playlists
       });
 
       if (error) {
@@ -239,5 +241,36 @@ export const useYouTubePlaylistTracks = (playlistId: string | null) => {
       return { tracks: [], playlistName: '', playlistThumbnail: undefined, trackCount: 0 };
     },
     enabled: !!playlistId,
+  });
+};
+
+// NEW: Hook for fetching related tracks
+export const useYouTubeRelatedTracks = (currentTrack: YouTubeMusicTrack | null) => {
+  return useQuery<YouTubeMusicTrack[], Error>({
+    queryKey: ["youtubeRelatedTracks", currentTrack?.videoId, currentTrack?.artist, currentTrack?.album],
+    queryFn: async () => {
+      if (!currentTrack) return [];
+
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/related-tracks', {
+        body: {
+          videoId: currentTrack.videoId,
+          artist: currentTrack.artist,
+          album: currentTrack.album,
+        },
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error (related-tracks):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.relatedTracks) {
+        return data.relatedTracks as YouTubeMusicTrack[];
+      }
+      return [];
+    },
+    enabled: !!currentTrack, // Only enable query if a current track is playing
+    staleTime: 5 * 60 * 1000, // Cache related tracks for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 };

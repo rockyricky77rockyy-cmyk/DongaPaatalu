@@ -8,7 +8,8 @@ import TrackThumbnail from '@/components/TrackThumbnail'; // Reusing TrackThumbn
 
 const PlaylistsPage = () => {
   const navigate = useNavigate();
-  const { data: playlists, isLoading, isError, error } = useYouTubeMusicPlaylists();
+  // Fetch Telugu playlists specifically
+  const { data: playlists, isLoading, isError, error } = useYouTubeMusicPlaylists('Telugu playlists');
 
   if (isLoading) {
     return (

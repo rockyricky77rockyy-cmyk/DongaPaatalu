@@ -13,7 +13,8 @@ interface HomeAlbumsSectionProps {
 
 const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
   const navigate = useNavigate();
-  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useYouTubeMusicAlbums(); // Removed language filter
+  // Fetch Telugu albums specifically
+  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useYouTubeMusicAlbums('Telugu albums'); 
 
   if (isAlbumsLoading) {
     return (

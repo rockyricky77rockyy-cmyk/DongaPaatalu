@@ -2,55 +2,46 @@ import { Music, ChevronRight, Search, ChevronUp, ChevronDown } from "lucide-reac
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
-import { useTracks } from "@/hooks/use-tracks";
+import { useTracks } from "@/hooks/use-tracks"; // Keep for now, but will be replaced for desktop
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Track as MusicPlayerTrack } from "@/context/MusicPlayerContext"; // Import Track from MusicPlayerContext
+import { Track as MusicPlayerTrack, YouTubeMusicTrack, useYouTubeRelatedTracks } from "@/hooks/use-youtube-music"; // Import Track from MusicPlayerContext and new hook
 
 // Define a local interface for tracks displayed in the playlist queue,
 // combining properties from MusicPlayerTrack and useTracks.
-interface DisplayTrack extends MusicPlayerTrack {
+interface DisplayTrack extends YouTubeMusicTrack { // Changed to YouTubeMusicTrack
   id?: string; // Optional id from Supabase
   color?: string;
   duration?: string;
 }
 
 interface PlaylistQueueProps {
-  activeVideoId?: string; // Renamed from activeTrackId to activeVideoId
+  activeVideoId?: string;
   isMobile?: boolean;
-  recentlySearched?: MusicPlayerTrack[]; // Use MusicPlayerTrack for consistency
+  recentlySearched?: MusicPlayerTrack[];
   isOpen?: boolean;
   onToggle?: () => void;
 }
 
 const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [], isOpen = true, onToggle }: PlaylistQueueProps) => {
-  const { data: tracks, isLoading, isError, error } = useTracks();
-  const { playTrack } = useMusicPlayer();
+  const { currentTrack, playTrack } = useMusicPlayer();
+  const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
-  // Map Supabase tracks to DisplayTrack format, ensuring videoId is present
-  const supabaseTracks: DisplayTrack[] = tracks?.map(track => ({
-    videoId: track.video_id || '', // Map video_id to videoId
-    title: track.title,
-    artist: track.artist,
-    thumbnail: track.thumbnail,
-    album: track.album,
-    id: track.id,
-    color: track.color,
-    duration: track.duration,
-  })) || [];
-
-  const tracksToDisplay = isMobile ? recentlySearched : supabaseTracks;
-  const isLoadingData = isMobile ? false : isLoading;
-  const isErrorData = isMobile ? false : isError;
-  const errorData = isMobile ? null : error;
+  // For mobile, we still show recently searched. For desktop, we show related tracks.
+  const tracksToDisplay = isMobile ? recentlySearched : relatedTracks;
+  const isLoadingData = isMobile ? false : isLoadingRelated;
+  const isErrorData = isMobile ? false : isErrorRelated;
+  const errorData = isMobile ? null : errorRelated;
 
   if (isLoadingData) {
     return (
       <div className="flex flex-col bg-card/50 backdrop-blur-sm h-full">
         <div className="p-4 space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground">Soru Pejje</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-foreground">
+              {isMobile ? "Recently Searched" : "Similarities"}
+            </h2>
             {!isMobile && <Search className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />}
           </div>
           {!isMobile && (
@@ -94,7 +85,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [],
   if (isErrorData) {
     return (
       <div className="flex flex-col bg-card/50 backdrop-blur-sm h-full p-4">
-        <p className="text-destructive">Error loading playlist: {errorData?.message}</p>
+        <p className="text-destructive">Error loading {isMobile ? "recently searched" : "similarities"}: {errorData?.message}</p>
       </div>
     );
   }
@@ -105,7 +96,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [],
       <div className="p-4 space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-bold text-foreground">
-            {isMobile ? "Similarities" : "Soru Pejje"}
+            {isMobile ? "Recently Searched" : "Similarities"}
           </h2>
           {isMobile && onToggle && ( // Show toggle button only on mobile
             <Button variant="ghost" size="icon" onClick={onToggle} className="w-8 h-8 text-muted-foreground hover:text-foreground">
@@ -181,7 +172,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [],
               ))
             ) : (
               <p className="text-muted-foreground text-center py-8">
-                {isMobile ? "No recently played tracks." : "No tracks in playlist."}
+                {isMobile ? "No recently played tracks." : "No similar tracks found. Play a song to see suggestions!"}
               </p>
             )}
           </div>

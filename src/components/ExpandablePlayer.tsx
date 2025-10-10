@@ -372,7 +372,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
               {/* Right Sidebar - Playlist */}
               <aside className="w-72 lg:w-96 border-l border-border">
-                <PlaylistQueue activeVideoId={currentTrack?.videoId} />
+                <PlaylistQueue activeVideoId={currentTrack?.videoId} currentTrack={currentTrack} /> {/* Pass currentTrack */}
               </aside>
             </div>
           </div>
@@ -527,6 +527,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               recentlySearched={recentlySearched}
               isOpen={isPlaylistQueueOpen} // Pass isOpen prop
               onToggle={() => setIsPlaylistQueueOpen(prev => !prev)} // Pass toggle function
+              currentTrack={currentTrack} // Pass currentTrack to PlaylistQueue
             />
           </div>
         </div>

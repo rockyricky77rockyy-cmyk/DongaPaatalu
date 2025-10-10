@@ -13,7 +13,8 @@ interface HomeArtistsSectionProps {
 
 const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
   const navigate = useNavigate();
-  const { data: artists, isLoading, isError, error } = useYouTubeMusicArtists();
+  // Fetch Telugu artists specifically
+  const { data: artists, isLoading, isError, error } = useYouTubeMusicArtists('Telugu artists');
 
   if (isLoading) {
     return (
@@ -48,7 +49,7 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
   return (
     <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
-      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
+      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md::grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {artists.slice(0, 4).map((artist) => (
           <div
             key={artist.artistId} // Use artistId as key

@@ -9,7 +9,8 @@ import TrackThumbnail from '@/components/TrackThumbnail'; // Import TrackThumbna
 
 const AlbumsPage = () => {
   const navigate = useNavigate();
-  const { data: albums, isLoading, isError, error } = useYouTubeMusicAlbums(); // Removed language filter
+  // Fetch Telugu albums specifically
+  const { data: albums, isLoading, isError, error } = useYouTubeMusicAlbums('Telugu albums'); 
   const { playTrack } = useMusicPlayer();
 
   // The play button on the album card will now navigate to the album details page

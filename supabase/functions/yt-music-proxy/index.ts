@@ -301,8 +301,18 @@ serve(async (req) => {
 
     // NEW: Endpoint for fetching artists (simulated browse via search)
     if (pathname.endsWith('/artists')) {
-      console.log(`[yt-music-proxy] Fetching popular artists.`);
-      const artistResults = await ytmusic.search('popular artists', 'artists');
+      const requestBody = await req.json();
+      const query = requestBody.query; // Allow custom query, default to 'popular artists'
+      console.log(`[yt-music-proxy] Fetching artists for query: "${query || 'popular artists'}"`);
+
+      let artistResults: any[] = [];
+      if (query) {
+        const searchRes = await ytmusic.search(query, 'artists');
+        artistResults = searchRes;
+      } else {
+        const popularArtists = await ytmusic.search('popular artists', 'artists'); // Default to popular artists
+        artistResults = popularArtists;
+      }
 
       const formattedArtists = artistResults.map((item: any) => {
         const name = item.title || item.name || 'Unknown Artist';
@@ -415,6 +425,65 @@ serve(async (req) => {
         playlistThumbnail: playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined,
         trackCount: playlistInfo.itemCount || 0,
       }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    // NEW: Endpoint for fetching related tracks
+    if (pathname.endsWith('/related-tracks')) {
+      const requestBody = await req.json();
+      const { videoId, artist, album } = requestBody;
+      console.log(`[yt-music-proxy] Fetching related tracks for videoId: "${videoId}", artist: "${artist}", album: "${album}"`);
+
+      let relatedResults: any[] = [];
+
+      if (videoId) {
+        // Prioritize fetching related songs by videoId
+        const relatedSongs = await ytmusic.getRelatedSongs(videoId);
+        relatedResults = relatedSongs.results || [];
+      } else if (artist || album) {
+        // Fallback to searching if no videoId, combine artist and album for better results
+        const searchQuery = `${artist || ''} ${album || ''} songs`.trim();
+        if (searchQuery) {
+          const searchRes = await ytmusic.search(searchQuery, 'songs');
+          relatedResults = searchRes;
+        }
+      }
+
+      const formattedTracks = relatedResults.map((item: any) => {
+        const trackVideoId = item.videoId;
+        if (!trackVideoId) {
+          console.log(`[yt-music-proxy] Skipping related track "${item.title}" due to missing videoId.`);
+          return null;
+        }
+        const title = item.title || item.name || 'Unknown Title';
+        let trackArtist = 'Unknown Artist';
+        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
+          trackArtist = item.artists[0].name;
+        } else if (item.artist) {
+          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
+            trackArtist = item.artist.name;
+          } else if (typeof item.artist === 'string') {
+            trackArtist = item.artist;
+          }
+        }
+        const trackAlbum = item.album ? item.album.name : undefined;
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const duration = item.duration;
+
+        return {
+          type: 'track',
+          title,
+          artist: trackArtist,
+          album: trackAlbum,
+          thumbnail,
+          videoId: trackVideoId,
+          duration,
+        };
+      }).filter(Boolean);
+
+      return new Response(JSON.stringify({ relatedTracks: formattedTracks }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
