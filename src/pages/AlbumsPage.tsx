@@ -2,23 +2,19 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Disc3, Play } from 'lucide-react';
-import { useAlbums } from '@/hooks/use-albums';
+import { useYouTubeMusicAlbums } from '@/hooks/use-youtube-music'; // Changed to useYouTubeMusicAlbums
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
+import TrackThumbnail from '@/components/TrackThumbnail'; // Import TrackThumbnail
 
 const AlbumsPage = () => {
   const navigate = useNavigate();
-  const { data: albums, isLoading, isError, error } = useAlbums('Telugu'); // Filter for Telugu albums
+  const { data: albums, isLoading, isError, error } = useYouTubeMusicAlbums(); // Removed language filter
   const { playTrack } = useMusicPlayer();
 
-  const handlePlayAlbum = (albumTitle: string, artistName: string) => {
-    playTrack({
-      videoId: 'dQw4w9WgXcQ', // Example video ID
-      title: `Playing ${albumTitle}`,
-      artist: artistName,
-      thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
-      album: albumTitle,
-    });
+  // The play button on the album card will now navigate to the album details page
+  const handleAlbumClick = (albumId: string, albumTitle: string, albumArtist: string) => {
+    navigate(`/album/${albumId}`, { state: { albumTitle, albumArtist } });
   };
 
   if (isLoading) {
@@ -28,7 +24,7 @@ const AlbumsPage = () => {
           <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
             <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
           </Button>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Telugu Albums</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">New Albums</h1>
           <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
@@ -50,7 +46,7 @@ const AlbumsPage = () => {
           <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
             <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
           </Button>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Telugu Albums</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">New Albums</h1>
           <p className="text-destructive">Error loading albums: {error?.message}</p>
         </div>
       </div>
@@ -63,24 +59,27 @@ const AlbumsPage = () => {
         <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
           <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
         </Button>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Telugu Albums</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">New Albums</h1>
         <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {albums?.map((album) => (
             <div 
-              key={album.id} 
+              key={album.albumId} // Use albumId as key
               className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-              onClick={() => handlePlayAlbum(album.title, album.artist_name)}
+              onClick={() => handleAlbumClick(album.albumId, album.title, album.artist)}
             >
-              <div className={`aspect-square rounded-xl bg-gradient-to-br ${album.cover_color} mb-4 flex items-center justify-center`}>
-                <Disc3 className="w-16 h-16 text-white opacity-50" />
-              </div>
+              <TrackThumbnail 
+                thumbnail={album.thumbnail} 
+                title={album.title} 
+                className="aspect-square rounded-xl mb-4" 
+                iconClassName="w-16 h-16 text-white opacity-50"
+              />
               <h3 className="font-semibold text-lg text-foreground mb-1">{album.title}</h3>
-              <p className="text-sm text-muted-foreground">{album.artist_name}</p>
+              <p className="text-sm text-muted-foreground">{album.artist}</p>
               <Button 
                 size="icon" 
                 className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
               >
-                <Play className="w-5 h-5 fill-current" />
+                <Disc3 className="w-5 h-5 fill-current" /> {/* Changed to Disc3 icon */}
               </Button>
             </div>
           ))}

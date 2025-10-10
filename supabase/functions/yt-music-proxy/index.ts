@@ -176,6 +176,52 @@ serve(async (req) => {
       });
     }
 
+    // New endpoint for fetching albums (new releases or search)
+    if (pathname.endsWith('/albums')) {
+      const requestBody = await req.json();
+      const query = requestBody.query;
+      console.log(`[yt-music-proxy] Fetching albums for query: "${query || 'new releases'}"`);
+
+      let albumResults: any[] = [];
+      if (query) {
+        const searchRes = await ytmusic.search(query, 'albums');
+        albumResults = searchRes;
+      } else {
+        const newReleases = await ytmusic.getNewReleases();
+        // Filter for items that are clearly albums
+        albumResults = newReleases.filter((item: any) => item.type === 'Album');
+      }
+
+      const formattedAlbums = albumResults.map((item: any) => {
+        const title = item.title || item.name || 'Unknown Album';
+        let artist = 'Unknown Artist';
+        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
+          artist = item.artists[0].name;
+        } else if (item.artist) {
+          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
+            artist = item.artist.name;
+          } else if (typeof item.artist === 'string') {
+            artist = item.artist;
+          }
+        }
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const albumId = item.albumId;
+
+        return {
+          type: 'album',
+          title,
+          artist,
+          thumbnail,
+          albumId,
+        };
+      });
+
+      return new Response(JSON.stringify({ albums: formattedAlbums }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
 
     console.log(`[yt-music-proxy] Path not found: ${pathname}`);
     return new Response(JSON.stringify({ error: 'Not Found' }), {
