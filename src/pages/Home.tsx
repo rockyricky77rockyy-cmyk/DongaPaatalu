@@ -157,7 +157,7 @@ const Home = () => {
             ) : (
               <>
                 <HomeHeroSection />
-                <HomeRecentlySearched className="mt-8" /> {/* Added mt-8 for gap */}
+                <HomeRecentlySearched className="mt-12" /> {/* Increased mt-8 to mt-12 for more space */}
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />
