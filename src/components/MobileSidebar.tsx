@@ -25,10 +25,16 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
     setIsOpen(false); // Close the sheet after navigation
   };
 
+  // Debugging: Log when the sheet's open state changes
+  const handleOpenChange = (newOpenState: boolean) => {
+    console.log("Sheet open state changed:", newOpenState);
+    setIsOpen(newOpenState);
+  };
+
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon"> {/* Temporarily removed lg:hidden */}
+        <Button variant="ghost" size="icon" className="lg:hidden"> {/* Re-added lg:hidden */}
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
