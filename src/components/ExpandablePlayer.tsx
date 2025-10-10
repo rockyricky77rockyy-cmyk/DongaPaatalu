@@ -91,12 +91,12 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   };
 
   const handleNavigateToAlbum = (album: YouTubeMusicAlbum) => {
-    navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
+    navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: String(album.artist) } });
     onClose(); // Close the expanded player when navigating to album details
   };
 
   const handleNavigateToArtist = (artist: YouTubeMusicArtist) => {
-    navigate(`/artist/${artist.artistId}`, { state: { artistName: artist.name, artistThumbnail: artist.thumbnail } });
+    navigate(`/artist/${artist.artistId}`, { state: { artistName: String(artist.name), artistThumbnail: artist.thumbnail } });
     onClose(); // Close the expanded player when navigating to artist details
   };
 
@@ -185,7 +185,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                               />
                               <div>
                                 <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
-                                <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
+                                <p className="text-sm text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
                               </div>
                               <Button
                                 size="icon"
@@ -211,7 +211,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                               />
                               <div>
                                 <h3 className="font-semibold text-lg text-foreground">{album.title}</h3>
-                                <p className="text-sm text-muted-foreground">{album.artist} • Album</p>
+                                <p className="text-sm text-muted-foreground">{String(album.artist)} • Album</p>
                               </div>
                               <Button
                                 size="icon"
@@ -231,12 +231,12 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                             >
                               <TrackThumbnail
                                 thumbnail={artist.thumbnail}
-                                title={artist.name}
+                                title={String(artist.name)}
                                 className="w-12 h-12 rounded-full"
                                 iconClassName="w-6 h-6 text-primary"
                               />
                               <div>
-                                <h3 className="font-semibold text-lg text-foreground">{artist.name}</h3>
+                                <h3 className="font-semibold text-lg text-foreground">{String(artist.name)}</h3>
                                 <p className="text-sm text-muted-foreground">Artist</p>
                               </div>
                               <Button
@@ -439,7 +439,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               {/* Track Info */}
               <div className="text-center px-6 mb-4">
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
-                <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack?.artist}</p>
+                <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack ? String(currentTrack.artist) : ''}</p>
               </div>
 
               {/* Progress Bar */}

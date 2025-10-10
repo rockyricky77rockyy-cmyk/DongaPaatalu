@@ -47,9 +47,9 @@ const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-x-0 md:pb-0">
         {topTracks.slice(0, 3).map((track) => (
           <div 
-            key={track.id} 
+            key={track.videoId} 
             className="flex items-center gap-3 p-3 bg-card rounded-lg transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+            onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
           >
             <TrackThumbnail 
               thumbnail={track.thumbnail} 
@@ -60,7 +60,7 @@ const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
             />
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-base text-foreground truncate">{track.title}</h3>
-              <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
+              <p className="text-xs text-muted-foreground truncate">{String(track.artist)}</p>
             </div>
           </div>
         ))}

@@ -36,7 +36,7 @@ const PlaylistDetailsPage = () => {
   const { data, isLoading, isError, error } = useYouTubePlaylistTracks(playlistId); // playlistId is now guaranteed to be a valid string here
   const { playTrack, addRecentlySearched } = useMusicPlayer();
 
-  const playlistName = data?.playlistName || initialPlaylistName || 'Unknown Playlist';
+  const playlistName = String(data?.playlistName || initialPlaylistName || 'Unknown Playlist'); // Ensure playlistName is always a string
   const playlistThumbnail = data?.playlistThumbnail || initialPlaylistThumbnail;
   const trackCount = data?.trackCount || 0;
 
@@ -46,7 +46,7 @@ const PlaylistDetailsPage = () => {
       data.tracks.forEach(track => addRecentlySearched({
         videoId: track.videoId,
         title: track.title,
-        artist: track.artist,
+        artist: String(track.artist),
         thumbnail: track.thumbnail,
         album: track.album,
       }));
@@ -54,7 +54,7 @@ const PlaylistDetailsPage = () => {
       playTrack({
         videoId: data.tracks[0].videoId,
         title: data.tracks[0].title,
-        artist: data.tracks[0].artist,
+        artist: String(data.tracks[0].artist),
         thumbnail: data.tracks[0].thumbnail,
         album: data.tracks[0].album,
       });
@@ -141,7 +141,7 @@ const PlaylistDetailsPage = () => {
               <div
                 key={track.videoId}
                 className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer border border-border hover:border-primary/50 hover:shadow-neon"
-                onClick={() => playTrack({ videoId: track.videoId, title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+                onClick={() => playTrack({ videoId: track.videoId, title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
               >
                 <TrackThumbnail
                   thumbnail={track.thumbnail}
@@ -151,7 +151,7 @@ const PlaylistDetailsPage = () => {
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-lg text-foreground truncate">{track.title}</h3>
-                  <p className="text-sm text-muted-foreground truncate">{track.artist} {track.album && `• ${track.album}`}</p>
+                  <p className="text-sm text-muted-foreground truncate">{String(track.artist)} {track.album && `• ${track.album}`}</p>
                 </div>
                 {track.duration && <span className="text-sm text-muted-foreground">{track.duration}</span>}
                 <Button size="icon" variant="ghost" className="text-muted-foreground hover:text-primary">

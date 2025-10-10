@@ -56,7 +56,7 @@ const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
             className="group cursor-pointer bg-card rounded-2xl p-3 transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => {
               if (album.albumId) { // Add this check
-                navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
+                navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: String(album.artist) } });
               } else {
                 console.warn("Attempted to navigate to an album with no ID:", album);
               }
@@ -70,14 +70,14 @@ const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
               iconClassName="w-12 h-12 text-white opacity-50"
             />
             <h3 className="font-semibold text-sm text-foreground mb-1 truncate">{album.title}</h3>
-            <p className="text-xs text-muted-foreground truncate">{album.artist}</p>
+            <p className="text-xs text-muted-foreground truncate">{String(album.artist)}</p>
             <Button
               size="icon"
               className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg w-7 h-7"
               onClick={(e) => { // Explicitly navigate to album details
                 e.stopPropagation();
                 if (album.albumId) { // Add this check
-                  navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
+                  navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: String(album.artist) } });
                 } else {
                   console.warn("Attempted to navigate to an album with no ID from button:", album);
                 }

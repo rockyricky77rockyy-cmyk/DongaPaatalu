@@ -146,7 +146,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [],
                       ? 'bg-primary/20 border border-primary/50 shadow-neon'
                       : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+                  onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
                 >
                   {/* Album Art */}
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
@@ -160,7 +160,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [],
                   {/* Track Info */}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{track.title}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{track.artist}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{String(track.artist)}</p>
                   </div>
 
                   {/* Duration & Action */}

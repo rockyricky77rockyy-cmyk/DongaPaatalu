@@ -62,7 +62,7 @@ const PlaylistsPage = () => {
               className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
               onClick={() => {
                 if (playlist.playlistId) { // Add this check
-                  navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } });
+                  navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: String(playlist.name), playlistThumbnail: playlist.thumbnail } });
                 } else {
                   console.warn("Attempted to navigate to a playlist with no ID:", playlist);
                 }
@@ -70,12 +70,12 @@ const PlaylistsPage = () => {
             >
               <TrackThumbnail // Reusing TrackThumbnail for playlist covers
                 thumbnail={playlist.thumbnail}
-                title={playlist.name}
+                title={String(playlist.name)}
                 className="w-16 h-16 rounded-md flex-shrink-0"
                 iconClassName="w-8 h-8 text-white opacity-70"
               />
               <div>
-                <h2 className="text-xl font-semibold text-foreground">{playlist.name}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{String(playlist.name)}</h2>
                 <p className="text-muted-foreground text-sm">{playlist.trackCount} tracks</p>
               </div>
               <Button 

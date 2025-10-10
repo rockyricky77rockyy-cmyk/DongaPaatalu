@@ -86,7 +86,7 @@ const Player = () => {
                 {currentTrack ? currentTrack.title : 'No track playing'}
               </span>
               <span className="text-xs sm:text-sm text-muted-foreground truncate">
-                {currentTrack ? currentTrack.artist : 'Select a song to start'}
+                {currentTrack ? String(currentTrack.artist) : 'Select a song to start'}
               </span>
             </div>
             {!isMobile && currentTrack && ( // Hide visualizer on very small screens in compact player, and if no track

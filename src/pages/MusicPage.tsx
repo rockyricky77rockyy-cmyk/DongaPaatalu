@@ -56,7 +56,7 @@ const MusicPage = () => {
             <div 
               key={track.id} 
               className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border relative overflow-hidden hover:border-primary/50 hover:shadow-neon transition-all"
-              onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+              onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
             >
               <TrackThumbnail 
                 thumbnail={track.thumbnail} 
@@ -66,7 +66,7 @@ const MusicPage = () => {
                 iconClassName="w-12 h-12 text-white opacity-70"
               />
               <h2 className="text-xl font-semibold text-foreground mb-2">{track.title}</h2>
-              <p className="text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
+              <p className="text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
               <Button 
                 size="icon" 
                 className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
