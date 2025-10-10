@@ -10,7 +10,11 @@ import HomeRecentlySearched from "@/components/home/HomeRecentlySearched";
 import HomeTopSearches from "@/components/home/HomeTopSearches";
 import HomeNewReleases from "@/components/home/HomeNewReleases";
 import HomeAlbumsSection from "@/components/home/HomeAlbumsSection";
-import { Button } from "@/components/ui/button"; // Import Button for nav items
+import HomeArtistsSection from "@/components/home/HomeArtistsSection"; // New import
+import HomeGenresSection from "@/components/home/HomeGenresSection";   // New import
+import HomePlaylistsSection from "@/components/home/HomePlaylistsSection"; // New import
+import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection"; // New import
+import { Button } from "@/components/ui/button";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -100,6 +104,10 @@ const Home = () => {
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />
+                <HomeArtistsSection /> {/* New section */}
+                <HomeGenresSection /> {/* New section */}
+                <HomePlaylistsSection /> {/* New section */}
+                <HomeRadioStationsSection /> {/* New section */}
               </>
             )}
           </div>
