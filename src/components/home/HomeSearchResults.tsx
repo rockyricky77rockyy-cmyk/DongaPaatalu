@@ -4,17 +4,23 @@ import TrackThumbnail from '@/components/TrackThumbnail';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack } from '@/hooks/use-youtube-music';
 import { useNavigate } from 'react-router-dom';
-import { Disc3, Play, ChevronLeft } from 'lucide-react'; // Import ChevronLeft icon
+import { Disc3, Play, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HomeSearchResultsProps {
   searchTerm: string;
+  onClearSearch: () => void; // New prop to clear the search term
 }
 
-const HomeSearchResults = ({ searchTerm }: HomeSearchResultsProps) => {
+const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps) => {
   const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
   const { playTrack } = useMusicPlayer();
   const navigate = useNavigate();
+
+  const handleBackToHome = () => {
+    onClearSearch(); // Clear the search term
+    navigate('/home'); // Navigate to home
+  };
 
   if (isSearchLoading) {
     return <p className="text-muted-foreground">Searching...</p>;
@@ -30,8 +36,7 @@ const HomeSearchResults = ({ searchTerm }: HomeSearchResultsProps) => {
 
   return (
     <div className="mt-8">
-      {/* Back button added here */}
-      <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6 text-muted-foreground hover:text-foreground">
+      <Button variant="ghost" onClick={handleBackToHome} className="mb-6 text-muted-foreground hover:text-foreground">
         <ChevronLeft className="w-5 h-5 mr-2" /> Back to Home
       </Button>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
