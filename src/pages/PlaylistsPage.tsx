@@ -8,7 +8,6 @@ import TrackThumbnail from '@/components/TrackThumbnail'; // Reusing TrackThumbn
 
 const PlaylistsPage = () => {
   const navigate = useNavigate();
-  // Fetch Telugu playlists specifically
   const { data: playlists, isLoading, isError, error } = useYouTubeMusicPlaylists('Telugu playlists');
 
   if (isLoading) {
@@ -61,7 +60,13 @@ const PlaylistsPage = () => {
             <div 
               key={playlist.playlistId} // Use playlistId as key
               className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-              onClick={() => navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } })} // Navigate to PlaylistDetailsPage
+              onClick={() => {
+                if (playlist.playlistId) { // Add this check
+                  navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } });
+                } else {
+                  console.warn("Attempted to navigate to a playlist with no ID:", playlist);
+                }
+              }}
             >
               <TrackThumbnail // Reusing TrackThumbnail for playlist covers
                 thumbnail={playlist.thumbnail}

@@ -133,8 +133,8 @@ serve(async (req) => {
       const { albumId } = requestBody;
       console.log(`[yt-music-proxy] Fetching tracks for albumId: "${albumId}"`);
 
-      if (!albumId) {
-        return new Response(JSON.stringify({ error: 'Missing albumId' }), {
+      if (!albumId || albumId === 'undefined') { // Added check for 'undefined' string
+        return new Response(JSON.stringify({ error: 'Missing or invalid albumId' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -197,8 +197,8 @@ serve(async (req) => {
       const { artistId } = requestBody;
       console.log(`[yt-music-proxy] Fetching tracks for artistId: "${artistId}"`);
 
-      if (!artistId) {
-        return new Response(JSON.stringify({ error: 'Missing artistId' }), {
+      if (!artistId || artistId === 'undefined') { // Added check for 'undefined' string
+        return new Response(JSON.stringify({ error: 'Missing or invalid artistId' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -397,8 +397,8 @@ serve(async (req) => {
       const { playlistId } = requestBody;
       console.log(`[yt-music-proxy] Fetching tracks for playlistId: "${playlistId}"`);
 
-      if (!playlistId) {
-        return new Response(JSON.stringify({ error: 'Missing playlistId' }), {
+      if (!playlistId || playlistId === 'undefined') { // Added check for 'undefined' string
+        return new Response(JSON.stringify({ error: 'Missing or invalid playlistId' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

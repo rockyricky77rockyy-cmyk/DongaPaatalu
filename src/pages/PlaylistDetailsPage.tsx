@@ -13,11 +13,27 @@ const PlaylistDetailsPage = () => {
   const location = useLocation();
   const { playlistName: initialPlaylistName, playlistThumbnail: initialPlaylistThumbnail } = (location.state || {}) as { playlistName?: string; playlistThumbnail?: string };
 
+  // Add a client-side check for invalid playlistId from URL params
+  if (!playlistId || playlistId === 'undefined') {
+    console.error("Invalid playlistId received from URL params:", playlistId);
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 p-4 sm:p-8">
+          <Button variant="ghost" onClick={() => navigate('/playlists')} className="mb-6 text-muted-foreground hover:text-foreground">
+            <ChevronLeft className="w-5 h-5 mr-2" /> Back to Playlists
+          </Button>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Playlist Not Found</h1>
+          <p className="text-destructive">The playlist ID is missing or invalid. Please go back and select a valid playlist.</p>
+        </div>
+      </div>
+    );
+  }
+
   console.log("PlaylistDetailsPage loaded.");
   console.log("Received playlistId from URL params:", playlistId);
   console.log("Received state from location:", { initialPlaylistName, initialPlaylistThumbnail });
 
-  const { data, isLoading, isError, error } = useYouTubePlaylistTracks(playlistId || null);
+  const { data, isLoading, isError, error } = useYouTubePlaylistTracks(playlistId); // playlistId is now guaranteed to be a valid string here
   const { playTrack, addRecentlySearched } = useMusicPlayer();
 
   const playlistName = data?.playlistName || initialPlaylistName || 'Unknown Playlist';
