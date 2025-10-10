@@ -1,12 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import YouTubeMusic from 'npm:ytmusic-api'; // Corrected import: YouTubeMusic is likely the default export
+import YouTubeMusic from 'npm:ytmusic-api';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Initialize YouTubeMusic client outside the serve function to reuse it
 const ytmusic = new YouTubeMusic();
 let isInitialized = false;
 
@@ -19,7 +18,6 @@ serve(async (req) => {
     const { pathname } = new URL(req.url);
     console.log(`[yt-music-proxy] Request received for: ${pathname}`);
 
-    // Initialize ytmusic-api if not already initialized
     if (!isInitialized) {
       await ytmusic.initialize();
       isInitialized = true;
@@ -39,47 +37,123 @@ serve(async (req) => {
         });
       }
 
-      // Use ytmusic-api to search for songs
-      const searchResults = await ytmusic.search(query, 'songs');
-      console.log(`[yt-music-proxy] Raw search results count: ${searchResults.length}`);
+      const [songResults, albumResults] = await Promise.all([
+        ytmusic.search(query, 'songs'),
+        ytmusic.search(query, 'albums'),
+      ]);
 
-      // Process ytmusic-api results to match expected format
-      const tracks = searchResults.map((item: any) => {
-        console.log(`[yt-music-proxy] Processing item: ${JSON.stringify(item).substring(0, 200)}...`); // Log raw item for debugging
+      const formattedResults: any[] = [];
 
-        const title = item.title || item.name || 'Unknown Title'; // More robust title check
+      // Process song results
+      songResults.forEach((item: any) => {
+        const title = item.title || item.name || 'Unknown Title';
         let artist = 'Unknown Artist';
         if (item.artists && item.artists.length > 0 && item.artists[0].name) {
           artist = item.artists[0].name;
         } else if (item.artist) {
-          // Check if item.artist is an object and has a 'name' property
           if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
             artist = item.artist.name;
           } else if (typeof item.artist === 'string') {
             artist = item.artist;
           }
         }
-
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const videoId = item.videoId;
 
-        return {
+        formattedResults.push({
+          type: 'track',
           title,
           artist,
           album,
           thumbnail,
           videoId,
-        };
+        });
       });
 
-      console.log(`[yt-music-proxy] Processed search results: ${JSON.stringify(tracks).substring(0, 200)}...`);
+      // Process album results
+      albumResults.forEach((item: any) => {
+        const title = item.title || item.name || 'Unknown Album';
+        let artist = 'Unknown Artist';
+        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
+          artist = item.artists[0].name;
+        } else if (item.artist) {
+          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
+            artist = item.artist.name;
+          } else if (typeof item.artist === 'string') {
+            artist = item.artist;
+          }
+        }
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const albumId = item.albumId; // YouTube Music specific album ID
 
-      return new Response(JSON.stringify({ tracks }), {
+        formattedResults.push({
+          type: 'album',
+          title,
+          artist,
+          thumbnail,
+          albumId,
+        });
+      });
+
+      console.log(`[yt-music-proxy] Processed search results count: ${formattedResults.length}`);
+
+      return new Response(JSON.stringify({ results: formattedResults }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
     }
+    
+    // New endpoint for fetching album tracks
+    if (pathname.endsWith('/album-tracks')) {
+      const requestBody = await req.json();
+      const { albumId } = requestBody;
+      console.log(`[yt-music-proxy] Fetching tracks for albumId: "${albumId}"`);
+
+      if (!albumId) {
+        return new Response(JSON.stringify({ error: 'Missing albumId' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const albumInfo = await ytmusic.getAlbum(albumId);
+      const albumTracks = albumInfo.tracks || [];
+
+      const formattedTracks = albumTracks.map((item: any) => {
+        const title = item.title || item.name || 'Unknown Title';
+        let artist = 'Unknown Artist';
+        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
+          artist = item.artists[0].name;
+        } else if (item.artist) {
+          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
+            artist = item.artist.name;
+          } else if (typeof item.artist === 'string') {
+            artist = item.artist;
+          }
+        }
+        const album = albumInfo.title; // Use the album title from getAlbum response
+        const thumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
+        const videoId = item.videoId;
+        const duration = item.duration; // Duration might be available
+
+        return {
+          type: 'track',
+          title,
+          artist,
+          album,
+          thumbnail,
+          videoId,
+          duration,
+        };
+      });
+
+      return new Response(JSON.stringify({ tracks: formattedTracks, albumTitle: albumInfo.title, albumArtist: albumInfo.artist }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
 
     console.log(`[yt-music-proxy] Path not found: ${pathname}`);
     return new Response(JSON.stringify({ error: 'Not Found' }), {

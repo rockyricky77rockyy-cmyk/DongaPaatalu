@@ -2,42 +2,76 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 // Define the expected structure of a YouTube Music track
-interface YouTubeMusicTrack {
+export interface YouTubeMusicTrack {
+  type: 'track';
   title: string;
   artist: string;
-  album?: string; // Album might be undefined now
-  thumbnail?: string; // New field
-  videoId?: string; // New field
+  album?: string;
+  thumbnail?: string;
+  videoId: string; // videoId is now mandatory for tracks
+  duration?: string; // Added duration
 }
 
-export const useYouTubeMusicSearch = (query: string) => {
-  return useQuery<YouTubeMusicTrack[], Error>({
-    queryKey: ["youtubeMusicSearch", query], // Unique key for caching and re-fetching
-    queryFn: async () => {
-      if (!query) return []; // Don't fetch if the query is empty
+// Define the expected structure of a YouTube Music album
+export interface YouTubeMusicAlbum {
+  type: 'album';
+  title: string;
+  artist: string;
+  thumbnail?: string;
+  albumId: string; // YouTube Music specific album ID
+}
 
-      // Invoke the Supabase Edge Function
+// Union type for search results
+export type YouTubeSearchResult = YouTubeMusicTrack | YouTubeMusicAlbum;
+
+export const useYouTubeMusicSearch = (query: string) => {
+  return useQuery<YouTubeSearchResult[], Error>({
+    queryKey: ["youtubeMusicSearch", query],
+    queryFn: async () => {
+      if (!query) return [];
+
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/search', {
-        body: { query }, // Pass the search query in the request body
+        body: { query },
       });
 
       if (error) {
-        console.error("Supabase Edge Function Error:", error); // Log the full error object
+        console.error("Supabase Edge Function Error:", error);
         throw new Error(error.message || "An unknown error occurred with the Edge Function.");
       }
 
-      // The Edge Function now returns an object with a 'tracks' array.
-      if (data && data.tracks) {
-        return data.tracks.map((track: any) => ({
-          title: track.title,
-          artist: track.artist || 'Unknown Artist', // Artist is now directly from Edge Function
-          album: track.album, // Album might be undefined
-          thumbnail: track.thumbnail, // New field
-          videoId: track.videoId, // New field
-        }));
+      if (data && data.results) {
+        return data.results as YouTubeSearchResult[];
       }
       return [];
     },
-    enabled: !!query, // Only enable the query if the 'query' string is not empty
+    enabled: !!query,
+  });
+};
+
+export const useYouTubeAlbumTracks = (albumId: string | null) => {
+  return useQuery<{ tracks: YouTubeMusicTrack[], albumTitle: string, albumArtist: string }, Error>({
+    queryKey: ["youtubeAlbumTracks", albumId],
+    queryFn: async () => {
+      if (!albumId) throw new Error("Album ID is required to fetch tracks.");
+
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/album-tracks', {
+        body: { albumId },
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error:", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.tracks) {
+        return {
+          tracks: data.tracks as YouTubeMusicTrack[],
+          albumTitle: data.albumTitle,
+          albumArtist: data.albumArtist,
+        };
+      }
+      return { tracks: [], albumTitle: '', albumArtist: '' };
+    },
+    enabled: !!albumId,
   });
 };
