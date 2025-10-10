@@ -64,6 +64,10 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                   <Button
                     size="icon"
                     className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                    onClick={(e) => { // Explicitly play track
+                      e.stopPropagation(); 
+                      playTrack(track);
+                    }}
                   >
                     <Play className="w-4 h-4 fill-current" />
                   </Button>
@@ -90,6 +94,10 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                   <Button
                     size="icon"
                     className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                    onClick={(e) => { // Explicitly navigate to album details
+                      e.stopPropagation(); 
+                      navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
+                    }}
                   >
                     <Disc3 className="w-4 h-4 fill-current" />
                   </Button>
