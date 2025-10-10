@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
+import { cn } from '@/lib/utils'; // Import cn for conditional classnames
 
 interface YouTubeEmbedProps {
   videoId: string | null;
@@ -27,12 +28,12 @@ const YouTubeEmbed = ({
   onPlaybackQualityChange,
   className,
 }: YouTubeEmbedProps) => {
-  const { playerRef, isPlaying, setDuration, setCurrentTime, setPlaybackProgress, togglePlayPause } = useMusicPlayer();
+  const { playerRef, setDuration, setCurrentTime, setPlaybackProgress } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
 
   const opts: YouTubeProps['opts'] = {
-    height: '0', // Hidden player, we control it programmatically
-    width: '0',
+    height: '1', // Set to 1px to ensure API functions, but visually hidden
+    width: '1',  // Set to 1px to ensure API functions, but visually hidden
     playerVars: {
       autoplay: 1, // Auto-play the video
       controls: 0, // Hide player controls
@@ -42,13 +43,12 @@ const YouTubeEmbed = ({
       rel: 0, // Do not show related videos
       showinfo: 0, // Hide video title and uploader info
       iv_load_policy: 3, // Hide video annotations
+      origin: window.location.origin, // Crucial for cross-origin communication
     },
   };
 
   const handleReady = (event: any) => {
     playerRef.current = event.target;
-    // The `isPlaying` state from context will be set by `onStateChange` in App.tsx
-    // and `playTrack` in context. No need to force play here.
     onReady?.(event);
   };
 
@@ -67,7 +67,6 @@ const YouTubeEmbed = ({
     stopProgressInterval();
     setPlaybackProgress(0);
     setCurrentTime(0);
-    // The logic for playing the next track or looping is now handled in App.tsx's onStateChange
     onEnd?.(event);
   };
 
@@ -95,19 +94,15 @@ const YouTubeEmbed = ({
   useEffect(() => {
     if (playerRef.current) {
       if (videoId) {
-        // If a new videoId is provided, load it.
-        // The 'autoplay: 1' in opts will make it play automatically.
-        // The onStateChange in App.tsx will then update the context's isPlaying state.
         playerRef.current.loadVideoById(videoId);
       } else {
-        // If videoId becomes null, stop and clear player
         playerRef.current.stopVideo();
         setPlaybackProgress(0);
         setCurrentTime(0);
         setDuration(0);
       }
     }
-  }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration]); // Removed isPlaying and togglePlayPause from dependencies
+  }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration]);
 
   useEffect(() => {
     return () => {
@@ -120,7 +115,7 @@ const YouTubeEmbed = ({
   }
 
   return (
-    <div className={className}>
+    <div className={cn("hidden", className)}> {/* Use 'hidden' class to hide it visually */}
       <YouTube
         videoId={videoId}
         opts={opts}
