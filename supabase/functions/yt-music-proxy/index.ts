@@ -160,6 +160,9 @@ serve(async (req) => {
       
       const albumTracks = albumInfo.tracks || [];
       console.log(`[yt-music-proxy] Raw albumTracks count for ${albumId}: ${albumTracks.length}`);
+      if (albumTracks.length === 0) {
+        console.log(`[yt-music-proxy] Full albumInfo for ${albumId} when tracks are empty:`, JSON.stringify(albumInfo, null, 2));
+      }
       console.log(`[yt-music-proxy] First 3 raw albumTracks for ${albumId}:`, JSON.stringify(albumTracks.slice(0, 3), null, 2));
 
       const albumThumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
@@ -405,6 +408,8 @@ serve(async (req) => {
         const playlistId = item.playlistId; // YouTube Music specific playlist ID
         // Removed trackCount from here as it's not reliably available in search results
 
+        console.log(`[yt-music-proxy] Initial playlist search result: "${name}" (ID: ${playlistId}), raw itemCount: ${item.itemCount || 'N/A'}`); // Added log for initial search
+
         if (!playlistId) {
           console.warn(`[yt-music-proxy] Skipping playlist "${name}" due to missing playlistId.`);
           return null; // Filter out playlists without a valid ID
@@ -430,7 +435,7 @@ serve(async (req) => {
     if (pathname.endsWith('/playlist-tracks')) {
       const requestBody = await req.json();
       const { playlistId } = requestBody;
-      console.log(`[yt-music-proxy] Fetching tracks for playlistId: "${playlistId}"`);
+      console.log(`[yt-music-proxy] Attempting to fetch playlist details for playlistId: "${playlistId}"`); // Added log
 
       if (!playlistId || playlistId === 'undefined') { // Added check for 'undefined' string
         console.error('[yt-music-proxy] Missing or invalid playlistId for /playlist-tracks');
