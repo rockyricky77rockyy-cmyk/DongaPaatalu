@@ -29,12 +29,15 @@ const navItems: NavItem[] = [
 
 const AppSidebar = ({ activeNav, onNavigate, className }: AppSidebarProps) => {
   return (
-    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 sticky top-0 h-full overflow-y-auto relative ${className}`}>
-      <div className="mb-8 flex justify-center">
+    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 sticky top-0 h-full overflow-y-auto relative rounded-xl ${className}`}>
+      {/* Transparent neon glow overlay */}
+      <div className="absolute inset-0 bg-gradient-glow opacity-30 rounded-xl pointer-events-none" />
+
+      <div className="mb-8 flex justify-center relative z-10">
         <NeonLogo size="small" />
       </div>
 
-      <nav className="space-y-1">
+      <nav className="space-y-1 relative z-10">
         {navItems.map((item) => (
           <Button
             key={item.id}
@@ -51,9 +54,6 @@ const AppSidebar = ({ activeNav, onNavigate, className }: AppSidebarProps) => {
           </Button>
         ))}
       </nav>
-
-      {/* Neon light effect at the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-primary/50 to-transparent pointer-events-none" />
     </aside>
   );
 };

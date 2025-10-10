@@ -32,12 +32,15 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2">
-        <SheetHeader className="mb-8 flex justify-center">
+      <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2 rounded-xl relative">
+        {/* Transparent neon glow overlay */}
+        <div className="absolute inset-0 bg-gradient-glow opacity-30 rounded-xl pointer-events-none" />
+
+        <SheetHeader className="mb-8 flex justify-center relative z-10">
           <SheetTitle className="sr-only">Navigation</SheetTitle> {/* Accessibility */}
           <NeonLogo size="small" />
         </SheetHeader>
-        <nav className="space-y-1">
+        <nav className="space-y-1 relative z-10">
           {navItems.map((item) => (
             <Button
               key={item.id}
