@@ -32,7 +32,7 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2 relative overflow-y-auto"> {/* Added relative and overflow-y-auto */}
+      <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2">
         <SheetHeader className="mb-8 flex justify-center">
           <SheetTitle className="sr-only">Navigation</SheetTitle> {/* Accessibility */}
           <NeonLogo size="small" />
@@ -54,8 +54,6 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
             </Button>
           ))}
         </nav>
-        {/* Neon light effect at the bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-primary/50 to-transparent pointer-events-none" />
       </SheetContent>
     </Sheet>
   );
