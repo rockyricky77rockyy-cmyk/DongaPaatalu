@@ -15,11 +15,11 @@ const HomeRadioStationsSection = () => {
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 flex items-center gap-4 w-[280px] flex-shrink-0 md:w-auto">
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-3 flex items-center gap-3 w-[220px] flex-shrink-0 md:w-auto md:flex-shrink">
+              <Skeleton className="w-8 h-8 rounded-full" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
               </div>
             </div>
           ))}
@@ -48,17 +48,17 @@ const HomeRadioStationsSection = () => {
         {radioStations.slice(0, 4).map((station) => (
           <div
             key={station.id}
-            className="group cursor-pointer bg-card rounded-2xl p-4 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[280px] flex-shrink-0 md:w-auto"
+            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/radio')}
           >
-            <Radio className={`w-10 h-10 ${station.icon_color}`} />
-            <div>
-              <h3 className="text-xl font-semibold text-foreground">{station.name}</h3>
-              <p className="text-muted-foreground text-sm">{station.genre}</p>
+            <Radio className={`w-8 h-8 ${station.icon_color}`} />
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-foreground truncate">{station.name}</h3>
+              <p className="text-xs text-muted-foreground truncate">{station.genre}</p>
             </div>
             <Button 
               size="icon" 
-              className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+              className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
             >
               <Play className="w-5 h-5 fill-current" />
             </Button>

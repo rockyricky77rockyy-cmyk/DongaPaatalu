@@ -3,11 +3,11 @@ import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
-import { useNewReleases } from '@/hooks/use-new-releases'; // Changed from useTracks to useNewReleases
+import { useNewReleases } from '@/hooks/use-new-releases';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 
 const HomeTopSearches = () => {
-  const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useNewReleases(); // Using useNewReleases
+  const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useNewReleases();
   const { playTrack } = useMusicPlayer();
 
   if (isTopTracksLoading) {
@@ -16,7 +16,7 @@ const HomeTopSearches = () => {
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:space-x-0 md:pb-0">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-[200px] flex-shrink-0 rounded-lg" />
+            <Skeleton key={i} className="h-14 w-[180px] flex-shrink-0 rounded-lg" />
           ))}
         </div>
       </div>
@@ -40,22 +40,22 @@ const HomeTopSearches = () => {
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:space-x-0 md:pb-0">
-        {topTracks.slice(0, 3).map((track) => ( // Display the top 3 latest tracks
+        {topTracks.slice(0, 3).map((track) => (
           <div 
             key={track.id} 
-            className="flex items-center gap-3 p-2 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[200px] flex-shrink-0 md:w-auto"
+            className="flex items-center gap-3 p-2 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer w-[180px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
           >
             <TrackThumbnail 
               thumbnail={track.thumbnail} 
               title={track.title} 
               color={track.color} 
-              className="w-10 h-10 rounded-md" 
-              iconClassName="w-5 h-5 text-white opacity-70"
+              className="w-8 h-8 rounded-md" 
+              iconClassName="w-4 h-4 text-white opacity-70"
             />
-            <div>
-              <h3 className="font-semibold text-base text-foreground">{track.title}</h3>
-              <p className="text-xs text-muted-foreground">{track.artist}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-foreground truncate">{track.title}</h3>
+              <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
             </div>
           </div>
         ))}

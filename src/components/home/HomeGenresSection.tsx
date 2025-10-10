@@ -15,7 +15,7 @@ const HomeGenresSection = () => {
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Genres</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 w-[180px] flex-shrink-0 rounded-xl md:w-auto" />
+            <Skeleton key={i} className="h-28 w-[160px] flex-shrink-0 rounded-xl md:w-auto md:flex-shrink" />
           ))}
         </div>
       </div>
@@ -42,14 +42,14 @@ const HomeGenresSection = () => {
         {genres.slice(0, 4).map((genre) => (
           <div
             key={genre.id}
-            className={`group cursor-pointer ${genre.color} rounded-xl p-6 text-center shadow-card border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[180px] flex-shrink-0 md:w-auto`}
+            className={`group cursor-pointer ${genre.color} rounded-xl p-4 text-center shadow-card border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[160px] flex-shrink-0 md:w-auto md:flex-shrink`}
             onClick={() => navigate('/genre')}
           >
-            <Mic2 className="w-12 h-12 text-white opacity-70 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white">{genre.name}</h3>
+            <Mic2 className="w-10 h-10 text-white opacity-70 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-white truncate">{genre.name}</h3>
             <Button 
               size="icon" 
-              className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+              className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
             >
               <Play className="w-5 h-5 fill-current" />
             </Button>
