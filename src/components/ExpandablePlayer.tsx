@@ -10,7 +10,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { cn } from "@/lib/utils";
-import AppSidebar from "./AppSidebar"; // Import the new AppSidebar
+import AppSidebar from "./AppSidebar";
+import MobileSidebar from "./MobileSidebar"; // Added missing import
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
