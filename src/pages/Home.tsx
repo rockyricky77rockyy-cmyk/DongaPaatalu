@@ -88,7 +88,10 @@ const Home = () => {
           className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border sticky top-0 z-20"
         >
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
-          <NeonLogo size="small" />
+          {/* Replaced NeonLogo with "DPaata" text */}
+          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+            DPaata
+          </div>
           {/* Mobile Search Bar */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -148,6 +151,13 @@ const Home = () => {
           )}
 
           <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12"> {/* Adjusted spacing */}
+            {/* "Donga Paatalu" title for desktop home page */}
+            {!searchTerm && (
+              <h1 className="hidden lg:block text-4xl font-bold bg-gradient-neon bg-clip-text text-transparent mb-8">
+                Donga Paatalu
+              </h1>
+            )}
+
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
