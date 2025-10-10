@@ -7,7 +7,7 @@ import Visualizer from "./Visualizer";
 import PlaylistQueue from "./PlaylistQueue";
 import NeonLogo from "./NeonLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate } from "react-router-router-dom";
+import { useNavigate } from "react-router-dom"; // Corrected import path
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { cn } from "@/lib/utils";
 import AppSidebar from "./AppSidebar";
