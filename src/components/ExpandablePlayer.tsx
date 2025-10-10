@@ -272,7 +272,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                             <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
                           ) : (
                             <div className="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent">
-                              DP
+                              Donga Paatalu
                             </div>
                           )}
                         </div>
@@ -387,9 +387,9 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <ChevronDown className="w-5 h-5" />
               </Button>
               <div className="flex-1 flex justify-center">
-                {/* Replaced NeonLogo with "DPaata" text */}
+                {/* Replaced NeonLogo with "Donga Paatalu" text */}
                 <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]">
-                  DPaata
+                  Donga Paatalu
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -427,7 +427,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                       <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
                     ) : (
                       <div className="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent">
-                        DP
+                        Donga Paatalu
                       </div>
                     )}
                   </div>
