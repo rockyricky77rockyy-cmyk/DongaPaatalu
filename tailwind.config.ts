@@ -60,7 +60,7 @@ export default {
       boxShadow: {
         'neon': 'var(--shadow-neon)',
         'neon-strong': 'var(--shadow-neon-strong)',
-        'card': 'var(--shadow-card)',
+        'card': '0 8px 32px hsl(220 30% 4% / 0.5)',
       },
       transitionProperty: {
         'smooth': 'var(--transition-smooth)',
@@ -110,6 +110,10 @@ export default {
           "0%, 100%": { transform: "scale(1)" },
           "50%": { transform: "scale(1.05)" },
         },
+        "spin-slow": { // New keyframe for slow spin
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -117,7 +121,8 @@ export default {
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "visualizer": "visualizer 0.8s ease-in-out infinite",
         "slide-up": "slide-up 0.3s ease-out",
-        "zoom-pulse": "zoom-pulse 1.5s ease-in-out infinite", // Changed from 3s to 1.5s
+        "zoom-pulse": "zoom-pulse 1.5s ease-in-out infinite",
+        "spin-slow": "spin-slow 30s linear infinite", // Apply slow spin animation
       },
     },
   },

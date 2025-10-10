@@ -26,27 +26,27 @@ const HomeHeroSection = () => {
   };
 
   return (
-    <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-6 sm:p-12 overflow-hidden border border-primary/20 shadow-card">
+    <div className="relative bg-gradient-to-br from-card via-card to-secondary/20 rounded-3xl p-4 sm:p-8 overflow-hidden border border-primary/20 shadow-card">
       <div className="absolute inset-0 bg-gradient-glow opacity-50" />
       
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between">
-        <div className="flex-1 flex justify-center mb-8 sm:mb-0">
+        <div className="flex-1 flex justify-center mb-6 sm:mb-0">
           <div className="relative">
-            <NeonLogo size={isMobile ? "medium" : "large"} />
+            <NeonLogo size={isMobile ? "small" : "medium"} /> {/* Adjusted logo size */}
             <Button
               size={isMobile ? "md" : "lg"}
-              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
+              className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
               onClick={handlePlayFeatured} // Add onClick handler
               disabled={!newReleases || newReleases.length === 0} // Disable if no new releases
             >
-              <Play className="w-8 h-8 sm:w-12 sm:h-12 fill-current text-white" />
+              <Play className="w-6 h-6 sm:w-8 sm:h-8 fill-current text-white" /> {/* Adjusted icon size */}
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="relative z-10 mt-4 sm:mt-8">
-        <Visualizer barCount={isMobile ? 30 : 50} className="h-16 sm:h-24" isPlaying={isPlaying} animationIntervalMs={100} />
+      <div className="relative z-10 mt-4 sm:mt-6">
+        <Visualizer barCount={isMobile ? 20 : 40} className="h-12 sm:h-16" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Adjusted visualizer height */}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import ExpandablePlayer from "./ExpandablePlayer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { cn } from "@/lib/utils"; // Import cn for conditional classnames
+import TrackThumbnail from "./TrackThumbnail"; // Import TrackThumbnail
 
 const Player = () => {
   const {
@@ -64,23 +65,17 @@ const Player = () => {
         <div className="flex items-center justify-between px-4 py-2 sm:px-8 sm:py-4">
           {/* Left: Track Info & Visualizer */}
           <div className="flex items-center gap-2 sm:gap-4 cursor-pointer flex-1" onClick={() => currentTrack && setIsExpanded(true)}>
-            {currentTrack?.thumbnail ? (
-              <img 
-                src={currentTrack.thumbnail} 
-                alt={currentTrack.title} 
-                className={cn(
-                  "w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0 border border-primary/50 shadow-neon", // Added border and shadow
-                  isPlaying && "animate-zoom-pulse" // Apply animation when playing
-                )} 
+            <div className={cn(
+              "relative w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center overflow-hidden border border-primary/50 shadow-neon",
+              isPlaying && "animate-spin-slow" // Apply spin animation when playing
+            )}>
+              <TrackThumbnail
+                thumbnail={currentTrack?.thumbnail}
+                title={currentTrack?.title || 'No track'}
+                className="w-full h-full rounded-full object-cover" // Ensure thumbnail itself is round
+                iconClassName="w-4 h-4 sm:w-5 sm:h-5 text-white"
               />
-            ) : (
-              <div className={cn(
-                "w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center flex-shrink-0 border border-primary/50 shadow-neon", // Added border and shadow
-                isPlaying && "animate-zoom-pulse" // Apply animation when playing
-              )}>
-                <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-            )}
+            </div>
             <div className="flex flex-col min-w-0 max-w-[150px] sm:max-w-[200px]">
               <span className="text-sm sm:text-base font-medium text-foreground truncate">
                 {currentTrack ? currentTrack.title : 'No track playing'}
