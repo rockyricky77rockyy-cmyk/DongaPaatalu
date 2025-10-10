@@ -161,6 +161,7 @@ serve(async (req) => {
 
       const formattedTracks = albumTracks.map((item: any) => {
         const videoId = item.videoId;
+        console.log(`[yt-music-proxy] Album track "${item.title}" videoId: ${videoId}`); // Added log
         if (!videoId) { // Only include tracks that have a videoId
           console.log(`[yt-music-proxy] Skipping album track "${item.title}" due to missing videoId.`);
           return null; // Return null for unplayable tracks
@@ -175,6 +176,12 @@ serve(async (req) => {
           } else if (typeof item.artist === 'string') {
             artist = item.artist;
           }
+        } else if (albumInfo.artist) { // Fallback to album's artist if track artist is missing
+            if (typeof albumInfo.artist === 'object' && albumInfo.artist !== null && albumInfo.artist.name) {
+                artist = albumInfo.artist.name;
+            } else if (typeof albumInfo.artist === 'string') {
+                artist = albumInfo.artist;
+            }
         }
         const album = albumInfo.title; // Use the album title from getAlbum response
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : albumThumbnail; // Use track thumbnail or album thumbnail
@@ -438,6 +445,7 @@ serve(async (req) => {
 
       const formattedTracks = playlistTracks.map((item: any) => {
         const videoId = item.videoId;
+        console.log(`[yt-music-proxy] Playlist track "${item.title}" videoId: ${videoId}`); // Added log
         if (!videoId) {
           console.log(`[yt-music-proxy] Skipping playlist track "${item.title}" due to missing videoId.`);
           return null;
@@ -452,6 +460,12 @@ serve(async (req) => {
           } else if (typeof item.artist === 'string') {
             artist = item.artist;
           }
+        } else if (playlistInfo.author) { // Fallback to playlist's author if track artist is missing
+            if (typeof playlistInfo.author === 'object' && playlistInfo.author !== null && playlistInfo.author.name) {
+                artist = playlistInfo.author.name;
+            } else if (typeof playlistInfo.author === 'string') {
+                artist = playlistInfo.author;
+            }
         }
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : playlistThumbnail; // Use track thumbnail or playlist thumbnail
