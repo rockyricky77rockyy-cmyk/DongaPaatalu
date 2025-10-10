@@ -32,7 +32,7 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 bg-gradient-glow/50 backdrop-blur-sm border-r border-border p-6 space-y-2 shadow-neon-strong">
+      <SheetContent side="left" className="w-64 bg-gradient-neon/50 backdrop-blur-sm border-r border-border p-6 space-y-2 shadow-neon-strong">
         <SheetHeader className="mb-8 flex items-center"> {/* Removed justify-center */}
           <SheetTitle className="sr-only">Navigation</SheetTitle> {/* Accessibility */}
           {/* Replaced NeonLogo with text */}
