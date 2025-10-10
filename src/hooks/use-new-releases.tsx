@@ -1,14 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Track } from "./use-tracks"; // Re-use the Track interface
+import { YouTubeMusicTrack } from "./use-youtube-music"; // Import YouTubeMusicTrack
 
 export const useNewReleases = () => {
-  return useQuery<Track[], Error>({
+  return useQuery<YouTubeMusicTrack[], Error>({
     queryKey: ["newReleases"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("tracks").select("*").order("created_at", { ascending: false });
-      if (error) throw new Error(error.message);
-      return data || [];
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/search', {
+        body: { query: 'new releases', type: 'songs' }, // Request songs for 'new releases'
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error (new releases):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.results) {
+        // Filter for items that are explicitly tracks and map to YouTubeMusicTrack interface
+        return data.results.filter((item: any) => item.type === 'track') as YouTubeMusicTrack[];
+      }
+      return [];
     },
   });
 };
