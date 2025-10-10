@@ -2,7 +2,6 @@ import { Music, ChevronRight, Search, ChevronUp, ChevronDown } from "lucide-reac
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
-import { useTracks } from "@/hooks/use-tracks"; // Keep for now, but will be replaced for desktop
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -22,10 +21,11 @@ interface PlaylistQueueProps {
   recentlySearched?: MusicPlayerTrack[];
   isOpen?: boolean;
   onToggle?: () => void;
+  currentTrack?: MusicPlayerTrack | null; // Added currentTrack prop
 }
 
-const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [], isOpen = true, onToggle }: PlaylistQueueProps) => {
-  const { currentTrack, playTrack } = useMusicPlayer();
+const PlaylistQueue = ({ activeVideoId, isMobile = false, recentlySearched = [], isOpen = true, onToggle, currentTrack }: PlaylistQueueProps) => {
+  const { playTrack } = useMusicPlayer();
   const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
   // For mobile, we still show recently searched. For desktop, we show related tracks.
