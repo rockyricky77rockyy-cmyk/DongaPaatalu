@@ -3,14 +3,14 @@ import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
-import { useTracks } from '@/hooks/use-tracks';
+import { useNewReleases } from '@/hooks/use-new-releases'; // Changed from useTracks to useNewReleases
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 
 const HomeTopSearches = () => {
-  const { data: allTracks, isLoading: isAllTracksLoading, isError: isAllTracksError, error: allTracksError } = useTracks();
+  const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useNewReleases(); // Using useNewReleases
   const { playTrack } = useMusicPlayer();
 
-  if (isAllTracksLoading) {
+  if (isTopTracksLoading) {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
@@ -23,16 +23,16 @@ const HomeTopSearches = () => {
     );
   }
 
-  if (isAllTracksError) {
+  if (isTopTracksError) {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
-        <p className="text-destructive">Error loading top searches: {allTracksError?.message}</p>
+        <p className="text-destructive">Error loading top searches: {topTracksError?.message}</p>
       </div>
     );
   }
 
-  if (!allTracks || allTracks.length === 0) {
+  if (!topTracks || topTracks.length === 0) {
     return null;
   }
 
@@ -40,7 +40,7 @@ const HomeTopSearches = () => {
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Top Searches</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {allTracks.slice(0, 3).map((track) => (
+        {topTracks.slice(0, 3).map((track) => ( // Display the top 3 latest tracks
           <div 
             key={track.id} 
             className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
