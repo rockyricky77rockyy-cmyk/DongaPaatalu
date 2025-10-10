@@ -18,12 +18,13 @@ import AppSidebar from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import HomeHeader from "@/components/home/HomeHeader"; // Import the new HomeHeader
 
 const Home = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
   const [searchTerm, setSearchTerm] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false); // State for mobile suggestions
 
   const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
@@ -44,12 +45,12 @@ const Home = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setShowSuggestions(e.target.value.length > 0);
+    setShowSuggestions(e.target.value.length > 0); // Show suggestions if there's a search term
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
-    setShowSuggestions(false);
+    setShowSuggestions(false); // Hide suggestions after clicking one
   };
 
   return (
@@ -68,7 +69,7 @@ const Home = () => {
               value={searchTerm}
               onChange={handleSearchChange}
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Delay hiding to allow click
             />
             {showSuggestions && suggestions && suggestions.length > 0 && (
               <ScrollArea className="absolute z-50 w-full top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -91,33 +92,10 @@ const Home = () => {
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
-          <div className="p-4 sm:p-8 space-y-8">
-            {/* Search Bar (Desktop Only) */}
-            <div className="relative mb-6 hidden lg:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search music, artists, albums..."
-                className="pl-10 bg-input border-border rounded-lg h-10 text-sm"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-              />
-              {showSuggestions && suggestions && suggestions.length > 0 && (
-                <ScrollArea className="absolute z-50 w-full top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {suggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
-                      onClick={() => handleSuggestionClick(suggestion)}
-                    >
-                      {suggestion}
-                    </div>
-                  ))}
-                </ScrollArea>
-              )}
-            </div>
+          {/* Desktop Search Bar (now in HomeHeader) */}
+          <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
+          <div className="p-4 sm:p-8 space-y-8">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
