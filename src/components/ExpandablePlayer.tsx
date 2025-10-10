@@ -63,7 +63,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     <div className="fixed inset-0 z-50 bg-background animate-slide-up">
       {/* Desktop Version */}
       {!isMobile ? (
-        <div className="h-full flex flex-col p-4 md:p-8">
+        <div className="h-full flex flex-col p-4 md:p-8"> {/* Padding moved here */}
           {/* Neon Border Container */}
           <div className="flex-1 rounded-2xl md:rounded-3xl border-4 border-transparent bg-gradient-to-br from-primary via-accent to-secondary p-1 shadow-neon-strong">
             <div className="h-full rounded-2xl md:rounded-3xl bg-background flex overflow-hidden">
@@ -213,114 +213,116 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
       ) : (
         /* Mobile Version */
         <div className="h-full flex flex-col bg-gradient-to-br from-cyan-500/10 via-background to-purple-500/10">
-          {/* Top Bar */}
-          <header className="p-4 flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={onClose} className="w-9 h-9">
-              <ChevronDown className="w-5 h-5" />
-            </Button>
-            <div className="flex-1 flex justify-center">
-              <NeonLogo size="small" />
-            </div>
-            <Button variant="ghost" size="icon" className="w-9 h-9">
-              <Menu className="w-5 h-5" />
-            </Button>
-          </header>
-
-          {/* Album Art */}
-          <div className="flex justify-center p-6">
-            <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center opacity-40">
-                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-8 border-white/30 animate-pulse-glow" />
+          <div className="flex-1 overflow-y-auto"> {/* This div will handle scrolling for the top content */}
+            {/* Top Bar */}
+            <header className="p-4 flex items-center justify-between">
+              <Button variant="ghost" size="icon" onClick={onClose} className="w-9 h-9">
+                <ChevronDown className="w-5 h-5" />
+              </Button>
+              <div className="flex-1 flex justify-center">
+                <NeonLogo size="small" />
               </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
+              <Button variant="ghost" size="icon" className="w-9 h-9">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </header>
+
+            {/* Album Art */}
+            <div className="flex justify-center p-6">
+              <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                  <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-8 border-white/30 animate-pulse-glow" />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
+                </div>
+                {currentTrack.thumbnail && (
+                  <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
+                )}
               </div>
-              {currentTrack.thumbnail && (
-                <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
-              )}
             </div>
-          </div>
 
-          {/* Track Info */}
-          <div className="text-center px-6 mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">{currentTrack.title}</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">{currentTrack.artist}</p>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="px-6 mb-4">
-            <Slider
-              value={[playbackProgress]}
-              onValueChange={handleSliderChange}
-              max={100}
-              step={1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+            {/* Track Info */}
+            <div className="text-center px-6 mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">{currentTrack.title}</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">{currentTrack.artist}</p>
             </div>
-          </div>
 
-          {/* Visualizer */}
-          <div className="px-6 mb-6">
-            <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} animationIntervalMs={100} />
-          </div>
+            {/* Progress Bar */}
+            <div className="px-6 mb-4">
+              <Slider
+                value={[playbackProgress]}
+                onValueChange={handleSliderChange}
+                max={100}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
 
-          {/* Controls */}
-          <div className="px-6 mb-6">
-            <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "text-muted-foreground w-9 h-9 sm:w-10 sm:h-10",
-                  isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
-                )}
-                onClick={toggleShuffle}
-              >
-                <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
-                onClick={playPreviousTrack}
-              >
-                <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
-              </Button>
-              <Button
-                size="icon"
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
-                onClick={togglePlayPause}
-              >
-                {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 sm:h-8 ml-1" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
-                onClick={playNextTrack}
-              >
-                <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "text-muted-foreground w-9 h-9 sm:w-10 sm:h-10 relative",
-                  repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
-                )}
-                onClick={toggleRepeatMode}
-              >
-                <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
-                {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
-              </Button>
+            {/* Visualizer */}
+            <div className="px-6 mb-6">
+              <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} animationIntervalMs={100} />
+            </div>
+
+            {/* Controls */}
+            <div className="px-6 mb-6">
+              <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "text-muted-foreground w-9 h-9 sm:w-10 sm:h-10",
+                    isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={toggleShuffle}
+                >
+                  <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
+                  onClick={playPreviousTrack}
+                >
+                  <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
+                </Button>
+                <Button
+                  size="icon"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
+                  onClick={togglePlayPause}
+                >
+                  {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 sm:h-8 ml-1" />}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
+                  onClick={playNextTrack}
+                >
+                  <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "text-muted-foreground w-9 h-9 sm:w-10 sm:h-10 relative",
+                    repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={toggleRepeatMode}
+                >
+                  <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Playlist Section */}
-          <div className="flex-1 min-h-0 bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden">
+          <div className="flex-none h-[300px] sm:h-[400px] bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden">
             <PlaylistQueue activeTrackId={currentTrack?.id} isMobile />
           </div>
         </div>
