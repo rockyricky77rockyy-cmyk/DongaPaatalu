@@ -14,7 +14,7 @@ const HomeAlbumsSection = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
-        <div className="flex flex-col md:grid md::grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
               <Skeleton className="aspect-square rounded-xl mb-4" />
@@ -43,15 +43,15 @@ const HomeAlbumsSection = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
-      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {albums.map((album) => (
           <div
             key={album.id}
             className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-            onClick={() => navigate('/albums')} // Navigate to albums page
+            onClick={() => navigate('/albums')}
           >
             <TrackThumbnail 
-              thumbnail={undefined} // Albums don't have thumbnails in the current schema, so force fallback
+              thumbnail={undefined}
               title={album.title} 
               color={album.cover_color} 
               className="aspect-square rounded-xl mb-4" 

@@ -13,7 +13,7 @@ const HomeArtistsSection = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 text-center">
               <Skeleton className="w-24 h-24 rounded-full mx-auto mb-4" />
@@ -42,12 +42,12 @@ const HomeArtistsSection = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
-      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {artists.slice(0, 4).map((artist) => ( // Display up to 4 artists
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {artists.slice(0, 4).map((artist) => (
           <div
             key={artist.id}
             className="group cursor-pointer bg-card rounded-2xl p-4 text-center hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-            onClick={() => navigate('/artists')} // Navigate to artists page
+            onClick={() => navigate('/artists')}
           >
             <div className={`w-24 h-24 mx-auto rounded-full bg-gradient-to-br ${artist.avatar_color} mb-4 flex items-center justify-center`}>
               <Headphones className="w-12 h-12 text-white opacity-50" />

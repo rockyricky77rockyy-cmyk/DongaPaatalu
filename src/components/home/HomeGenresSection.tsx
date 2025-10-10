@@ -13,7 +13,7 @@ const HomeGenresSection = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Genres</h2>
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-32 w-full rounded-xl" />
           ))}
@@ -38,12 +38,12 @@ const HomeGenresSection = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Genres</h2>
-      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {genres.slice(0, 4).map((genre) => ( // Display up to 4 genres
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {genres.slice(0, 4).map((genre) => (
           <div
             key={genre.id}
             className={`group cursor-pointer ${genre.color} rounded-xl p-6 text-center shadow-card border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden`}
-            onClick={() => navigate('/genre')} // Navigate to genre page
+            onClick={() => navigate('/genre')}
           >
             <Mic2 className="w-12 h-12 text-white opacity-70 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white">{genre.name}</h3>

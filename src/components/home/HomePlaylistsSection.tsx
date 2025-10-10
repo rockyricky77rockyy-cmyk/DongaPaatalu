@@ -13,7 +13,7 @@ const HomePlaylistsSection = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 flex items-center gap-4">
               <Skeleton className="w-16 h-16 rounded-md" />
@@ -44,12 +44,12 @@ const HomePlaylistsSection = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
-      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {playlists.slice(0, 4).map((playlist) => ( // Display up to 4 playlists
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {playlists.slice(0, 4).map((playlist) => (
           <div
             key={playlist.id}
             className="group cursor-pointer bg-card rounded-2xl p-4 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-            onClick={() => navigate('/playlists')} // Navigate to playlists page
+            onClick={() => navigate('/playlists')}
           >
             <div className={`w-16 h-16 rounded-md bg-gradient-to-br ${playlist.cover_color} flex items-center justify-center flex-shrink-0`}>
               <List className="w-8 h-8 text-white opacity-70" />

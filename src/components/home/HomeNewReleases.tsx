@@ -14,7 +14,7 @@ const HomeNewReleases = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">New Releases</h2>
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
               <Skeleton className="aspect-square rounded-xl mb-4" />
@@ -43,7 +43,7 @@ const HomeNewReleases = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">New Releases</h2>
-      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {newReleases.map((track) => (
           <div
             key={track.id}
