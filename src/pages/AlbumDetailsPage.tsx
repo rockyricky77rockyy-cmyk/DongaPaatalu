@@ -13,6 +13,10 @@ const AlbumDetailsPage = () => {
   const location = useLocation();
   const { albumTitle, albumArtist } = (location.state || {}) as { albumTitle?: string; albumArtist?: string };
 
+  console.log("AlbumDetailsPage loaded.");
+  console.log("Received albumId from URL params:", albumId);
+  console.log("Received state from location:", { albumTitle, albumArtist });
+
   const { data, isLoading, isError, error } = useYouTubeAlbumTracks(albumId || null);
   const { playTrack, addRecentlySearched } = useMusicPlayer();
 

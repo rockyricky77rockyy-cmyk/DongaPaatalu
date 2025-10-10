@@ -53,7 +53,10 @@ const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
           <div
             key={album.albumId} // Use albumId as key
             className="group cursor-pointer bg-card rounded-2xl p-3 transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } })}
+            onClick={() => {
+              console.log(`Navigating to album details for: ${album.title} (ID: ${album.albumId})`);
+              navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
+            }}
           >
             <TrackThumbnail
               thumbnail={album.thumbnail} // Use album.thumbnail
@@ -69,6 +72,7 @@ const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
               className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg w-7 h-7"
               onClick={(e) => { // Explicitly navigate to album details
                 e.stopPropagation();
+                console.log(`Button click: Navigating to album details for: ${album.title} (ID: ${album.albumId})`);
                 navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
               }}
             >
