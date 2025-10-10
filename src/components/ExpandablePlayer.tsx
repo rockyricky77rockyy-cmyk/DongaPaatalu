@@ -227,7 +227,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8">
                       <div className="relative">
                         {/* Album Art with Neon H */}
-                        <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
+                        <div className={cn(
+                          "w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden",
+                          isPlaying && "animate-zoom-pulse" // Apply animation when playing
+                        )}>
                           {/* Album Thumbnail or H Logo */}
                           {currentTrack?.thumbnail ? (
                             <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
@@ -371,7 +374,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             <>
               {/* Album Art */}
               <div className="flex justify-center p-6">
-                <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
+                <div className={cn(
+                  "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden",
+                  isPlaying && "animate-zoom-pulse" // Apply animation when playing
+                )}>
                   {/* Visualizer behind the thumbnail */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-40">
                     <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
@@ -468,7 +474,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
           {/* Playlist Section */}
           <div className={cn(
-            "flex-none bg-gradient-glow rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden transition-all duration-300 ease-in-out", // Changed background to bg-gradient-glow
+            "flex-none bg-gradient-glow rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden transition-all duration-300 ease-in-out",
             isPlaylistQueueOpen ? "h-[300px] sm:h-[400px]" : "h-16" // Dynamic height
           )}>
             <PlaylistQueue

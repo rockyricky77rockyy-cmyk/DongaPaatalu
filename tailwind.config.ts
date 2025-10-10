@@ -106,6 +106,10 @@ export default {
           from: { transform: "translateY(100%)", opacity: "0" },
           to: { transform: "translateY(0)", opacity: "1" },
         },
+        "zoom-pulse": { // New keyframe animation
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.05)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -113,6 +117,7 @@ export default {
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "visualizer": "visualizer 0.8s ease-in-out infinite",
         "slide-up": "slide-up 0.3s ease-out",
+        "zoom-pulse": "zoom-pulse 3s ease-in-out infinite", // New animation
       },
     },
   },
