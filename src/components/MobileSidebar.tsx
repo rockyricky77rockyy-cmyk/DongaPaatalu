@@ -33,10 +33,10 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2">
-        <SheetHeader className="mb-8 flex justify-center">
+        <SheetHeader className="mb-8 flex items-center"> {/* Removed justify-center */}
           <SheetTitle className="sr-only">Navigation</SheetTitle> {/* Accessibility */}
           {/* Replaced NeonLogo with text */}
-          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]"> {/* Added ml-[-3px] */}
             Donga Paatalu
           </div>
         </SheetHeader>

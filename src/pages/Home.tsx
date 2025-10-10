@@ -89,7 +89,7 @@ const Home = () => {
         >
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
           {/* Replaced NeonLogo with "DPaata" text */}
-          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]"> {/* Added ml-[-3px] */}
             DPaata
           </div>
           {/* Mobile Search Bar */}
