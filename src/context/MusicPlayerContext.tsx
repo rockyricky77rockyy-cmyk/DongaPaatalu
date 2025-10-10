@@ -32,6 +32,7 @@ interface MusicPlayerContextType {
   toggleShuffle: () => void; // New: Function to toggle shuffle mode
   repeatMode: RepeatMode; // New: State for repeat mode
   toggleRepeatMode: () => void; // New: Function to toggle repeat mode
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>; // Added setIsPlaying
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -226,6 +227,7 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     toggleShuffle, // New
     repeatMode, // New
     toggleRepeatMode, // New
+    setIsPlaying, // Exposed setIsPlaying
   };
 
   return (

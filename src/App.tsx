@@ -20,7 +20,7 @@ const queryClient = new QueryClient();
 
 // Create a wrapper component to use the MusicPlayerContext
 const AppContent = () => {
-  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress, playNextTrack, repeatMode, playerRef } = useMusicPlayer();
+  const { currentTrack, setDuration, setCurrentTime, setPlaybackProgress, playNextTrack, repeatMode, playerRef, setIsPlaying } = useMusicPlayer();
 
   const handlePlayerReady = (event: any) => {
     // Set default volume to 100% for a louder experience
@@ -30,12 +30,17 @@ const AppContent = () => {
   const handlePlayerStateChange = (event: any) => {
     // Update context based on player state changes
     if (event.data === window.YT.PlayerState.PLAYING) {
+      setIsPlaying(true); // Set isPlaying to true when the player starts playing
       setDuration(event.target.getDuration());
+    } else if (event.data === window.YT.PlayerState.PAUSED) {
+      setIsPlaying(false); // Set isPlaying to false when the player is paused
     } else if (event.data === window.YT.PlayerState.ENDED) {
+      setIsPlaying(false); // Set isPlaying to false when the track ends
       // If a track ends, handle repeat or play next
       if (repeatMode === 'track') {
         playerRef.current?.seekTo(0);
         playerRef.current?.playVideo();
+        setIsPlaying(true); // Resume playing if repeating the track
       } else {
         setPlaybackProgress(0);
         setCurrentTime(0);
