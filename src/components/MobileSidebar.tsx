@@ -3,7 +3,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import NeonLogo from "./NeonLogo";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react"; // Import icons
 
 interface NavItem {
   id: string;
@@ -26,29 +25,19 @@ const MobileSidebar = ({ navItems, activeNav, onNavigate }: MobileSidebarProps) 
     setIsOpen(false); // Close the sheet after navigation
   };
 
-  // Debugging: Log when the sheet's open state changes
-  const handleOpenChange = (newOpenState: boolean) => {
-    console.log("Sheet open state changed:", newOpenState);
-    setIsOpen(newOpenState);
-  };
-
   return (
-    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden">
+        <Button variant="ghost" size="icon" className="lg:hidden"> {/* Only show on small screens */}
           <Menu className="w-6 h-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 bg-red-500 border-r border-border p-6 space-y-2 relative z-50"> {/* Changed bg-card to bg-red-500 and added z-50 */}
-        {console.log("MobileSidebar content is rendering!")} {/* Debugging log */}
-        {/* Transparent neon glow overlay */}
-        <div className="absolute inset-0 bg-gradient-glow opacity-30 pointer-events-none" />
-
-        <SheetHeader className="mb-8 flex justify-center relative z-10">
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
+      <SheetContent side="left" className="w-64 bg-card border-r border-border p-6 space-y-2">
+        <SheetHeader className="mb-8 flex justify-center">
+          <SheetTitle className="sr-only">Navigation</SheetTitle> {/* Accessibility */}
           <NeonLogo size="small" />
         </SheetHeader>
-        <nav className="space-y-1 relative z-10">
+        <nav className="space-y-1">
           {navItems.map((item) => (
             <Button
               key={item.id}
