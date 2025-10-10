@@ -37,9 +37,10 @@ serve(async (req) => {
         });
       }
 
-      const [songResults, albumResults] = await Promise.all([
+      const [songResults, albumResults, artistResults] = await Promise.all([
         ytmusic.search(query, 'songs'),
         ytmusic.search(query, 'albums'),
+        ytmusic.search(query, 'artists'), // Fetch artist results
       ]);
 
       const formattedResults: any[] = [];
@@ -60,6 +61,7 @@ serve(async (req) => {
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const videoId = item.videoId;
+        const duration = item.duration;
 
         formattedResults.push({
           type: 'track',
@@ -68,6 +70,7 @@ serve(async (req) => {
           album,
           thumbnail,
           videoId,
+          duration,
         });
       });
 
@@ -95,6 +98,22 @@ serve(async (req) => {
           albumId,
         });
       });
+
+      // Process artist results
+      artistResults.forEach((item: any) => {
+        const name = item.title || item.name || 'Unknown Artist';
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const artistId = item.artistId;
+
+        formattedResults.push({
+          type: 'artist',
+          name,
+          thumbnail,
+          artistId,
+          genre: 'Various', // Default genre for search results
+        });
+      });
+
 
       console.log(`[yt-music-proxy] Processed search results count: ${formattedResults.length}`);
 
@@ -149,6 +168,51 @@ serve(async (req) => {
       });
 
       return new Response(JSON.stringify({ tracks: formattedTracks, albumTitle: albumInfo.title, albumArtist: albumInfo.artist }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    // NEW: Endpoint for fetching artist details and top tracks
+    if (pathname.endsWith('/artist-tracks')) {
+      const requestBody = await req.json();
+      const { artistId } = requestBody;
+      console.log(`[yt-music-proxy] Fetching tracks for artistId: "${artistId}"`);
+
+      if (!artistId) {
+        return new Response(JSON.stringify({ error: 'Missing artistId' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const artistInfo = await ytmusic.getArtist(artistId);
+      const topSongs = artistInfo.topSongs || [];
+
+      const formattedTracks = topSongs.map((item: any) => {
+        const title = item.title || item.name || 'Unknown Title';
+        let artist = artistInfo.name || 'Unknown Artist'; // Use artistInfo.name for consistency
+        const album = item.album ? item.album.name : undefined;
+        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const videoId = item.videoId;
+        const duration = item.duration;
+
+        return {
+          type: 'track',
+          title,
+          artist,
+          album,
+          thumbnail,
+          videoId,
+          duration,
+        };
+      });
+
+      return new Response(JSON.stringify({
+        artistName: artistInfo.name,
+        artistThumbnail: artistInfo.thumbnails && artistInfo.thumbnails.length > 0 ? artistInfo.thumbnails[artistInfo.thumbnails.length - 1].url : undefined,
+        tracks: formattedTracks
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });

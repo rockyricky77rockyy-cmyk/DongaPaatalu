@@ -16,6 +16,7 @@ import { MusicPlayerProvider, useMusicPlayer } from "./context/MusicPlayerContex
 import YouTubeEmbed from "./components/YouTubeEmbed";
 import React, { useCallback } from "react";
 import AlbumDetailsPage from "./pages/AlbumDetailsPage"; // Import the new AlbumDetailsPage
+import ArtistDetailsPage from "./pages/ArtistDetailsPage"; // Import the new ArtistDetailsPage
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const AppContent = () => {
           <Route path="/genre" element={<GenrePage />} />
           <Route path="/playlists" element={<PlaylistsPage />} />
           <Route path="/album/:albumId" element={<AlbumDetailsPage />} /> {/* New route for album details */}
+          <Route path="/artist/:artistId" element={<ArtistDetailsPage />} /> {/* New route for artist details */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

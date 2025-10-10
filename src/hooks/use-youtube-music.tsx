@@ -94,6 +94,34 @@ export const useYouTubeAlbumTracks = (albumId: string | null) => {
   });
 };
 
+export const useYouTubeArtistTracks = (artistId: string | null) => {
+  return useQuery<{ tracks: YouTubeMusicTrack[], artistName: string, artistThumbnail?: string }, Error>({
+    queryKey: ["youtubeArtistTracks", artistId],
+    queryFn: async () => {
+      if (!artistId) throw new Error("Artist ID is required to fetch tracks.");
+
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/artist-tracks', {
+        body: { artistId },
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error (artist-tracks):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.tracks) {
+        return {
+          tracks: data.tracks as YouTubeMusicTrack[],
+          artistName: data.artistName,
+          artistThumbnail: data.artistThumbnail,
+        };
+      }
+      return { tracks: [], artistName: '', artistThumbnail: undefined };
+    },
+    enabled: !!artistId,
+  });
+};
+
 export const useYouTubeMusicSuggestions = (query: string) => {
   return useQuery<string[], Error>({
     queryKey: ["youtubeMusicSuggestions", query],

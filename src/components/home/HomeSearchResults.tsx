@@ -2,9 +2,9 @@ import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import TrackThumbnail from '@/components/TrackThumbnail';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack } from '@/hooks/use-youtube-music';
+import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack, YouTubeMusicArtist } from '@/hooks/use-youtube-music';
 import { useNavigate } from 'react-router-dom';
-import { Disc3, Play, ChevronLeft } from 'lucide-react';
+import { Disc3, Play, ChevronLeft, Headphones } from 'lucide-react'; // Import Headphones icon
 import { Button } from '@/components/ui/button';
 
 interface HomeSearchResultsProps {
@@ -103,6 +103,39 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                     }}
                   >
                     <Disc3 className="w-4 h-4 fill-current" />
+                  </Button>
+                </div>
+              );
+            } else if (item.type === 'artist') { // Handle artist type
+              const artist = item as YouTubeMusicArtist;
+              return (
+                <div
+                  key={artist.artistId || index}
+                  className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer relative group"
+                  onClick={() => {
+                    console.log(`Navigating to artist details for: ${artist.name} (ID: ${artist.artistId})`);
+                    navigate(`/artist/${artist.artistId}`, { state: { artistName: artist.name, artistThumbnail: artist.thumbnail } });
+                  }}
+                >
+                  <TrackThumbnail
+                    thumbnail={artist.thumbnail}
+                    title={artist.name}
+                    className="w-12 h-12 rounded-full" // Artists usually have round avatars
+                    iconClassName="w-6 h-6 text-primary"
+                  />
+                  <div>
+                    <h3 className="font-semibold text-lg text-foreground">{artist.name}</h3>
+                    <p className="text-sm text-muted-foreground">Artist</p>
+                  </div>
+                  <Button
+                    size="icon"
+                    className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                    onClick={(e) => { // Explicitly navigate to artist details
+                      e.stopPropagation(); 
+                      navigate(`/artist/${artist.artistId}`, { state: { artistName: artist.name, artistThumbnail: artist.thumbnail } });
+                    }}
+                  >
+                    <Headphones className="w-4 h-4 fill-current" />
                   </Button>
                 </div>
               );
