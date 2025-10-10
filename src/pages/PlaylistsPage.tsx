@@ -76,7 +76,7 @@ const PlaylistsPage = () => {
               />
               <div>
                 <h2 className="text-xl font-semibold text-foreground">{String(playlist.name)}</h2>
-                <p className="text-muted-foreground text-sm">{playlist.trackCount} tracks</p>
+                {/* <p className="text-muted-foreground text-sm">{playlist.trackCount} tracks</p> Removed trackCount */}
               </div>
               <Button 
                 size="icon" 

@@ -36,7 +36,7 @@ export interface YouTubeMusicPlaylist {
   name: string;
   thumbnail?: string;
   playlistId: string; // YouTube Music specific playlist ID
-  trackCount?: number;
+  // trackCount?: number; // Removed as it's not reliably available in search results
 }
 
 // Union type for search results

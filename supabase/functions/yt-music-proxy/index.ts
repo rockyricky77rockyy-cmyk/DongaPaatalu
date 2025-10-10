@@ -94,6 +94,11 @@ serve(async (req) => {
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const albumId = item.albumId; // YouTube Music specific album ID
 
+        if (!albumId) {
+          console.warn(`[yt-music-proxy] Skipping album "${title}" due to missing albumId in search results.`);
+          return;
+        }
+
         formattedResults.push({
           type: 'album',
           title,
@@ -321,8 +326,6 @@ serve(async (req) => {
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const albumId = item.albumId;
 
-        console.log(`[yt-music-proxy] Processing album "${title}" (ID: ${albumId}) raw itemCount: ${item.itemCount || 'N/A'}`); // Log itemCount for albums
-
         if (!albumId) {
           console.warn(`[yt-music-proxy] Skipping album "${title}" due to missing albumId.`);
           return null; // Filter out albums without a valid ID
@@ -400,8 +403,7 @@ serve(async (req) => {
         const name = item.title || item.name || 'Unknown Playlist';
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const playlistId = item.playlistId; // YouTube Music specific playlist ID
-        const trackCount = item.itemCount || 0; // Number of tracks in playlist
-        console.log(`[yt-music-proxy] Processing playlist "${name}" (ID: ${playlistId}) raw itemCount: ${item.itemCount}, formatted trackCount: ${trackCount}`);
+        // Removed trackCount from here as it's not reliably available in search results
 
         if (!playlistId) {
           console.warn(`[yt-music-proxy] Skipping playlist "${name}" due to missing playlistId.`);
@@ -413,7 +415,6 @@ serve(async (req) => {
           name,
           thumbnail,
           playlistId,
-          trackCount,
         };
       }).filter(Boolean); // Filter out null entries
 

@@ -72,7 +72,7 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
             />
             <div className="flex-1 min-w-0">
               <h3 className="text-base font-semibold text-foreground truncate">{playlist.name}</h3>
-              <p className="text-xs text-muted-foreground truncate">{playlist.trackCount} tracks</p>
+              {/* <p className="text-xs text-muted-foreground truncate">{playlist.trackCount} tracks</p> Removed trackCount */}
             </div>
             <Button 
               size="icon" 
