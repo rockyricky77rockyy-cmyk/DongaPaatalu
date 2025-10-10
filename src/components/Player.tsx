@@ -63,7 +63,7 @@ const Player = () => {
         {/* Controls */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-8 sm:py-6">
           {/* Left: Track Info & Visualizer */}
-          <div className="flex-1 flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => currentTrack && setIsExpanded(true)}>
+          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer" onClick={() => currentTrack && setIsExpanded(true)}> {/* Removed flex-1 */}
             {currentTrack?.thumbnail ? (
               <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0" />
             ) : (
@@ -80,7 +80,7 @@ const Player = () => {
               </span>
             </div>
             {!isMobile && currentTrack && ( // Hide visualizer on very small screens in compact player, and if no track
-              <div className="hidden md:block ml-4">
+              <div className="hidden md:block ml-4 flex-shrink-0"> {/* Added flex-shrink-0 */}
                 <Visualizer barCount={20} className="h-12 w-32 sm:h-16 sm:w-48" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Pass animationIntervalMs */}
               </div>
             )}
