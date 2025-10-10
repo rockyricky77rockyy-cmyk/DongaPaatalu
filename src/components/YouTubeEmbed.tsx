@@ -47,9 +47,8 @@ const YouTubeEmbed = ({
 
   const handleReady = (event: any) => {
     playerRef.current = event.target;
-    if (isPlaying) {
-      playerRef.current.playVideo();
-    }
+    // The `isPlaying` state from context will be set by `onStateChange` in App.tsx
+    // and `playTrack` in context. No need to force play here.
     onReady?.(event);
   };
 
@@ -68,7 +67,7 @@ const YouTubeEmbed = ({
     stopProgressInterval();
     setPlaybackProgress(0);
     setCurrentTime(0);
-    // Optionally, play next track or loop
+    // The logic for playing the next track or looping is now handled in App.tsx's onStateChange
     onEnd?.(event);
   };
 
@@ -94,20 +93,21 @@ const YouTubeEmbed = ({
   };
 
   useEffect(() => {
-    // If the videoId changes, and the player is ready, load the new video
-    if (playerRef.current && videoId && playerRef.current.loadVideoById) {
-      playerRef.current.loadVideoById(videoId);
-      if (!isPlaying) { // If it wasn't playing, start playing the new track
-        togglePlayPause();
+    if (playerRef.current) {
+      if (videoId) {
+        // If a new videoId is provided, load it.
+        // The 'autoplay: 1' in opts will make it play automatically.
+        // The onStateChange in App.tsx will then update the context's isPlaying state.
+        playerRef.current.loadVideoById(videoId);
+      } else {
+        // If videoId becomes null, stop and clear player
+        playerRef.current.stopVideo();
+        setPlaybackProgress(0);
+        setCurrentTime(0);
+        setDuration(0);
       }
-    } else if (playerRef.current && !videoId) {
-      // If videoId becomes null, stop and clear player
-      playerRef.current.stopVideo();
-      setPlaybackProgress(0);
-      setCurrentTime(0);
-      setDuration(0);
     }
-  }, [videoId, playerRef, isPlaying, togglePlayPause]);
+  }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration]); // Removed isPlaying and togglePlayPause from dependencies
 
   useEffect(() => {
     return () => {
