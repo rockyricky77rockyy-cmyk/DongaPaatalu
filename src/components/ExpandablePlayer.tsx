@@ -226,9 +226,13 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     {/* Album Art & Visualizer */}
                     <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8">
                       <div className="relative">
+                        {/* Visualizer behind the thumbnail */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                          <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
+                        </div>
                         {/* Album Art with Neon H */}
                         <div className={cn(
-                          "w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden",
+                          "w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10", // Added z-10
                           isPlaying && "animate-zoom-pulse" // Apply animation when playing
                         )}>
                           {/* Album Thumbnail or H Logo */}
@@ -239,11 +243,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                               <NeonLogo size="large" />
                             </div>
                           )}
-                        </div>
-
-                        {/* Left Visualizer */}
-                        <div className="absolute -left-16 md:-left-24 lg:-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
-                          <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
                         </div>
                       </div>
                     </div>
