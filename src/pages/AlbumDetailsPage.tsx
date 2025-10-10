@@ -13,11 +13,27 @@ const AlbumDetailsPage = () => {
   const location = useLocation();
   const { albumTitle, albumArtist } = (location.state || {}) as { albumTitle?: string; albumArtist?: string };
 
+  // Add a client-side check for invalid albumId from URL params
+  if (!albumId || albumId === 'undefined') {
+    console.error("Invalid albumId received from URL params:", albumId);
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 p-4 sm:p-8">
+          <Button variant="ghost" onClick={() => navigate('/albums')} className="mb-6 text-muted-foreground hover:text-foreground">
+            <ChevronLeft className="w-5 h-5 mr-2" /> Back to Albums
+          </Button>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Album Not Found</h1>
+          <p className="text-destructive">The album ID is missing or invalid. Please go back and select a valid album.</p>
+        </div>
+      </div>
+    );
+  }
+
   console.log("AlbumDetailsPage loaded.");
   console.log("Received albumId from URL params:", albumId);
   console.log("Received state from location:", { albumTitle, albumArtist });
 
-  const { data, isLoading, isError, error } = useYouTubeAlbumTracks(albumId || null);
+  const { data, isLoading, isError, error } = useYouTubeAlbumTracks(albumId); // albumId is now guaranteed to be a valid string here
   const { playTrack, addRecentlySearched } = useMusicPlayer();
 
   const handlePlayAll = () => {

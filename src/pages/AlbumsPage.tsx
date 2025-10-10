@@ -66,7 +66,13 @@ const AlbumsPage = () => {
             <div 
               key={album.albumId} // Use albumId as key
               className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
-              onClick={() => handleAlbumClick(album.albumId, album.title, album.artist)}
+              onClick={() => {
+                if (album.albumId) { // Add this check
+                  handleAlbumClick(album.albumId, album.title, album.artist);
+                } else {
+                  console.warn("Attempted to navigate to an album with no ID:", album);
+                }
+              }}
             >
               <TrackThumbnail 
                 thumbnail={album.thumbnail} 
