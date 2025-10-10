@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,8 @@ const Home = () => {
   const [activeNav, setActiveNav] = useState("home");
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const mobileHeaderRef = useRef<HTMLElement>(null); // Ref for mobile header
+  const [mobileSuggestionsTop, setMobileSuggestionsTop] = useState(0);
 
   const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
@@ -37,6 +39,20 @@ const Home = () => {
     { id: "genre", label: "Genre", icon: Mic2, path: "/genre" },
     { id: "playlists", label: "Playlists", icon: List, path: "/playlists" },
   ];
+
+  useEffect(() => {
+    const updateSuggestionsTop = () => {
+      if (mobileHeaderRef.current) {
+        // Calculate the height of the mobile header + a small offset for visual separation
+        setMobileSuggestionsTop(mobileHeaderRef.current.offsetHeight + 4); // 4px for mt-1
+      }
+    };
+
+    updateSuggestionsTop(); // Set initial position
+    window.addEventListener('resize', updateSuggestionsTop); // Update on resize
+
+    return () => window.removeEventListener('resize', updateSuggestionsTop);
+  }, []);
 
   const handleNavClick = (item: typeof navItems[0]) => {
     setActiveNav(item.id);
@@ -54,10 +70,13 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative"> {/* Added relative here */}
       <div className="flex-1 flex flex-col lg:flex-row">
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
-        <header className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border sticky top-0 z-20"> {/* Added sticky top-0 z-20 */}
+        <header
+          ref={mobileHeaderRef} // Attach ref here
+          className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border sticky top-0 z-20"
+        >
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
           <NeonLogo size="small" />
           {/* Mobile Search Bar */}
@@ -71,31 +90,37 @@ const Home = () => {
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
-            {showSuggestions && suggestions && suggestions.length > 0 && (
-              <ScrollArea className="absolute z-50 w-full top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                {suggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    {suggestion}
-                  </div>
-                ))}
-              </ScrollArea>
-            )}
+            {/* Mobile suggestions are now rendered outside this header, below */}
           </div>
         </header>
+
+        {/* Mobile Search Suggestions (rendered outside the header) */}
+        {showSuggestions && suggestions && suggestions.length > 0 && (
+          <ScrollArea
+            className="absolute z-50 w-[calc(100%-2rem)] left-4 right-4 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto lg:hidden"
+            style={{ top: `${mobileSuggestionsTop}px` }} // Dynamic top position
+          >
+            {suggestions.map((suggestion, index) => (
+              <div
+                key={index}
+                className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion}
+              </div>
+            ))}
+          </ScrollArea>
+        )}
 
         {/* Left Sidebar (Desktop Only) */}
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col"> {/* Removed overflow-y-auto from here */}
+        <div className="flex-1 flex flex-col">
           {/* Desktop Search Bar (now in HomeHeader) */}
           <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 lg:mt-[112px] mt-[64px]"> {/* Added flex-1, overflow-y-auto, and mt-[64px] for mobile, lg:mt-[112px] for desktop */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 lg:mt-[112px] mt-[64px]">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
