@@ -70,6 +70,14 @@ const YouTubeEmbed = ({
     onEnd?.(event);
   };
 
+  // New error handler to catch errors from the YouTube player
+  const handlePlayerError = (event: any) => {
+    console.error("YouTube Player encountered an error:", event);
+    // You can add more specific error handling here, e.g., show a toast notification
+    // or try to play the next track.
+    onError?.(event); // Call the prop if provided
+  };
+
   const startProgressInterval = (player: any) => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -123,7 +131,7 @@ const YouTubeEmbed = ({
         onPlay={handlePlay}
         onPause={handlePause}
         onEnd={handleEnd}
-        onError={onError}
+        onError={handlePlayerError} // Use the new error handler
         onStateChange={onStateChange}
         onPlaybackRateChange={onPlaybackRateChange}
         onPlaybackQualityChange={onPlaybackQualityChange}

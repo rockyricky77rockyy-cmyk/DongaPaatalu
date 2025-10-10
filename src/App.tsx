@@ -29,6 +29,12 @@ const AppContent = () => {
   };
 
   const handlePlayerStateChange = (event: any) => {
+    // Add a check to ensure window.YT and window.YT.PlayerState are available
+    if (!window.YT || !window.YT.PlayerState) {
+      console.warn("YouTube PlayerState not available yet.");
+      return;
+    }
+
     // Update context based on player state changes
     if (event.data === window.YT.PlayerState.PLAYING) {
       setIsPlaying(true); // Set isPlaying to true when the player starts playing
