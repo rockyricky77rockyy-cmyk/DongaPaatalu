@@ -134,6 +134,7 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] Fetching tracks for albumId: "${albumId}"`);
 
       if (!albumId || albumId === 'undefined') { // Added check for 'undefined' string
+        console.error('[yt-music-proxy] Missing or invalid albumId for /album-tracks');
         return new Response(JSON.stringify({ error: 'Missing or invalid albumId' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -143,6 +144,7 @@ serve(async (req) => {
       let albumInfo;
       try {
         albumInfo = await ytmusic.getAlbum(albumId);
+        console.log(`[yt-music-proxy] Raw albumInfo for ${albumId}:`, JSON.stringify(albumInfo, null, 2));
       } catch (ytError) {
         console.error(`[yt-music-proxy] Error fetching album ${albumId}:`, ytError.message);
         return new Response(JSON.stringify({ error: `Album not found or inaccessible: ${ytError.message}` }), {
@@ -152,6 +154,9 @@ serve(async (req) => {
       }
       
       const albumTracks = albumInfo.tracks || [];
+      console.log(`[yt-music-proxy] Raw albumTracks count for ${albumId}: ${albumTracks.length}`);
+      console.log(`[yt-music-proxy] First 3 raw albumTracks for ${albumId}:`, JSON.stringify(albumTracks.slice(0, 3), null, 2));
+
 
       const formattedTracks = albumTracks.map((item: any) => {
         const videoId = item.videoId;
@@ -184,6 +189,7 @@ serve(async (req) => {
           duration,
         };
       }).filter(Boolean); // Filter out null entries
+      console.log(`[yt-music-proxy] Formatted album tracks count for ${albumId}: ${formattedTracks.length}`);
 
       return new Response(JSON.stringify({ tracks: formattedTracks, albumTitle: albumInfo.title, albumArtist: albumInfo.artist }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -398,6 +404,7 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] Fetching tracks for playlistId: "${playlistId}"`);
 
       if (!playlistId || playlistId === 'undefined') { // Added check for 'undefined' string
+        console.error('[yt-music-proxy] Missing or invalid playlistId for /playlist-tracks');
         return new Response(JSON.stringify({ error: 'Missing or invalid playlistId' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -407,6 +414,7 @@ serve(async (req) => {
       let playlistInfo;
       try {
         playlistInfo = await ytmusic.getPlaylist(playlistId);
+        console.log(`[yt-music-proxy] Raw playlistInfo for ${playlistId}:`, JSON.stringify(playlistInfo, null, 2));
       } catch (ytError) {
         console.error(`[yt-music-proxy] Error fetching playlist ${playlistId}:`, ytError.message);
         return new Response(JSON.stringify({ error: `Playlist not found or inaccessible: ${ytError.message}` }), {
@@ -416,6 +424,9 @@ serve(async (req) => {
       }
       
       const playlistTracks = playlistInfo.tracks || [];
+      console.log(`[yt-music-proxy] Raw playlistTracks count for ${playlistId}: ${playlistTracks.length}`);
+      console.log(`[yt-music-proxy] First 3 raw playlistTracks for ${playlistId}:`, JSON.stringify(playlistTracks.slice(0, 3), null, 2));
+
 
       const formattedTracks = playlistTracks.map((item: any) => {
         const videoId = item.videoId;
