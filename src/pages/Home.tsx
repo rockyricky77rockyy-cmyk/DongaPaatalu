@@ -57,7 +57,7 @@ const Home = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex flex-col lg:flex-row">
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
-        <header className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border relative z-10"> {/* Added relative z-10 */}
+        <header className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border relative z-10">
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
           <NeonLogo size="small" />
           {/* Mobile Search Bar */}
@@ -90,12 +90,12 @@ const Home = () => {
         {/* Left Sidebar (Desktop Only) */}
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
-        {/* Main Content Wrapper */}
-        <div className="flex-1 flex flex-col"> {/* New wrapper div for desktop layout */}
+        {/* Main Content Area (Desktop) */}
+        <div className="flex-1 flex flex-col">
           {/* Desktop Search Bar (now in HomeHeader) */}
           <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-          <main className="flex-1 overflow-auto p-4 sm:p-8 space-y-8"> {/* Removed top padding, added general padding */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
