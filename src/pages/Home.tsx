@@ -95,7 +95,7 @@ const Home = () => {
           {/* Desktop Search Bar (now in HomeHeader) */}
           <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8">
+          <main className="flex-1 overflow-y-auto pt-28 px-4 sm:px-8 space-y-8"> {/* Added pt-28, adjusted px */}
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
