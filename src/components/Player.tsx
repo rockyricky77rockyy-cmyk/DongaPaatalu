@@ -71,7 +71,7 @@ const Player = () => {
                 <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
             )}
-            <div className="flex flex-col min-w-0 max-w-[150px] sm:max-w-[200px]"> {/* Added max-w classes */}
+            <div className="flex flex-col min-w-0 max-w-[150px] sm:max-w-[200px]">
               <span className="text-sm sm:text-base font-medium text-foreground truncate">
                 {currentTrack ? currentTrack.title : 'No track playing'}
               </span>
@@ -145,18 +145,20 @@ const Player = () => {
             </Button>
           </div>
 
-          {/* Right: Expand Button */}
-          <div className="flex-1 flex justify-end">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-muted-foreground hover:text-primary w-8 h-8 sm:w-10 sm:h-10"
-              onClick={() => currentTrack && setIsExpanded(true)} // Only expand if a track is playing
-              disabled={!currentTrack} // Disable expand if no track
-            >
-              <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-          </div>
+          {/* Right: Expand Button (Hidden on mobile) */}
+          {!isMobile && (
+            <div className="flex-1 flex justify-end">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground hover:text-primary w-8 h-8 sm:w-10 sm:h-10"
+                onClick={() => currentTrack && setIsExpanded(true)} // Only expand if a track is playing
+                disabled={!currentTrack} // Disable expand if no track
+              >
+                <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
