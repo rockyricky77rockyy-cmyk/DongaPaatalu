@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2, Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, SlidersHorizontal } from "lucide-react";
+import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2, Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat } from "lucide-react";
@@ -7,7 +7,7 @@ import Visualizer from "./Visualizer";
 import PlaylistQueue from "./PlaylistQueue";
 import NeonLogo from "./NeonLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-router-dom";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { cn } from "@/lib/utils";
 import AppSidebar from "./AppSidebar";
@@ -16,7 +16,6 @@ import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import TrackThumbnail from "./TrackThumbnail";
 import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack } from "@/hooks/use-youtube-music";
-import EqualizerControls from "./EqualizerControls"; // Import the new component
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
@@ -51,9 +50,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   const [isSearching, setIsSearching] = useState(false); // Controls if search results are shown
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Equalizer state
-  const [showEqualizer, setShowEqualizer] = useState(false); // New state for equalizer visibility
-
   const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
 
   const handleNavClick = (item: { id: string; path: string }) => {
@@ -78,7 +74,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setIsSearching(e.target.value.length > 0); // Show search results if there's a query
-    setShowEqualizer(false); // Hide equalizer when searching
   };
 
   const handleClearSearch = () => {
@@ -110,7 +105,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
   if (!isOpen) return null;
   // If not searching and no current track, maybe show a message or disable player
-  if (!currentTrack && !isSearching && !showEqualizer) return null; // Or render a "No track playing" state
+  if (!currentTrack && !isSearching) return null; // Or render a "No track playing" state
 
   return (
     <div className="fixed inset-0 z-50 bg-background animate-slide-up">
@@ -123,7 +118,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               {/* Left Sidebar - Navigation */}
               <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
-              {/* Center - Player/Search Results/Equalizer */}
+              {/* Center - Player/Search Results */}
               <main className="flex-1 flex flex-col">
                 {/* Top Bar */}
                 <header className="p-4 lg:p-6 flex items-center justify-between border-b border-border">
@@ -158,7 +153,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   </div>
                 </header>
 
-                {/* Main Content Area: Player or Search Results or Equalizer */}
+                {/* Main Content Area: Player or Search Results */}
                 {isSearching && searchTerm.length > 0 ? (
                   <div className="flex-1 p-6 lg:p-12 overflow-y-auto">
                     <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
@@ -226,12 +221,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                       })}
                     </div>
                   </div>
-                ) : showEqualizer ? (
-                  <EqualizerControls className="flex-1" />
                 ) : (
                   <>
                     {/* Album Art & Visualizer */}
-                    <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8"> {/* Added mb-8 */}
+                    <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8">
                       <div className="relative">
                         {/* Album Art with Neon H */}
                         <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
@@ -253,7 +246,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="px-6 lg:px-12 pb-4 mb-6"> {/* Added mb-6 */}
+                    <div className="px-6 lg:px-12 pb-4 mb-6">
                       <Slider
                         value={[playbackProgress]}
                         onValueChange={handleSliderChange}
@@ -268,10 +261,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
 
                     {/* Bottom Controls */}
-                    <div className="p-3 lg:p-6 border-t border-border flex items-center"> {/* Reduced padding */}
+                    <div className="p-3 lg:p-6 border-t border-border flex items-center">
                       {/* Left Visualizer */}
                       <div className="flex-1">
-                        <Visualizer barCount={25} className="h-12 w-48 lg:h-16 lg:w-64" isPlaying={isPlaying} animationIntervalMs={100} /> {/* Reduced height */}
+                        <Visualizer barCount={25} className="h-12 w-48 lg:h-16 lg:w-64" isPlaying={isPlaying} animationIntervalMs={100} />
                       </div>
 
                       {/* Center Controls */}
@@ -280,7 +273,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           variant="ghost"
                           size="icon"
                           className={cn(
-                            "w-8 h-8 lg:w-10 lg:h-10", // Reduced size
+                            "w-8 h-8 lg:w-10 lg:h-10",
                             isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                           )}
                           onClick={toggleShuffle}
@@ -290,14 +283,14 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12" // Reduced size
+                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
                           onClick={playPreviousTrack}
                         >
                           <SkipBack className="w-5 h-5 lg:w-7 lg:h-7" />
                         </Button>
                         <Button
                           size="icon"
-                          className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon" // Reduced size
+                          className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
                           onClick={togglePlayPause}
                         >
                           {isPlaying ? <Pause className="w-5 h-5 lg:w-7 lg:h-7" /> : <Play className="w-5 h-5 lg:w-7 lg:h-7 ml-1" />}
@@ -305,7 +298,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12" // Reduced size
+                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
                           onClick={playNextTrack}
                         >
                           <SkipForward className="w-5 h-5 lg:w-7 lg:h-7" />
@@ -314,7 +307,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           variant="ghost"
                           size="icon"
                           className={cn(
-                            "w-8 h-8 lg:w-10 lg:h-10 relative", // Reduced size
+                            "w-8 h-8 lg:w-10 lg:h-10 relative",
                             repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                           )}
                           onClick={toggleRepeatMode}
@@ -331,15 +324,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         </Button>
                         <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
                           <span className="text-xs lg:text-sm">🎤</span>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className={cn("w-8 h-8 lg:w-10 lg:h-10", showEqualizer ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-                          onClick={() => setShowEqualizer(prev => !prev)}
-                          disabled={!currentTrack}
-                        >
-                          <SlidersHorizontal className="w-4 h-4 lg:w-5 lg:h-5" />
                         </Button>
                       </div>
                     </div>
@@ -383,55 +367,51 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               </div>
             </header>
 
-            {/* Main Content Area: Album Art / Equalizer */}
-            {showEqualizer ? (
-              <EqualizerControls className="flex-1" />
-            ) : (
-              <>
-                {/* Album Art */}
-                <div className="flex justify-center p-6">
-                  <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
-                    {/* Visualizer behind the thumbnail */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-40">
-                      <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
+            {/* Main Content Area: Album Art */}
+            <>
+              {/* Album Art */}
+              <div className="flex justify-center p-6">
+                <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
+                  {/* Visualizer behind the thumbnail */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                    <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
+                  </div>
+                  {currentTrack?.thumbnail ? (
+                    <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
+                  ) : (
+                    <div className="relative z-10">
+                      <NeonLogo size="large" />
                     </div>
-                    {currentTrack?.thumbnail ? (
-                      <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
-                    ) : (
-                      <div className="relative z-10">
-                        <NeonLogo size="large" />
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
+              </div>
 
-                {/* Track Info */}
-                <div className="text-center px-6 mb-4">
-                  <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
-                  <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack?.artist}</p>
-                </div>
+              {/* Track Info */}
+              <div className="text-center px-6 mb-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
+                <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack?.artist}</p>
+              </div>
 
-                {/* Progress Bar */}
-                <div className="px-6 mb-4">
-                  <Slider
-                    value={[playbackProgress]}
-                    onValueChange={handleSliderChange}
-                    max={100}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-sm text-muted-foreground mt-2"> {/* Changed text-xs to text-sm */}
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
+              {/* Progress Bar */}
+              <div className="px-6 mb-4">
+                <Slider
+                  value={[playbackProgress]}
+                  onValueChange={handleSliderChange}
+                  max={100}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
                 </div>
+              </div>
 
-                {/* Visualizer */}
-                <div className="px-6 mb-6">
-                  <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} animationIntervalMs={100} />
-                </div>
-              </>
-            )}
+              {/* Visualizer */}
+              <div className="px-6 mb-6">
+                <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} animationIntervalMs={100} />
+              </div>
+            </>
 
             {/* Controls */}
             <div className="px-6 mb-6">
@@ -481,17 +461,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 >
                   <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
                   {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
-                </Button>
-              </div>
-              {/* Mobile Equalizer Toggle */}
-              <div className="flex justify-center mt-4">
-                <Button 
-                  variant="ghost" 
-                  className={cn("w-full max-w-xs", showEqualizer ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground")}
-                  onClick={() => setShowEqualizer(prev => !prev)}
-                  disabled={!currentTrack}
-                >
-                  <SlidersHorizontal className="w-5 h-5 mr-2" /> Equalizer
                 </Button>
               </div>
             </div>
