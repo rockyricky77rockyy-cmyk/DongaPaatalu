@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2, Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
@@ -12,6 +12,10 @@ import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { cn } from "@/lib/utils";
 import AppSidebar from "./AppSidebar";
 import MobileSidebar from "./MobileSidebar";
+import { Input } from "./ui/input";
+import { ScrollArea } from "./ui/scroll-area";
+import TrackThumbnail from "./TrackThumbnail";
+import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack } from "@/hooks/use-youtube-music";
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
@@ -35,10 +39,18 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     repeatMode,
     toggleRepeatMode,
     recentlySearched,
+    playTrack,
   } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home");
-  const [isPlaylistQueueOpen, setIsPlaylistQueueOpen] = useState(true); // New state for mobile playlist queue
+  const [isPlaylistQueueOpen, setIsPlaylistQueueOpen] = useState(true);
   const isMobile = useIsMobile();
+
+  // Search states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false); // Controls if search results are shown
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
 
   const handleNavClick = (item: { id: string; path: string }) => {
     setActiveNav(item.id);
@@ -59,8 +71,41 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     }
   };
 
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setIsSearching(e.target.value.length > 0); // Show search results if there's a query
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setIsSearching(false);
+    if (searchInputRef.current) {
+      searchInputRef.current.blur(); // Remove focus from search input
+    }
+  };
+
+  const handlePlaySearchResult = (track: YouTubeMusicTrack) => {
+    playTrack(track);
+    // Optionally, clear search after playing a track
+    // handleClearSearch();
+  };
+
+  const handleNavigateToAlbum = (album: YouTubeMusicAlbum) => {
+    navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
+    onClose(); // Close the expanded player when navigating to album details
+  };
+
+  // Effect to focus search input when search is activated
+  useEffect(() => {
+    if (isSearching && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearching]);
+
+
   if (!isOpen) return null;
-  if (!currentTrack) return null;
+  // If not searching and no current track, maybe show a message or disable player
+  if (!currentTrack && !isSearching) return null; // Or render a "No track playing" state
 
   return (
     <div className="fixed inset-0 z-50 bg-background animate-slide-up">
@@ -73,25 +118,34 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               {/* Left Sidebar - Navigation */}
               <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
-              {/* Center - Player */}
+              {/* Center - Player/Search Results */}
               <main className="flex-1 flex flex-col">
                 {/* Top Bar */}
                 <header className="p-4 lg:p-6 flex items-center justify-between border-b border-border">
                   <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
                     <Menu className="w-4 h-4 lg:w-5 lg:h-5" />
                   </Button>
-                  <span className="flex-1 min-w-0 text-center text-xs lg:text-sm text-muted-foreground truncate"> {/* Added flex-1, min-w-0, text-center, truncate */}
-                    {currentTrack.title} - {currentTrack.artist}
-                  </span>
+                  {/* Search Input */}
+                  <div className="relative flex-1 mx-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      ref={searchInputRef}
+                      placeholder="Search music, artists, albums..."
+                      className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
+                      value={searchTerm}
+                      onChange={handleSearchInputChange}
+                      onFocus={() => setIsSearching(true)}
+                      // onBlur={() => setTimeout(() => setIsSearching(false), 100)} // Keep search results visible until cleared
+                    />
+                  </div>
                   <div className="flex items-center gap-1 lg:gap-2">
-                    <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
-                      <Search className="w-4 h-4 lg:w-5 lg:h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
+                    {isSearching && (
+                      <Button variant="ghost" size="icon" onClick={handleClearSearch} className="w-8 h-8 lg:w-10 lg:h-10">
+                        <X className="w-4 h-4 lg:w-5 lg:h-5" />
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="icon" onClick={onClose} className="w-8 h-8 lg:w-10 lg:h-10">
                       <Minimize2 className="w-4 h-4 lg:w-5 lg:h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
-                      <Copy className="w-4 h-4 lg:w-5 lg:h-5" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={onClose} className="w-8 h-8 lg:w-10 lg:h-10">
                       <X className="w-4 h-4 lg:w-5 lg:h-5" />
@@ -99,113 +153,185 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   </div>
                 </header>
 
-                {/* Album Art & Visualizer */}
-                <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-                  <div className="relative">
-                    {/* Album Art with Neon H */}
-                    <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
-                      {/* Album Thumbnail or H Logo */}
-                      {currentTrack.thumbnail ? (
-                        <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
-                      ) : (
-                        <div className="relative z-10">
-                          <NeonLogo size="large" />
+                {/* Main Content Area: Player or Search Results */}
+                {isSearching && searchTerm.length > 0 ? (
+                  <div className="flex-1 p-6 lg:p-12 overflow-y-auto">
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
+                    {isSearchLoading && <p className="text-muted-foreground">Searching...</p>}
+                    {isSearchError && <p className="text-destructive">Error: {searchError?.message}</p>}
+                    {!isSearchLoading && !isSearchError && (!searchResults || searchResults.length === 0) && (
+                      <p className="text-muted-foreground">No results found.</p>
+                    )}
+                    <div className="space-y-4">
+                      {searchResults?.map((item, index) => {
+                        if (item.type === 'track') {
+                          const track = item as YouTubeMusicTrack;
+                          return (
+                            <div
+                              key={track.videoId || index}
+                              className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer relative group"
+                              onClick={() => handlePlaySearchResult(track)}
+                            >
+                              <TrackThumbnail
+                                thumbnail={track.thumbnail}
+                                title={track.title}
+                                className="w-12 h-12 rounded-md"
+                                iconClassName="w-6 h-6 text-primary"
+                              />
+                              <div>
+                                <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
+                                <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
+                              </div>
+                              <Button
+                                size="icon"
+                                className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                              >
+                                <Play className="w-4 h-4 fill-current" />
+                              </Button>
+                            </div>
+                          );
+                        } else if (item.type === 'album') {
+                          const album = item as YouTubeMusicAlbum;
+                          return (
+                            <div
+                              key={album.albumId || index}
+                              className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer relative group"
+                              onClick={() => handleNavigateToAlbum(album)}
+                            >
+                              <TrackThumbnail
+                                thumbnail={album.thumbnail}
+                                title={album.title}
+                                className="w-12 h-12 rounded-md"
+                                iconClassName="w-6 h-6 text-primary"
+                              />
+                              <div>
+                                <h3 className="font-semibold text-lg text-foreground">{album.title}</h3>
+                                <p className="text-sm text-muted-foreground">{album.artist} • Album</p>
+                              </div>
+                              <Button
+                                size="icon"
+                                className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                              >
+                                <Disc3 className="w-4 h-4 fill-current" />
+                              </Button>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Album Art & Visualizer */}
+                    <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+                      <div className="relative">
+                        {/* Album Art with Neon H */}
+                        <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden">
+                          {/* Album Thumbnail or H Logo */}
+                          {currentTrack?.thumbnail ? (
+                            <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
+                          ) : (
+                            <div className="relative z-10">
+                              <NeonLogo size="large" />
+                            </div>
+                          )}
                         </div>
-                      )}
+
+                        {/* Left Visualizer */}
+                        <div className="absolute -left-16 md:-left-24 lg:-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
+                          <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Left Visualizer */}
-                    <div className="absolute -left-16 md:-left-24 lg:-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
-                      <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
+                    {/* Progress Bar */}
+                    <div className="px-6 lg:px-12 pb-4">
+                      <Slider
+                        value={[playbackProgress]}
+                        onValueChange={handleSliderChange}
+                        max={100}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs lg:text-sm text-muted-foreground mt-2">
+                        <span>{formatTime(currentTime)}</span>
+                        <span>{formatTime(duration)}</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Progress Bar */}
-                <div className="px-6 lg:px-12 pb-4">
-                  <Slider
-                    value={[playbackProgress]}
-                    onValueChange={handleSliderChange}
-                    max={100}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs lg:text-sm text-muted-foreground mt-2">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
+                    {/* Bottom Controls */}
+                    <div className="p-4 lg:p-8 border-t border-border flex items-center">
+                      {/* Left Visualizer */}
+                      <div className="flex-1">
+                        <Visualizer barCount={25} className="h-16 w-48 lg:h-24 lg:w-64" isPlaying={isPlaying} animationIntervalMs={100} />
+                      </div>
 
-                {/* Bottom Controls */}
-                <div className="p-4 lg:p-8 border-t border-border flex items-center">
-                  {/* Left Visualizer */}
-                  <div className="flex-1">
-                    <Visualizer barCount={25} className="h-16 w-48 lg:h-24 lg:w-64" isPlaying={isPlaying} animationIntervalMs={100} />
-                  </div>
+                      {/* Center Controls */}
+                      <div className="flex items-center gap-4 lg:gap-6">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            "w-8 h-8 lg:w-10 lg:h-10",
+                            isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                          )}
+                          onClick={toggleShuffle}
+                        >
+                          <Shuffle className="w-4 h-4 lg:w-5 lg:h-5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
+                          onClick={playPreviousTrack}
+                        >
+                          <SkipBack className="w-5 h-5 lg:w-7 lg:h-7" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
+                          onClick={togglePlayPause}
+                        >
+                          {isPlaying ? <Pause className="w-5 h-5 lg:w-7 lg:h-7" /> : <Play className="w-5 h-5 lg:w-7 lg:h-7 ml-1" />}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
+                          onClick={playNextTrack}
+                        >
+                          <SkipForward className="w-5 h-5 lg:w-7 lg:h-7" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            "w-8 h-8 lg:w-10 lg:h-10 relative",
+                            repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
+                          )}
+                          onClick={toggleRepeatMode}
+                        >
+                          <Repeat className="w-4 h-4 lg:w-5 lg:h-5" />
+                          {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
+                        </Button>
+                      </div>
 
-                  {/* Center Controls */}
-                  <div className="flex items-center gap-4 lg:gap-6">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn(
-                        "w-8 h-8 lg:w-10 lg:h-10",
-                        isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
-                      )}
-                      onClick={toggleShuffle}
-                    >
-                      <Shuffle className="w-4 h-4 lg:w-5 lg:h-5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
-                      onClick={playPreviousTrack}
-                    >
-                      <SkipBack className="w-5 h-5 lg:w-7 lg:h-7" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
-                      onClick={togglePlayPause}
-                    >
-                      {isPlaying ? <Pause className="w-5 h-5 lg:w-7 lg:h-7" /> : <Play className="w-5 h-5 lg:w-7 lg:h-7 ml-1" />}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
-                      onClick={playNextTrack}
-                    >
-                      <SkipForward className="w-5 h-5 lg:w-7 lg:h-7" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn(
-                        "w-8 h-8 lg:w-10 lg:h-10 relative",
-                        repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
-                      )}
-                      onClick={toggleRepeatMode}
-                    >
-                      <Repeat className="w-4 h-4 lg:w-5 lg:h-5" />
-                      {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
-                    </Button>
-                  </div>
-
-                  {/* Right Space */}
-                  <div className="flex-1 flex justify-end gap-1 lg:gap-2">
-                    <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
-                      <span className="text-xs lg:text-sm">🎵</span>
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
-                      <span className="text-xs lg:text-sm">🎤</span>
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
-                      <span className="text-xs lg:text-sm">📊</span>
-                    </Button>
-                  </div>
-                </div>
+                      {/* Right Space */}
+                      <div className="flex-1 flex justify-end gap-1 lg:gap-2">
+                        <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
+                          <span className="text-xs lg:text-sm">🎵</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
+                          <span className="text-xs lg:text-sm">🎤</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
+                          <span className="text-xs lg:text-sm">📊</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </main>
 
               {/* Right Sidebar - Playlist */}
@@ -228,7 +354,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <NeonLogo size="small" />
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="w-9 h-9">
+                {/* Mobile search icon navigates to home search */}
+                <Button variant="ghost" size="icon" className="w-9 h-9" onClick={() => { navigate('/home'); onClose(); }}>
                   <Search className="w-5 h-5" />
                 </Button>
                 <MobileSidebar navItems={[
@@ -250,7 +377,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <div className="absolute inset-0 flex items-center justify-center opacity-40">
                   <Visualizer barCount={20} className="h-full w-full absolute inset-0 flex items-center justify-center" isPlaying={isPlaying} animationIntervalMs={100} />
                 </div>
-                {currentTrack.thumbnail ? (
+                {currentTrack?.thumbnail ? (
                   <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
                 ) : (
                   <div className="relative z-10">
@@ -262,8 +389,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
             {/* Track Info */}
             <div className="text-center px-6 mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack.title}</h2> {/* Added truncate */}
-              <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack.artist}</p> {/* Added truncate */}
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
+              <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack?.artist}</p>
             </div>
 
             {/* Progress Bar */}
@@ -344,10 +471,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             "flex-none bg-card/80 backdrop-blur-lg rounded-t-2xl sm:rounded-t-3xl border-t-2 border-primary/30 overflow-hidden transition-all duration-300 ease-in-out",
             isPlaylistQueueOpen ? "h-[300px] sm:h-[400px]" : "h-16" // Dynamic height
           )}>
-            <PlaylistQueue 
-              activeVideoId={currentTrack?.videoId} 
-              isMobile 
-              recentlySearched={recentlySearched} 
+            <PlaylistQueue
+              activeVideoId={currentTrack?.videoId}
+              isMobile
+              recentlySearched={recentlySearched}
               isOpen={isPlaylistQueueOpen} // Pass isOpen prop
               onToggle={() => setIsPlaylistQueueOpen(prev => !prev)} // Pass toggle function
             />
