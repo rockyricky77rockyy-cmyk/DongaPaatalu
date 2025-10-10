@@ -14,9 +14,9 @@ const HomeAlbumsSection = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4">
+            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 w-[180px] flex-shrink-0 md:w-auto">
               <Skeleton className="aspect-square rounded-xl mb-4" />
               <Skeleton className="h-6 w-3/4 mb-1" />
               <Skeleton className="h-4 w-1/2" />
@@ -43,11 +43,11 @@ const HomeAlbumsSection = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {albums.map((album) => (
           <div
             key={album.id}
-            className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
+            className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[180px] flex-shrink-0 md:w-auto"
             onClick={() => navigate('/albums')}
           >
             <TrackThumbnail 

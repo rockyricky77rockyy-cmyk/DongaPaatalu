@@ -13,9 +13,9 @@ const HomeArtistsSection = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 text-center">
+            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 text-center w-[180px] flex-shrink-0 md:w-auto">
               <Skeleton className="w-24 h-24 rounded-full mx-auto mb-4" />
               <Skeleton className="h-6 w-3/4 mb-1 mx-auto" />
               <Skeleton className="h-4 w-1/2 mx-auto" />
@@ -42,11 +42,11 @@ const HomeArtistsSection = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Artists</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {artists.slice(0, 4).map((artist) => (
           <div
             key={artist.id}
-            className="group cursor-pointer bg-card rounded-2xl p-4 text-center hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
+            className="group cursor-pointer bg-card rounded-2xl p-4 text-center hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[180px] flex-shrink-0 md:w-auto"
             onClick={() => navigate('/artists')}
           >
             <div className={`w-24 h-24 mx-auto rounded-full bg-gradient-to-br ${artist.avatar_color} mb-4 flex items-center justify-center`}>

@@ -13,9 +13,9 @@ const HomeRadioStationsSection = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 flex items-center gap-4">
+            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-4 flex items-center gap-4 w-[280px] flex-shrink-0 md:w-auto">
               <Skeleton className="w-10 h-10 rounded-full" />
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-6 w-3/4" />
@@ -44,11 +44,11 @@ const HomeRadioStationsSection = () => {
   return (
     <div className="mt-8">
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:pb-0">
         {radioStations.slice(0, 4).map((station) => (
           <div
             key={station.id}
-            className="group cursor-pointer bg-card rounded-2xl p-4 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
+            className="group cursor-pointer bg-card rounded-2xl p-4 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon relative overflow-hidden w-[280px] flex-shrink-0 md:w-auto"
             onClick={() => navigate('/radio')}
           >
             <Radio className={`w-10 h-10 ${station.icon_color}`} />
