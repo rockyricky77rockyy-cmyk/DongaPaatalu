@@ -5,7 +5,7 @@ import { Slider } from "./ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat } from "lucide-react";
 import Visualizer from "./Visualizer";
 import PlaylistQueue from "./PlaylistQueue";
-import NeonLogo from "./NeonLogo";
+// import NeonLogo from "./NeonLogo"; // Removed NeonLogo import
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { useMusicPlayer } from "@/context/MusicPlayerContext";
@@ -271,8 +271,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           {currentTrack?.thumbnail ? (
                             <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
                           ) : (
-                            <div className="relative z-10">
-                              <NeonLogo size="large" />
+                            <div className="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+                              DP
                             </div>
                           )}
                         </div>
@@ -387,7 +387,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <ChevronDown className="w-5 h-5" />
               </Button>
               <div className="flex-1 flex justify-center">
-                <NeonLogo size="small" />
+                {/* Replaced NeonLogo with "DPaata" text */}
+                <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]">
+                  DPaata
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 {/* Mobile search icon navigates to home search */}
@@ -423,8 +426,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     {currentTrack?.thumbnail ? (
                       <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
                     ) : (
-                      <div className="relative z-10">
-                        <NeonLogo size="large" />
+                      <div className="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+                        DP
                       </div>
                     )}
                   </div>
@@ -490,7 +493,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
                   onClick={togglePlayPause}
                 >
-                  {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 sm:h-8 ml-1" />}
+                  {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 h-8 ml-1" />}
                 </Button>
                 <Button
                   variant="ghost"
