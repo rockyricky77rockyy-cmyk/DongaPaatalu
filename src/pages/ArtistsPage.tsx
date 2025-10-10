@@ -58,17 +58,21 @@ const ArtistsPage = () => {
           {artists?.map((artist) => (
             <div 
               key={artist.artistId} // Use artistId as key
-              className="group cursor-pointer bg-card rounded-2xl p-4 text-center hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
+              className="group cursor-pointer bg-card rounded-2xl p-4 hover:bg-card/80 transition-all border border-border hover:border-primary/50 hover:shadow-neon relative overflow-hidden"
               onClick={() => console.log(`Navigate to artist: ${artist.name}`)} // Placeholder for artist details navigation
             >
               <TrackThumbnail // Reusing TrackThumbnail for artist avatars
                 thumbnail={artist.thumbnail}
-                title={artist.name}
+                title={typeof artist.name === 'string' ? artist.name : 'Unknown Artist'} // Defensive check
                 className="w-24 h-24 mx-auto rounded-full mb-4"
                 iconClassName="w-12 h-12 text-white opacity-50"
               />
-              <h3 className="font-semibold text-lg text-foreground mb-1">{artist.name}</h3>
-              <p className="text-sm text-muted-foreground">{artist.genre || 'Artist'}</p>
+              <h3 className="font-semibold text-lg text-foreground mb-1">
+                {typeof artist.name === 'string' ? artist.name : 'Unknown Artist'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {typeof artist.genre === 'string' ? artist.genre : 'Artist'}
+              </p>
               <Button 
                 size="icon" 
                 className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"

@@ -58,12 +58,16 @@ const HomeArtistsSection = ({ className }: HomeArtistsSectionProps) => {
           >
             <TrackThumbnail // Reusing TrackThumbnail for artist avatars
               thumbnail={artist.thumbnail}
-              title={artist.name}
+              title={typeof artist.name === 'string' ? artist.name : 'Unknown Artist'} // Defensive check
               className="w-16 h-16 mx-auto rounded-full mb-3"
               iconClassName="w-8 h-8 text-white opacity-50"
             />
-            <h3 className="font-semibold text-sm text-foreground mb-1 truncate">{artist.name}</h3>
-            <p className="text-xs text-muted-foreground truncate">{artist.genre || 'Artist'}</p>
+            <h3 className="font-semibold text-sm text-foreground mb-1 truncate">
+              {typeof artist.name === 'string' ? artist.name : 'Unknown Artist'}
+            </h3>
+            <p className="text-xs text-muted-foreground truncate">
+              {typeof artist.genre === 'string' ? artist.genre : 'Artist'}
+            </p>
             <Button 
               size="icon" 
               className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg w-7 h-7"

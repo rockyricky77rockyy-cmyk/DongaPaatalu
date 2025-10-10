@@ -119,12 +119,14 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                 >
                   <TrackThumbnail
                     thumbnail={artist.thumbnail}
-                    title={artist.name}
+                    title={typeof artist.name === 'string' ? artist.name : 'Unknown Artist'} // Defensive check
                     className="w-12 h-12 rounded-full" // Artists usually have round avatars
                     iconClassName="w-6 h-6 text-primary"
                   />
                   <div>
-                    <h3 className="font-semibold text-lg text-foreground">{artist.name}</h3>
+                    <h3 className="font-semibold text-lg text-foreground">
+                      {typeof artist.name === 'string' ? artist.name : 'Unknown Artist'}
+                    </h3>
                     <p className="text-sm text-muted-foreground">Artist</p>
                   </div>
                   <Button

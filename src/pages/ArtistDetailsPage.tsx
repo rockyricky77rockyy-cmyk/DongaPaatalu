@@ -20,7 +20,7 @@ const ArtistDetailsPage = () => {
   const { data, isLoading, isError, error } = useYouTubeArtistTracks(artistId || null);
   const { playTrack, addRecentlySearched } = useMusicPlayer();
 
-  const artistName = data?.artistName || initialArtistName || 'Unknown Artist';
+  const artistName = String(data?.artistName || initialArtistName || 'Unknown Artist'); // Ensure artistName is always a string
   const artistThumbnail = data?.artistThumbnail || initialArtistThumbnail;
 
   const handlePlayAll = () => {
