@@ -91,11 +91,11 @@ const Home = () => {
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area (Desktop) */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-y-auto"> {/* This div now handles scrolling */}
           {/* Desktop Search Bar (now in HomeHeader) */}
           <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-          <main className="flex-1 overflow-y-auto pt-28 px-4 sm:px-8 space-y-8"> {/* Added pt-28, adjusted px */}
+          <main className="p-4 sm:p-8 space-y-8"> {/* Removed pt-28, as HomeHeader is now inside the scrollable area */}
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} />
