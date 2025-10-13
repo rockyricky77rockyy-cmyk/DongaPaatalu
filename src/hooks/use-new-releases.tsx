@@ -22,7 +22,19 @@ export const useNewReleases = () => {
 
       if (data && data.results) {
         // Filter for items that are explicitly tracks and map to YouTubeMusicTrack interface
-        return data.results.filter((item: any) => item.type === 'track') as YouTubeMusicTrack[];
+        const tracks = data.results.filter((item: any) => item.type === 'track') as YouTubeMusicTrack[];
+
+        // Add client-side filtering for trailers and promotional content
+        const filteredTracks = tracks.filter(track => {
+          const lowerCaseTitle = track.title.toLowerCase();
+          const isTrailer = ['trailer', 'teaser', 'promo', 'glimpse', 'motion poster', 'official video', 'lyric video'].some(keyword =>
+            lowerCaseTitle.includes(keyword)
+          );
+          // We want to EXCLUDE trailers, so return true if it's NOT a trailer
+          return !isTrailer;
+        });
+
+        return filteredTracks;
       }
       return [];
     },
