@@ -38,15 +38,6 @@ serve(async (req) => {
       console.log('[yt-music-proxy] YouTubeMusic API initialized.');
     }
 
-    // Removed manual authentication handling to allow public access
-    // const authHeader = req.headers.get('Authorization')
-    // if (!authHeader) {
-    //   return new Response('Unauthorized', { 
-    //     status: 401, 
-    //     headers: corsHeaders 
-    //   })
-    // }
-
     if (pathname.endsWith('/search')) {
       const requestBody = await req.json();
       const query = requestBody.query;
@@ -173,7 +164,7 @@ serve(async (req) => {
 
       const albumThumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
 
-      const formattedTracks = albumTracks.map((item: any) => {
+      let formattedTracks = albumTracks.map((item: any) => {
         console.log(`[yt-music-proxy] Processing album track item:`, JSON.stringify(item, null, 2)); // Added detailed log for each item
         const videoId = item.videoId;
         console.log(`[yt-music-proxy] Album track "${item.title}" videoId: ${videoId}`); // Added log
@@ -198,6 +189,38 @@ serve(async (req) => {
         };
       }).filter(Boolean); // Filter out null entries
       console.log(`[yt-music-proxy] Formatted album tracks count for ${albumId}: ${formattedTracks.length}`);
+
+      // NEW: Fallback search if no playable tracks found directly from the album
+      if (formattedTracks.length === 0 && albumInfo.title && albumInfo.artist) {
+        console.log(`[yt-music-proxy] No direct playable tracks found for album "${albumInfo.title}". Attempting fallback search.`);
+        const fallbackQuery = `${albumInfo.title} by ${getArtistName(albumInfo.artist)} songs`;
+        const fallbackSearchResults = await ytmusic.search(fallbackQuery, 'songs');
+
+        fallbackSearchResults.forEach((item: any) => {
+          const videoId = item.videoId;
+          if (!videoId) {
+            console.log(`[yt-music-proxy] Skipping fallback track "${item.title}" due to missing videoId.`);
+            return;
+          }
+          const title = item.title || item.name || 'Unknown Title';
+          const artist = getArtistName(item.artists || item.artist);
+          const album = item.album ? item.album.name : undefined;
+          const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+          const duration = item.duration;
+
+          formattedTracks.push({
+            type: 'track',
+            title,
+            artist,
+            album,
+            thumbnail,
+            videoId,
+            duration,
+          });
+        });
+        console.log(`[yt-music-proxy] Fallback search added ${formattedTracks.length} tracks.`);
+      }
+
 
       return new Response(JSON.stringify({ 
         tracks: formattedTracks, 
@@ -382,7 +405,7 @@ serve(async (req) => {
         playlistResults = searchRes;
       } else {
         const trendingPlaylists = await ytmusic.search('popular playlists', 'playlists'); // Changed to 'popular playlists' for potentially better results
-        playlistResults = trendingPlayplaylists;
+        playlistResults = trendingPlaylists;
       }
 
       const formattedPlaylists = playlistResults.map((item: any) => {
