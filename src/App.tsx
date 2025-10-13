@@ -66,10 +66,10 @@ const AppContent = () => {
       console.log("App.tsx: Player state is BUFFERING.");
       // Optionally set isPlaying to false or show a loading indicator
     } else if (event.data === window.YT.PlayerState.CUED) {
-      console.log("App.tsx: Player state is CUED (video loaded but not playing).");
-      // This state is often reached before PLAYING, especially with autoplay=1
-      // You might want to explicitly call playVideo() here if autoplay isn't reliable
-      // playerRef.current?.playVideo(); // Uncomment if needed for more aggressive autoplay
+      console.log("App.tsx: Player state is CUED (video loaded but not playing). Attempting to play.");
+      // Explicitly try to play if cued, as autoplay might be blocked
+      playerRef.current?.playVideo(); 
+      setIsPlaying(true); // Assume it will play, update UI
     }
   };
 
