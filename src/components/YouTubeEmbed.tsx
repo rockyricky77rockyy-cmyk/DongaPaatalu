@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { cn } from '@/lib/utils'; // Import cn for conditional classnames
+import { cn, openExternalLink } from '@/lib/utils'; // Import cn and openExternalLink
 import { toast } from 'sonner'; // Import toast from sonner
 
 interface YouTubeEmbedProps {
@@ -97,11 +97,32 @@ const YouTubeEmbed = ({
   // New error handler to catch errors from the YouTube player
   const handlePlayerError = (event: any) => {
     console.error("YouTube Player encountered an error:", event);
-    // Display a toast notification to the user
-    toast.error(`Failed to play "${currentTrack?.title || 'this track'}". It might be unavailable or restricted.`, {
-      description: `Error code: ${event.data}`,
-      duration: 5000,
-    });
+    
+    const videoUrl = `https://www.youtube.com/watch?v=${currentTrack?.videoId}`;
+    const trackTitle = currentTrack?.title || 'this track';
+
+    // Common error codes for embedding restrictions: 150, 101
+    if (event.data === 150 || event.data === 101) {
+      toast.error(`"${trackTitle}" cannot be played in the app.`, {
+        description: "This video is restricted from being embedded. Try opening it in YouTube.",
+        duration: 7000,
+        action: {
+          label: "Open in YouTube",
+          onClick: () => openExternalLink(videoUrl),
+        },
+      });
+    } else {
+      // Generic error for other issues
+      toast.error(`Failed to play "${trackTitle}".`, {
+        description: `Error code: ${event.data}. It might be unavailable or restricted.`,
+        duration: 5000,
+        action: {
+          label: "Open in YouTube",
+          onClick: () => openExternalLink(videoUrl),
+        },
+      });
+    }
+    
     onError?.(event); // Call the prop if provided
     setIsPlaying(false); // Stop playing on error
   };
