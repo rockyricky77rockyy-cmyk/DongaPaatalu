@@ -155,7 +155,6 @@ serve(async (req) => {
         });
       }
       
-      // CORRECTED: Access albumInfo.songs instead of albumInfo.tracks
       const albumTracksRaw = albumInfo.songs || []; 
       console.log(`[yt-music-proxy] RAW albumTracks count for ${albumId}: ${albumTracksRaw.length}`);
       console.log(`[yt-music-proxy] First 5 RAW albumTracks for ${albumId}:`, JSON.stringify(albumTracksRaw.slice(0, 5), null, 2));
@@ -260,9 +259,10 @@ serve(async (req) => {
     if (pathname.endsWith('/artist-tracks')) {
       const requestBody = await req.json();
       const { artistId } = requestBody;
-      console.log(`[yt-music-proxy] Fetching tracks for artistId: "${artistId}"`);
+      console.log(`[yt-music-proxy] Received artistId for /artist-tracks: "${artistId}" (type: ${typeof artistId})`); // Added log here
 
       if (!artistId || artistId === 'undefined') { // Added check for 'undefined' string
+        console.error('[yt-music-proxy] Missing or invalid artistId for /artist-tracks');
         return new Response(JSON.stringify({ error: 'Missing or invalid artistId' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -271,8 +271,10 @@ serve(async (req) => {
 
       let artistInfo;
       try {
+        console.log(`[yt-music-proxy] Calling ytmusic.getArtist with ID: "${artistId}"`); // Added log before API call
         artistInfo = await ytmusic.getArtist(artistId);
-      } catch (ytError) {
+        console.log(`[yt-music-proxy] Raw artistInfo for ${artistId}:`, JSON.stringify(artistInfo, null, 2)); // Log full raw artistInfo
+      } catch (ytError: any) {
         console.error(`[yt-music-proxy] Error fetching artist ${artistId}:`, ytError.message);
         return new Response(JSON.stringify({ error: `Artist not found or inaccessible: ${ytError.message}` }), {
           status: 404,
@@ -281,6 +283,9 @@ serve(async (req) => {
       }
 
       const topSongs = artistInfo.topSongs || [];
+      console.log(`[yt-music-proxy] RAW topSongs count for ${artistId}: ${topSongs.length}`);
+      console.log(`[yt-music-proxy] First 3 RAW topSongs for ${artistId}:`, JSON.stringify(topSongs.slice(0, 3), null, 2));
+
 
       const formattedTracks = topSongs.map((item: any) => {
         const videoId = item.videoId;
@@ -304,6 +309,8 @@ serve(async (req) => {
           duration,
         };
       }).filter(Boolean); // Filter out null entries
+      console.log(`[yt-music-proxy] Formatted artist tracks count for ${artistId}: ${formattedTracks.length}`);
+
 
       return new Response(JSON.stringify({
         artistName: getArtistName(artistInfo.name), // Use helper for artistName
@@ -558,6 +565,8 @@ serve(async (req) => {
           duration,
         };
       }).filter(Boolean);
+      console.log(`[yt-music-proxy] Formatted playlist tracks count for ${playlistId}: ${formattedTracks.length}`);
+
 
       return new Response(JSON.stringify({
         tracks: formattedTracks,
