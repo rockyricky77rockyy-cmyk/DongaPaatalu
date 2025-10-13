@@ -34,7 +34,7 @@ const PlaylistDetailsPage = () => {
   console.log("Received state from location:", { initialPlaylistName, initialPlaylistThumbnail });
 
   const { data, isLoading, isError, error } = useYouTubePlaylistTracks(playlistId, initialPlaylistName || null); // playlistId is now guaranteed to be a valid string here
-  const { playTrack, addRecentlySearched } = useMusicPlayer();
+  const { playTrack, updateRecommendations } = useMusicPlayer(); // Added updateRecommendations
 
   const playlistName = String(data?.playlistName || initialPlaylistName || 'Unknown Playlist'); // Ensure playlistName is always a string
   const playlistThumbnail = data?.playlistThumbnail || initialPlaylistThumbnail;
@@ -42,14 +42,15 @@ const PlaylistDetailsPage = () => {
 
   const handlePlayAll = () => {
     if (data && data.tracks.length > 0) {
-      // Add all tracks to recently searched for queue management
-      data.tracks.forEach(track => addRecentlySearched({
+      // Populate currentRecommendations with playlist tracks
+      updateRecommendations(data.tracks.map(track => ({
         videoId: track.videoId,
         title: track.title,
         artist: String(track.artist),
         thumbnail: track.thumbnail,
         album: track.album,
-      }));
+      })), data.tracks[0].videoId);
+
       // Play the first track
       playTrack({
         videoId: data.tracks[0].videoId,

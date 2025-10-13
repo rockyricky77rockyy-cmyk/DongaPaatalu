@@ -34,22 +34,23 @@ const AlbumDetailsPage = () => {
   console.log("Received state from location:", { initialAlbumTitle, initialAlbumArtist, initialAlbumThumbnail });
 
   const { data, isLoading, isError, error } = useYouTubeAlbumTracks(albumId); // albumId is now guaranteed to be a valid string here
-  const { playTrack, addRecentlySearched } = useMusicPlayer();
-
+  const { playTrack, updateRecommendations } = useMusicPlayer(); // Added updateRecommendations
+  
   const albumTitle = data?.albumTitle || initialAlbumTitle || 'Unknown Album';
   const albumArtist = String(data?.albumArtist || initialAlbumArtist || 'Unknown Artist'); // Ensure albumArtist is always a string
   const albumCover = data?.albumThumbnail || initialAlbumThumbnail || data?.tracks[0]?.thumbnail; // Prioritize explicit albumThumbnail
 
   const handlePlayAll = () => {
     if (data && data.tracks.length > 0) {
-      // Add all tracks to recently searched for queue management
-      data.tracks.forEach(track => addRecentlySearched({
+      // Populate currentRecommendations with album tracks
+      updateRecommendations(data.tracks.map(track => ({
         videoId: track.videoId,
         title: track.title,
         artist: String(track.artist),
         thumbnail: track.thumbnail,
         album: track.album,
-      }));
+      })), data.tracks[0].videoId);
+
       // Play the first track
       playTrack({
         videoId: data.tracks[0].videoId,
