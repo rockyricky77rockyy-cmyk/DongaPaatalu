@@ -4,10 +4,12 @@ import { YouTubeMusicTrack } from "./use-youtube-music";
 
 export const useTopSearches = () => {
   return useQuery<YouTubeMusicTrack[], Error>({
-    queryKey: ["topSearches", "englishOnly"], // Updated query key for clarity
+    queryKey: ["topSearches", "specificArtists"], // Updated query key for clarity
     queryFn: async () => {
       const queries = [
-        "top English searched songs", // Only English songs
+        "Sabrina Carpenter top songs",
+        "Katy Perry top songs",
+        "Yo Yo Honey Singh top songs",
       ];
 
       const allResults: YouTubeMusicTrack[] = [];
