@@ -33,7 +33,7 @@ const PlaylistDetailsPage = () => {
   console.log("Received playlistId from URL params:", playlistId);
   console.log("Received state from location:", { initialPlaylistName, initialPlaylistThumbnail });
 
-  const { data, isLoading, isError, error } = useYouTubePlaylistTracks(playlistId); // playlistId is now guaranteed to be a valid string here
+  const { data, isLoading, isError, error } = useYouTubePlaylistTracks(playlistId, initialPlaylistName || null); // playlistId is now guaranteed to be a valid string here
   const { playTrack, addRecentlySearched } = useMusicPlayer();
 
   const playlistName = String(data?.playlistName || initialPlaylistName || 'Unknown Playlist'); // Ensure playlistName is always a string

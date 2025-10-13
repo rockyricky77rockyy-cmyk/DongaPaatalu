@@ -216,14 +216,14 @@ export const useYouTubeMusicPlaylists = (query?: string | null) => {
 };
 
 // New hook for fetching playlist tracks
-export const useYouTubePlaylistTracks = (playlistId: string | null) => {
+export const useYouTubePlaylistTracks = (playlistId: string | null, playlistName: string | null) => {
   return useQuery<{ tracks: YouTubeMusicTrack[], playlistName: string, playlistThumbnail?: string, trackCount: number }, Error>({
-    queryKey: ["youtubePlaylistTracks", playlistId],
+    queryKey: ["youtubePlaylistTracks", playlistId, playlistName],
     queryFn: async () => {
       if (!playlistId) throw new Error("Playlist ID is required to fetch tracks.");
 
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/playlist-tracks', {
-        body: { playlistId },
+        body: { playlistId, playlistName },
       });
 
       if (error) {

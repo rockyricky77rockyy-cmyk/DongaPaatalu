@@ -470,10 +470,10 @@ serve(async (req) => {
     // NEW: Endpoint for fetching playlist tracks
     if (pathname.endsWith('/playlist-tracks')) {
       const requestBody = await req.json();
-      const { playlistId } = requestBody;
-      console.log(`[yt-music-proxy] Received playlistId for /playlist-tracks: "${playlistId}" (type: ${typeof playlistId})`); // Added log here
+      const { playlistId, playlistName: clientPlaylistName } = requestBody; // Get playlistName from client
+      console.log(`[yt-music-proxy] Received playlistId for /playlist-tracks: "${playlistId}" (type: ${typeof playlistId}), clientPlaylistName: "${clientPlaylistName}"`);
 
-      if (!playlistId || typeof playlistId !== 'string' || playlistId.trim() === '' || playlistId === 'undefined') { // Added check for 'undefined' string
+      if (!playlistId || typeof playlistId !== 'string' || playlistId.trim() === '' || playlistId === 'undefined') {
         console.error('[yt-music-proxy] Missing or invalid playlistId for /playlist-tracks');
         return new Response(JSON.stringify({ error: 'Missing or invalid playlistId' }), {
           status: 400,
@@ -482,98 +482,54 @@ serve(async (req) => {
       }
 
       let playlistInfo;
+      let formattedTracks: any[] = [];
+      let finalPlaylistName = clientPlaylistName || 'Unknown Playlist';
+      let finalPlaylistThumbnail: string | undefined = undefined;
+      let finalTrackCount = 0;
+      let usedFallback = false;
+
       try {
-        console.log(`[yt-music-proxy] Calling ytmusic.getPlaylist with ID: "${playlistId}"`); // Added log before API call
+        console.log(`[yt-music-proxy] Attempting to call ytmusic.getPlaylist with ID: "${playlistId}"`);
         playlistInfo = await ytmusic.getPlaylist(playlistId);
         console.log(`[yt-music-proxy] Raw playlistInfo for ${playlistId}:`, JSON.stringify(playlistInfo, null, 2));
-      } catch (ytError: any) {
-        console.error(`[yt-music-proxy] Error fetching playlist ${playlistId}:`, ytError.message);
-        let statusCode = 500; // Default to internal server error
-        let errorMessage = `Error fetching playlist: ${ytError.message}`;
 
-        // Attempt to parse status code from error message if it's a string
-        if (typeof ytError.message === 'string' && ytError.message.includes('status code')) {
-          const match = ytError.message.match(/status code (\d{3})/);
-          if (match && match[1]) {
-            statusCode = parseInt(match[1], 10);
+        const playlistTracksRaw = playlistInfo.tracks || [];
+        console.log(`[yt-music-proxy] Raw playlistTracks count for ${playlistId}: ${playlistTracksRaw.length}`);
+
+        finalPlaylistName = playlistInfo.name || clientPlaylistName || 'Unknown Playlist';
+        finalPlaylistThumbnail = playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined;
+        finalTrackCount = playlistInfo.videoCount || 0;
+
+        formattedTracks = playlistTracksRaw.map((item: any) => {
+          let videoId = item.videoId || item.setVideoId || item.playlistSetVideoId || item.feedbackTokens?.add || item.feedbackTokens?.remove || item.video?.videoId || item.content?.videoId;
+          if (!videoId) {
+            console.log(`[yt-music-proxy] Skipping playlist track "${item.title}" due to missing videoId.`);
+            return null;
           }
-        } else if (ytError.statusCode) { // If the error object itself has a statusCode
-            statusCode = ytError.statusCode;
-        }
+          const title = item.title || item.name || 'Unknown Title';
+          const artist = getArtistName(item.artists || item.artist || playlistInfo.author);
+          const album = item.album ? item.album.name : undefined;
+          const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : finalPlaylistThumbnail;
+          const duration = item.duration;
 
-        // Specific handling for 400 and 404
-        if (statusCode === 400) {
-            errorMessage = `Invalid playlist ID or bad request: ${ytError.message}`;
-        } else if (statusCode === 404) {
-            errorMessage = `Playlist not found or inaccessible: ${ytError.message}`;
-        }
+          return { type: 'track', title, artist, album, thumbnail, videoId, duration };
+        }).filter(Boolean);
 
-        return new Response(JSON.stringify({ error: errorMessage }), {
-          status: statusCode,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        console.log(`[yt-music-proxy] Formatted playlist tracks count from getPlaylist for ${playlistId}: ${formattedTracks.length}`);
+
+      } catch (ytError: any) {
+        console.error(`[yt-music-proxy] Error fetching playlist ${playlistId} directly:`, ytError.message);
+        // If getPlaylist fails, attempt fallback search
+        usedFallback = true;
       }
-      
-      const playlistTracksRaw = playlistInfo.tracks || [];
-      console.log(`[yt-music-proxy] Raw playlistTracks count for ${playlistId}: ${playlistTracksRaw.length}`);
-      console.log(`[yt-music-proxy] First 3 raw playlistTracks for ${playlistId}:`, JSON.stringify(playlistTracksRaw.slice(0, 3), null, 2));
 
-      const playlistThumbnail = playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined;
-
-
-      let formattedTracks = playlistTracksRaw.map((item: any) => {
-        // Enhanced videoId extraction logic for playlist tracks
-        let videoId = item.videoId;
-        if (!videoId && item.setVideoId) {
-          videoId = item.setVideoId;
-        }
-        if (!videoId && item.playlistSetVideoId) {
-          videoId = item.playlistSetVideoId;
-        }
-        if (!videoId && item.feedbackTokens?.add) {
-          videoId = item.feedbackTokens.add;
-        }
-        if (!videoId && item.feedbackTokens?.remove) {
-          videoId = item.feedbackTokens.remove;
-        }
-        if (!videoId && item.video?.videoId) { // Check for nested video object
-          videoId = item.video.videoId;
-        }
-        // NEW: Check for content.videoId if it's a more complex object
-        if (!videoId && item.content?.videoId) {
-          videoId = item.content.videoId;
-        }
-
-        console.log(`[yt-music-proxy] Processing playlist track "${item.title}" (extracted videoId: ${videoId})`); // Added log
-        if (!videoId) {
-          console.log(`[yt-music-proxy] Skipping playlist track "${item.title}" due to missing videoId.`);
-          return null;
-        }
-        const title = item.title || item.name || 'Unknown Title';
-        const artist = getArtistName(item.artists || item.artist || playlistInfo.author); // Fallback to playlist's author
-        const album = item.album ? item.album.name : undefined;
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : playlistThumbnail; // Use track thumbnail or playlist thumbnail
-        const duration = item.duration;
-
-        return {
-          type: 'track',
-          title,
-          artist,
-          album,
-          thumbnail,
-          videoId,
-          duration,
-        };
-      }).filter(Boolean);
-
-      // NEW: Fallback search if no playable tracks found directly from the playlist
-      if (formattedTracks.length === 0 && playlistInfo.name) {
-        console.log(`[yt-music-proxy] No direct playable tracks found for playlist "${playlistInfo.name}". Attempting fallback search.`);
-        const fallbackQuery = `${playlistInfo.name} songs`;
+      // Fallback search if no playable tracks found directly from getPlaylist or if getPlaylist failed
+      if (formattedTracks.length === 0 && (usedFallback || finalPlaylistName !== 'Unknown Playlist')) {
+        console.log(`[yt-music-proxy] No direct playable tracks found for playlist "${finalPlaylistName}". Attempting fallback search.`);
+        const fallbackQuery = `${finalPlaylistName} songs`;
         console.log(`[yt-music-proxy] Fallback search query for playlist: "${fallbackQuery}"`);
         const fallbackSearchResults = await ytmusic.search(fallbackQuery, 'songs');
         console.log(`[yt-music-proxy] RAW fallbackSearchResults count for playlist: ${fallbackSearchResults.length}`);
-        console.log(`[yt-music-proxy] First 5 RAW fallbackSearchResults for playlist:`, JSON.stringify(fallbackSearchResults.slice(0, 5), null, 2));
 
         fallbackSearchResults.forEach((item: any) => {
           const videoId = item.videoId;
@@ -587,24 +543,30 @@ serve(async (req) => {
           const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
           const duration = item.duration;
 
-          formattedTracks.push({
-            type: 'track',
-            title,
-            artist,
-            album,
-            thumbnail,
-            videoId,
-            duration,
-          });
+          formattedTracks.push({ type: 'track', title, artist, album, thumbnail, videoId, duration });
         });
         console.log(`[yt-music-proxy] Total formatted tracks after playlist fallback search: ${formattedTracks.length}`);
       }
 
+      // If after all attempts, no tracks are found and it wasn't a direct API error, return a specific message
+      if (formattedTracks.length === 0 && !usedFallback) { // Only if getPlaylist didn't throw an error, but returned no tracks
+         return new Response(JSON.stringify({ error: `No tracks found for playlist "${finalPlaylistName}". It might be empty or private.` }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } else if (formattedTracks.length === 0 && usedFallback) { // If getPlaylist failed AND fallback also found no tracks
+         return new Response(JSON.stringify({ error: `Could not fetch playlist "${finalPlaylistName}". It might be invalid or no tracks were found.` }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+
       return new Response(JSON.stringify({
         tracks: formattedTracks,
-        playlistName: playlistInfo.name, // Use playlistInfo.name
-        playlistThumbnail: playlistThumbnail, // Explicitly return playlist thumbnail
-        trackCount: playlistInfo.videoCount || 0, // Use videoCount
+        playlistName: finalPlaylistName,
+        playlistThumbnail: finalPlaylistThumbnail,
+        trackCount: finalTrackCount,
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
