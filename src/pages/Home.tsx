@@ -171,9 +171,9 @@ const Home = () => {
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />
+                <HomePlaylistsSection /> {/* Moved Playlists after Albums */}
                 <HomeArtistsSection />
                 <HomeGenresSection />
-                <HomePlaylistsSection />
                 <HomeRadioStationsSection />
               </>
             )}

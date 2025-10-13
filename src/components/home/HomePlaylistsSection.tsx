@@ -1,11 +1,11 @@
 import React from 'react';
-import { List, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useYouTubeMusicPlaylists } from '@/hooks/use-youtube-music'; // Changed to useYouTubeMusicPlaylists
+import { useYouTubeMusicPlaylists } from '@/hooks/use-youtube-music';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import TrackThumbnail from '../TrackThumbnail'; // Import TrackThumbnail
+import TrackThumbnail from '../TrackThumbnail';
 
 interface HomePlaylistsSectionProps {
   className?: string;
@@ -22,12 +22,10 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-3 flex items-center gap-3 w-[200px] flex-shrink-0 md:w-auto md:flex-shrink">
-              <Skeleton className="w-10 h-10 rounded-md" />
-              <div className="flex-1 space-y-1">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-              </div>
+            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-3 w-[140px] flex-shrink-0 md:w-auto md:flex-shrink">
+              <Skeleton className="aspect-square rounded-xl mb-3" />
+              <Skeleton className="h-4 w-3/4 mb-1" />
+              <Skeleton className="h-3 w-1/2" />
             </div>
           ))}
         </div>
@@ -51,35 +49,32 @@ const HomePlaylistsSection = ({ className }: HomePlaylistsSectionProps) => {
   return (
     <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Playlists</h2>
-      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md::grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
+      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {playlists.map((playlist) => (
           <div
-            key={playlist.playlistId} // Use playlistId as key
-            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            key={playlist.playlistId}
+            className="group cursor-pointer bg-card rounded-2xl p-3 text-center transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => {
-              if (playlist.playlistId) { // Add this check
+              if (playlist.playlistId) {
                 navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } });
               } else {
                 console.warn("Attempted to navigate to a playlist with no ID:", playlist);
               }
             }}
           >
-            <TrackThumbnail // Reusing TrackThumbnail for playlist covers
+            <TrackThumbnail
               thumbnail={playlist.thumbnail}
               title={playlist.name}
-              className="w-10 h-10 rounded-md flex-shrink-0"
-              iconClassName="w-5 h-5 text-white opacity-70"
+              className="aspect-square rounded-xl mb-3"
+              iconClassName="w-12 h-12 text-white opacity-50"
             />
-            <div className="flex-1 min-w-0">
-              <h3 className="text-base font-semibold text-foreground truncate">{playlist.name}</h3>
-              {/* <p className="text-xs text-muted-foreground truncate">{playlist.trackCount} tracks</p> Removed trackCount */}
-            </div>
-            <Button 
-              size="icon" 
+            <h3 className="font-semibold text-sm text-foreground mb-1 truncate">{playlist.name}</h3>
+            <Button
+              size="icon"
               className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg w-7 h-7"
-              onClick={(e) => { // Explicitly navigate to playlist details
+              onClick={(e) => {
                 e.stopPropagation();
-                if (playlist.playlistId) { // Add this check
+                if (playlist.playlistId) {
                   navigate(`/playlist/${playlist.playlistId}`, { state: { playlistName: playlist.name, playlistThumbnail: playlist.thumbnail } });
                 } else {
                   console.warn("Attempted to navigate to a playlist with no ID from button:", playlist);
