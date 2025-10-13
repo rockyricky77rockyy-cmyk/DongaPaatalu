@@ -7,7 +7,7 @@ export const useNewReleases = () => {
     queryKey: ["newReleases"],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/search', {
-        body: { query: 'new releases', type: 'songs' }, // Request songs for 'new releases'
+        body: { query: 'Telugu new releases songs', type: 'songs' }, // Request Telugu new releases songs
       });
 
       if (error) {
