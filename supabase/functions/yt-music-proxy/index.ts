@@ -147,7 +147,8 @@ serve(async (req) => {
       const { albumId } = requestBody;
       console.log(`[yt-music-proxy] Fetching tracks for albumId: "${albumId}"`);
 
-      if (!albumId || albumId === 'undefined') { // Added check for 'undefined' string
+      // Ensure albumId is a non-empty string
+      if (!albumId || typeof albumId !== 'string' || albumId.trim() === '') {
         console.error('[yt-music-proxy] Missing or invalid albumId for /album-tracks');
         return new Response(JSON.stringify({ error: 'Missing or invalid albumId' }), {
           status: 400,
@@ -159,7 +160,7 @@ serve(async (req) => {
       try {
         albumInfo = await ytmusic.getAlbum(albumId);
         console.log(`[yt-music-proxy] Raw albumInfo for ${albumId}:`, JSON.stringify(albumInfo, null, 2));
-      } catch (ytError) {
+      } catch (ytError: any) {
         console.error(`[yt-music-proxy] Error fetching album ${albumId}:`, ytError.message);
         return new Response(JSON.stringify({ error: `Album not found or inaccessible: ${ytError.message}` }), {
           status: 404,
