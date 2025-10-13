@@ -3,7 +3,7 @@ import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
-import { useTopTeluguSearches } from '@/hooks/use-top-telugu-searches'; // Changed to useTopTeluguSearches
+import { useTopSearches } from '@/hooks/use-top-searches'; // Changed to useTopSearches
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ interface HomeTopSearchesProps {
 }
 
 const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
-  const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useTopTeluguSearches(); // Use the new hook
+  const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useTopSearches(); // Use the new hook
   const { playTrack } = useMusicPlayer();
 
   if (isTopTracksLoading) {
