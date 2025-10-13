@@ -45,7 +45,8 @@ const YouTubeEmbed = ({
         setToastId(null);
       }
     } else {
-      if (playerRef.current) {
+      // Defensive check: Ensure playerRef.current exists and has the stopVideo method
+      if (playerRef.current && typeof playerRef.current.stopVideo === 'function') {
         playerRef.current.stopVideo();
         setPlaybackProgress(0);
         setCurrentTime(0);
