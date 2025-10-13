@@ -32,7 +32,7 @@ const YouTubeEmbed = ({
   const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying, currentTrack } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
   const playAttemptTimeoutRef = useRef<number | null>(null);
-  const [internalVideoId, setInternalVideoId] = useState<string | null>(null); // Changed to null
+  const [internalVideoId, setInternalVideoId] = useState<string | null>(null);
   const [toastId, setToastId] = useState<string | number | null>(null);
 
   // This effect manages the videoId passed to the YouTube component
@@ -233,7 +233,7 @@ const YouTubeEmbed = ({
   return (
     <div className={cn("hidden", className)}>
       <YouTube
-        key={internalVideoId || 'no-video'} {/* Added key prop */}
+        key={internalVideoId || 'no-video'}
         videoId={internalVideoId}
         opts={opts}
         onReady={handleReady}
