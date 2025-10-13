@@ -13,8 +13,8 @@ interface HomeAlbumsSectionProps {
 
 const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
   const navigate = useNavigate();
-  // Fetch Telugu albums specifically
-  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useYouTubeMusicAlbums('Telugu albums'); 
+  // Fetch popular albums (by passing null, it defaults to 'popular albums' in the hook)
+  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useYouTubeMusicAlbums(null); 
 
   if (isAlbumsLoading) {
     return (
