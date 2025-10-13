@@ -155,7 +155,8 @@ serve(async (req) => {
         });
       }
       
-      const albumTracksRaw = albumInfo.tracks || [];
+      // CORRECTED: Access albumInfo.songs instead of albumInfo.tracks
+      const albumTracksRaw = albumInfo.songs || []; 
       console.log(`[yt-music-proxy] RAW albumTracks count for ${albumId}: ${albumTracksRaw.length}`);
       console.log(`[yt-music-proxy] First 5 RAW albumTracks for ${albumId}:`, JSON.stringify(albumTracksRaw.slice(0, 5), null, 2));
 
