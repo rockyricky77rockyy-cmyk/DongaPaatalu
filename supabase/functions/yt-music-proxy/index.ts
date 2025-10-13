@@ -400,19 +400,36 @@ serve(async (req) => {
     // Endpoint for fetching albums (new releases or search)
     if (pathname.endsWith('/albums')) {
       const requestBody = await req.json();
-      const query = requestBody.query; // Allow custom query, default to 'popular albums'
-      console.log(`[yt-music-proxy] Fetching albums for query: "${query || 'popular albums'}"`);
+      const clientQuery = requestBody.query; // Allow custom query, default to 'popular albums'
+      console.log(`[yt-music-proxy] Fetching albums for client query: "${clientQuery}"`);
 
-      let albumResults: any[] = [];
-      if (query) {
-        const searchRes = await ytmusic.search(query, 'albums');
-        albumResults = searchRes;
-      } else {
-        const popularAlbums = await ytmusic.search('popular albums', 'albums'); // Default to popular albums
-        albumResults = popularAlbums;
+      const queriesToExecute = [
+        clientQuery || 'popular albums', // Use client's query or default
+        'new Telugu albums',
+        'top Telugu albums',
+        'best Telugu albums',
+        'latest Telugu albums',
+      ].filter(q => q); // Filter out any empty queries
+
+      let allAlbumResults: any[] = [];
+      const seenAlbumIds = new Set<string>();
+
+      for (const q of queriesToExecute) {
+        console.log(`[yt-music-proxy] Executing album search for: "${q}"`);
+        try {
+          const searchRes = await ytmusic.search(q, 'albums');
+          searchRes.forEach((item: any) => {
+            if (item.albumId && !seenAlbumIds.has(item.albumId)) {
+              allAlbumResults.push(item);
+              seenAlbumIds.add(item.albumId);
+            }
+          });
+        } catch (error) {
+          console.error(`[yt-music-proxy] Error searching for "${q}": ${error.message}`);
+        }
       }
 
-      const formattedAlbums = albumResults.map((item: any) => {
+      const formattedAlbums = allAlbumResults.map((item: any) => {
         const title = item.title || item.name || 'Unknown Album';
         const artist = getArtistName(item.artists || item.artist);
         const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Album list item "${title}"`);
@@ -420,7 +437,7 @@ serve(async (req) => {
 
         if (!albumId) {
           console.warn(`[yt-music-proxy] Skipping album "${title}" due to missing albumId.`);
-          return null; // Filter out albums without a valid ID
+          return null;
         }
 
         return {
@@ -430,9 +447,9 @@ serve(async (req) => {
           thumbnail,
           albumId,
         };
-      }).filter(Boolean); // Filter out any items that genuinely don't have an an albumId
+      }).filter(Boolean);
 
-      console.log(`[yt-music-proxy] Formatted album results count: ${formattedAlbums.length}`);
+      console.log(`[yt-music-proxy] Total unique formatted album results count: ${formattedAlbums.length}`);
 
       return new Response(JSON.stringify({ albums: formattedAlbums }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
