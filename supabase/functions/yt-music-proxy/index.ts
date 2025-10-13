@@ -553,12 +553,22 @@ serve(async (req) => {
 
       let relatedResults: any[] = [];
 
-      if (videoId) {
-        // Prioritize fetching related songs by videoId using getSong
-        const songInfo = await ytmusic.getSong(videoId);
-        relatedResults = songInfo.related?.results || []; // Access related.results
+      // Ensure videoId is a non-empty string before attempting to use it with getSong
+      if (videoId && videoId.trim() !== '') {
+        try {
+          const songInfo = await ytmusic.getSong(videoId);
+          relatedResults = songInfo.related?.results || [];
+        } catch (error) {
+          console.warn(`[yt-music-proxy] Failed to get song info for videoId "${videoId}": ${error.message}. Falling back to search.`);
+          // Fallback to search if getSong fails for a valid-looking videoId
+          const searchQuery = `${artist || ''} ${album || ''} songs`.trim();
+          if (searchQuery) {
+            const searchRes = await ytmusic.search(searchQuery, 'songs');
+            relatedResults = searchRes;
+          }
+        }
       } else if (artist || album) {
-        // Fallback to searching if no videoId, combine artist and album for better results
+        // Fallback to searching if no valid videoId, combine artist and album for better results
         const searchQuery = `${artist || ''} ${album || ''} songs`.trim();
         if (searchQuery) {
           const searchRes = await ytmusic.search(searchQuery, 'songs');
