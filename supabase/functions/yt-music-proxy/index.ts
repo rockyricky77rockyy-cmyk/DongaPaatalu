@@ -162,7 +162,8 @@ serve(async (req) => {
       const albumThumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
 
       let formattedTracks = albumTracksRaw.map((item: any) => {
-        const videoId = item.videoId;
+        // Enhanced videoId extraction logic
+        const videoId = item.videoId || item.feedbackTokens?.add || item.feedbackTokens?.remove; // Check common alternative fields
         console.log(`[yt-music-proxy] Processing album track "${item.title}" (videoId: ${videoId})`); // Added log for each item
         if (!videoId) { // Only include tracks that have a videoId
           console.log(`[yt-music-proxy] Skipping album track "${item.title}" due to missing videoId.`);
