@@ -1,14 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { corsHeaders, initializeYtmusic } from './utils.ts';
-import { handleSearch } from './search.ts';
-import { handleAlbumTracks } from './albumTracks.ts';
-import { handleArtistTracks } from './artistTracks.ts';
-import { handleSuggestions } from './suggestions.ts';
-import { handleAlbums } from './albums.ts';
-import { handleArtists } from './artists.ts';
-import { handlePlaylists } from './playlists.ts';
-import { handlePlaylistTracks } from './playlistTracks.ts';
-import { handleRelatedTracks } from './relatedTracks.ts';
+import { handleSearch } from './handlers/search.ts';
+import { handleAlbumTracks } from './handlers/albumTracks.ts';
+import { handleArtistTracks } from './handlers/artistTracks.ts';
+import { handleSuggestions } from './handlers/suggestions.ts';
+import { handleAlbums } from './handlers/albums.ts';
+import { handleArtists } from './handlers/artists.ts';
+import { handlePlaylists } from './handlers/playlists.ts';
+import { handlePlaylistTracks } from './handlers/playlistTracks.ts';
+import { handleRelatedTracks } from './handlers/relatedTracks.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

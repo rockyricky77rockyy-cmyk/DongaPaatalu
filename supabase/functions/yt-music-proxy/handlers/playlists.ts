@@ -1,4 +1,4 @@
-import { corsHeaders, ytmusic, formatPlaylist } from './utils.ts';
+import { corsHeaders, ytmusic, formatPlaylist } from '../utils.ts';
 
 export async function handlePlaylists(req: Request): Promise<Response> {
   const requestBody = await req.json();

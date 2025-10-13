@@ -1,4 +1,4 @@
-import { corsHeaders, ytmusic, formatAlbum } from './utils.ts';
+import { corsHeaders, ytmusic, formatAlbum } from '../utils.ts';
 
 export async function handleAlbums(req: Request): Promise<Response> {
   const requestBody = await req.json();
