@@ -485,7 +485,6 @@ serve(async (req) => {
       let formattedTracks: any[] = [];
       let finalPlaylistName = clientPlaylistName || 'Unknown Playlist';
       let finalPlaylistThumbnail: string | undefined = undefined;
-      let finalTrackCount = 0;
       let usedFallback = false;
 
       try {
@@ -498,7 +497,7 @@ serve(async (req) => {
 
         finalPlaylistName = playlistInfo.name || clientPlaylistName || 'Unknown Playlist';
         finalPlaylistThumbnail = playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined;
-        finalTrackCount = playlistInfo.videoCount || 0;
+        // Removed direct assignment of playlistInfo.videoCount to finalTrackCount here
 
         formattedTracks = playlistTracksRaw.map((item: any) => {
           let videoId = item.videoId || item.setVideoId || item.playlistSetVideoId || item.feedbackTokens?.add || item.feedbackTokens?.remove || item.video?.videoId || item.content?.videoId;
@@ -547,6 +546,9 @@ serve(async (req) => {
         });
         console.log(`[yt-music-proxy] Total formatted tracks after playlist fallback search: ${formattedTracks.length}`);
       }
+
+      // Determine final track count based on the actual number of formatted tracks
+      const finalTrackCount = formattedTracks.length;
 
       // If after all attempts, no tracks are found and it wasn't a direct API error, return a specific message
       if (formattedTracks.length === 0 && !usedFallback) { // Only if getPlaylist didn't throw an error, but returned no tracks
