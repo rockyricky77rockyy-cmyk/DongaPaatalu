@@ -4,12 +4,10 @@ import { YouTubeMusicTrack } from "./use-youtube-music";
 
 export const useTopSearches = () => {
   return useQuery<YouTubeMusicTrack[], Error>({
-    queryKey: ["topSearches", "allLanguages"], // More generic query key
+    queryKey: ["topSearches", "englishOnly"], // Updated query key for clarity
     queryFn: async () => {
       const queries = [
-        "top Telugu searched songs",
-        "top Hindi searched songs",
-        "top English searched songs",
+        "top English searched songs", // Only English songs
       ];
 
       const allResults: YouTubeMusicTrack[] = [];
@@ -22,7 +20,6 @@ export const useTopSearches = () => {
 
         if (error) {
           console.error(`Supabase Edge Function Error (top searches for "${query}"):`, error);
-          // Continue to next query even if one fails
           continue;
         }
 
