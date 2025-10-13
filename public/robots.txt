@@ -12,3 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+
+Sitemap: https://dongapaatalu.vercel.app/sitemap.xml
