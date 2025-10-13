@@ -23,6 +23,16 @@ function getArtistName(artistData: any): string {
   return 'Unknown Artist';
 }
 
+// Helper to get the best thumbnail and log its details
+function getBestThumbnail(thumbnails: any[], context: string): { url?: string; width?: number; height?: number } {
+  if (!thumbnails || thumbnails.length === 0) {
+    return {};
+  }
+  const bestThumbnail = thumbnails[thumbnails.length - 1];
+  console.log(`[yt-music-proxy] ${context} thumbnail: ${bestThumbnail.url} (${bestThumbnail.width}x${bestThumbnail.height})`);
+  return { url: bestThumbnail.url, width: bestThumbnail.width, height: bestThumbnail.height };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -69,7 +79,7 @@ serve(async (req) => {
         const title = item.title || item.name || 'Unknown Title';
         const artist = getArtistName(item.artists || item.artist);
         const album = item.album ? item.album.name : undefined;
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Search result track "${title}"`);
         const duration = item.duration;
 
         formattedResults.push({
@@ -87,7 +97,7 @@ serve(async (req) => {
       albumResults.forEach((item: any) => {
         const title = item.title || item.name || 'Unknown Album';
         const artist = getArtistName(item.artists || item.artist);
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Search result album "${title}"`);
         const albumId = item.albumId; // YouTube Music specific album ID
 
         if (!albumId) {
@@ -107,7 +117,7 @@ serve(async (req) => {
       // Process artist results
       artistResults.forEach((item: any) => {
         const name = item.title || item.name || 'Unknown Artist';
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Search result artist "${name}"`);
         const artistId = item.artistId;
 
         formattedResults.push({
@@ -159,7 +169,7 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] RAW albumTracks count for ${albumId}: ${albumTracksRaw.length}`);
       console.log(`[yt-music-proxy] First 5 RAW albumTracks for ${albumId}:`, JSON.stringify(albumTracksRaw.slice(0, 5), null, 2));
 
-      const albumThumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
+      const { url: albumThumbnail } = getBestThumbnail(albumInfo.thumbnails, `Album "${albumInfo.title}"`);
 
       let formattedTracks = albumTracksRaw.map((item: any) => {
         // Enhanced videoId extraction logic
@@ -193,7 +203,8 @@ serve(async (req) => {
         const title = item.title || item.name || 'Unknown Title';
         const artist = getArtistName(item.artists || item.artist || albumInfo.artist); // Fallback to album's artist
         const album = albumInfo.title; // Use the album title from getAlbum response
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : albumThumbnail; // Use track thumbnail or album thumbnail
+        const { url: trackThumbnailUrl } = getBestThumbnail(item.thumbnails, `Album track "${title}"`);
+        const thumbnail = trackThumbnailUrl || albumThumbnail; // Use track thumbnail or album thumbnail
         const duration = item.duration; // Duration might be available
 
         return {
@@ -227,7 +238,7 @@ serve(async (req) => {
           const title = item.title || item.name || 'Unknown Title';
           const artist = getArtistName(item.artists || item.artist);
           const album = item.album ? item.album.name : undefined;
-          const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+          const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Fallback search track "${title}"`);
           const duration = item.duration;
 
           formattedTracks.push({
@@ -296,7 +307,7 @@ serve(async (req) => {
         const title = item.title || item.name || 'Unknown Title';
         const artist = getArtistName(artistInfo.name); // Use helper for artist name
         const album = item.album ? item.album.name : undefined;
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Artist track "${title}"`);
         const duration = item.duration;
 
         return {
@@ -362,7 +373,7 @@ serve(async (req) => {
       const formattedAlbums = albumResults.map((item: any) => {
         const title = item.title || item.name || 'Unknown Album';
         const artist = getArtistName(item.artists || item.artist);
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Album list item "${title}"`);
         const albumId = item.albumId;
 
         if (!albumId) {
@@ -404,7 +415,7 @@ serve(async (req) => {
 
       const formattedArtists = artistResults.map((item: any) => {
         const name = item.title || item.name || 'Unknown Artist';
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Artist list item "${name}"`);
         const artistId = item.artistId; // YouTube Music specific artist ID
 
         return {
@@ -440,7 +451,7 @@ serve(async (req) => {
 
       const formattedPlaylists = playlistResults.map((item: any) => {
         const name = item.title || item.name || 'Unknown Playlist';
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Playlist list item "${name}"`);
         const playlistId = item.playlistId; // YouTube Music specific playlist ID
         // Removed trackCount from here as it's not reliably available in search results
 
@@ -496,7 +507,8 @@ serve(async (req) => {
         console.log(`[yt-music-proxy] Raw playlistTracks count for ${playlistId}: ${playlistTracksRaw.length}`);
 
         finalPlaylistName = playlistInfo.name || clientPlaylistName || 'Unknown Playlist';
-        finalPlaylistThumbnail = playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined;
+        const { url: fetchedPlaylistThumbnail } = getBestThumbnail(playlistInfo.thumbnails, `Playlist "${finalPlaylistName}"`);
+        finalPlaylistThumbnail = fetchedPlaylistThumbnail;
         // Removed direct assignment of playlistInfo.videoCount to finalTrackCount here
 
         formattedTracks = playlistTracksRaw.map((item: any) => {
@@ -508,7 +520,8 @@ serve(async (req) => {
           const title = item.title || item.name || 'Unknown Title';
           const artist = getArtistName(item.artists || item.artist || playlistInfo.author);
           const album = item.album ? item.album.name : undefined;
-          const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : finalPlaylistThumbnail;
+          const { url: trackThumbnailUrl } = getBestThumbnail(item.thumbnails, `Playlist track "${title}"`);
+          const thumbnail = trackThumbnailUrl || finalPlaylistThumbnail;
           const duration = item.duration;
 
           return { type: 'track', title, artist, album, thumbnail, videoId, duration };
@@ -539,7 +552,7 @@ serve(async (req) => {
           const title = item.title || item.name || 'Unknown Title';
           const artist = getArtistName(item.artists || item.artist);
           const album = item.album ? item.album.name : undefined;
-          const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+          const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Fallback playlist track "${title}"`);
           const duration = item.duration;
 
           formattedTracks.push({ type: 'track', title, artist, album, thumbnail, videoId, duration });
@@ -615,7 +628,7 @@ serve(async (req) => {
         const title = item.title || item.name || 'Unknown Title';
         const trackArtist = getArtistName(item.artists || item.artist);
         const trackAlbum = item.album ? item.album.name : undefined;
-        const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Related track "${title}"`);
         const duration = item.duration;
 
         return {
