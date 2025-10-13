@@ -31,21 +31,19 @@ const YouTubeEmbed = ({
 }: YouTubeEmbedProps) => {
   const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying, currentTrack } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
-  const playAttemptTimeoutRef = useRef<number | null>(null); // New ref for autoplay detection timeout
+  const playAttemptTimeoutRef = useRef<number | null>(null);
   const [internalVideoId, setInternalVideoId] = useState<string | undefined>(undefined);
-  const [toastId, setToastId] = useState<string | number | null>(null); // To manage toast dismissal
+  const [toastId, setToastId] = useState<string | number | null>(null);
 
   // This effect manages the videoId passed to the YouTube component
   useEffect(() => {
     if (videoId) {
       setInternalVideoId(videoId);
-      // Clear any previous autoplay detection toast
       if (toastId) {
         toast.dismiss(toastId);
         setToastId(null);
       }
     } else {
-      // If videoId becomes null, stop the player and clear the internal videoId
       if (playerRef.current) {
         playerRef.current.stopVideo();
         setPlaybackProgress(0);
@@ -53,7 +51,7 @@ const YouTubeEmbed = ({
         setDuration(0);
         setIsPlaying(false);
       }
-      setInternalVideoId(undefined); // Clear the videoId in the player
+      setInternalVideoId(undefined);
       stopProgressInterval();
       clearAutoplayTimeout();
       if (toastId) {
@@ -63,12 +61,27 @@ const YouTubeEmbed = ({
     }
   }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration, setIsPlaying, toastId]);
 
+  // NEW: Effect to check if YouTube API script loaded
+  useEffect(() => {
+    const checkApiLoaded = setTimeout(() => {
+      if (typeof window.YT === 'undefined' || !window.YT.Player) {
+        console.error(
+          "YouTubeEmbed: window.YT API not loaded. This might be due to a Content Security Policy (CSP) blocking script loading, or a network issue in the WebView."
+        );
+      } else {
+        console.log("YouTubeEmbed: window.YT API detected.");
+      }
+    }, 5000); // Check after 5 seconds
+
+    return () => clearTimeout(checkApiLoaded);
+  }, []);
+
 
   const opts: YouTubeProps['opts'] = {
     height: '1',
     width: '1',
     playerVars: {
-      autoplay: 1, // Auto-play the video
+      autoplay: 1,
       controls: 0,
       disablekb: 1,
       fs: 0,
@@ -89,24 +102,23 @@ const YouTubeEmbed = ({
 
   const handleReady = (event: any) => {
     playerRef.current = event.target;
+    console.log("YouTubeEmbed: Player is ready. Player instance:", playerRef.current); // Added log
     onReady?.(event);
     
-    // Attempt to play and set a timeout to detect if autoplay was blocked
     if (internalVideoId && playerRef.current.getPlayerState() !== window.YT.PlayerState.PLAYING) {
       playerRef.current.playVideo();
-      clearAutoplayTimeout(); // Clear any previous timeout
+      clearAutoplayTimeout();
       playAttemptTimeoutRef.current = setTimeout(() => {
-        // If after 2 seconds, the player is not playing, assume autoplay was blocked
         if (playerRef.current && playerRef.current.getPlayerState() !== window.YT.PlayerState.PLAYING) {
           const trackTitle = currentTrack?.title || 'this track';
           const newToastId = toast.info(`Autoplay blocked for "${trackTitle}".`, {
             description: "Your device might require a direct tap to start playback.",
-            duration: 10000, // Keep toast visible for a while
+            duration: 10000,
             action: {
               label: "Tap to Play",
               onClick: () => {
                 playerRef.current?.playVideo();
-                toast.dismiss(newToastId); // Dismiss toast after user taps
+                toast.dismiss(newToastId);
               },
             },
             onDismiss: () => setToastId(null),
@@ -114,13 +126,14 @@ const YouTubeEmbed = ({
           });
           setToastId(newToastId);
         }
-      }, 2000) as unknown as number; // 2-second delay
+      }, 2000) as unknown as number;
     }
   };
 
   const handlePlay = (event: any) => {
-    clearAutoplayTimeout(); // Clear timeout if playback starts successfully
-    if (toastId) { // Dismiss autoplay toast if it was showing
+    console.log("YouTubeEmbed: Player state changed to PLAYING."); // Added log
+    clearAutoplayTimeout();
+    if (toastId) {
       toast.dismiss(toastId);
       setToastId(null);
     }
@@ -130,13 +143,15 @@ const YouTubeEmbed = ({
   };
 
   const handlePause = (event: any) => {
-    clearAutoplayTimeout(); // Clear timeout if playback is paused
+    console.log("YouTubeEmbed: Player state changed to PAUSED."); // Added log
+    clearAutoplayTimeout();
     stopProgressInterval();
     onPause?.(event);
   };
 
   const handleEnd = (event: any) => {
-    clearAutoplayTimeout(); // Clear timeout if playback ends
+    console.log("YouTubeEmbed: Player state changed to ENDED."); // Added log
+    clearAutoplayTimeout();
     stopProgressInterval();
     setPlaybackProgress(0);
     setCurrentTime(0);
@@ -144,9 +159,9 @@ const YouTubeEmbed = ({
   };
 
   const handlePlayerError = (event: any) => {
-    console.error("YouTube Player encountered an error:", event);
-    clearAutoplayTimeout(); // Clear timeout on error
-    if (toastId) { // Dismiss autoplay toast if it was showing
+    console.error("YouTubeEmbed: YouTube Player encountered an error:", event); // Modified log
+    clearAutoplayTimeout();
+    if (toastId) {
       toast.dismiss(toastId);
       setToastId(null);
     }
