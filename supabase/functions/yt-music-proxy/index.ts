@@ -377,7 +377,7 @@ serve(async (req) => {
           thumbnail,
           albumId,
         };
-      }).filter(Boolean); // Filter out any items that genuinely don't have an albumId
+      }).filter(Boolean); // Filter out any items that genuinely don't have an an albumId
 
       console.log(`[yt-music-proxy] Formatted album results count: ${formattedAlbums.length}`);
 
@@ -514,14 +514,14 @@ serve(async (req) => {
         });
       }
       
-      const playlistTracks = playlistInfo.tracks || [];
-      console.log(`[yt-music-proxy] Raw playlistTracks count for ${playlistId}: ${playlistTracks.length}`);
-      console.log(`[yt-music-proxy] First 3 raw playlistTracks for ${playlistId}:`, JSON.stringify(playlistTracks.slice(0, 3), null, 2));
+      const playlistTracksRaw = playlistInfo.tracks || [];
+      console.log(`[yt-music-proxy] Raw playlistTracks count for ${playlistId}: ${playlistTracksRaw.length}`);
+      console.log(`[yt-music-proxy] First 3 raw playlistTracks for ${playlistId}:`, JSON.stringify(playlistTracksRaw.slice(0, 3), null, 2));
 
       const playlistThumbnail = playlistInfo.thumbnails && playlistInfo.thumbnails.length > 0 ? playlistInfo.thumbnails[playlistInfo.thumbnails.length - 1].url : undefined;
 
 
-      const formattedTracks = playlistTracks.map((item: any) => {
+      let formattedTracks = playlistTracksRaw.map((item: any) => {
         // Enhanced videoId extraction logic for playlist tracks
         let videoId = item.videoId;
         if (!videoId && item.setVideoId) {
@@ -565,14 +565,46 @@ serve(async (req) => {
           duration,
         };
       }).filter(Boolean);
-      console.log(`[yt-music-proxy] Formatted playlist tracks count for ${playlistId}: ${formattedTracks.length}`);
 
+      // NEW: Fallback search if no playable tracks found directly from the playlist
+      if (formattedTracks.length === 0 && playlistInfo.name) {
+        console.log(`[yt-music-proxy] No direct playable tracks found for playlist "${playlistInfo.name}". Attempting fallback search.`);
+        const fallbackQuery = `${playlistInfo.name} songs`;
+        console.log(`[yt-music-proxy] Fallback search query for playlist: "${fallbackQuery}"`);
+        const fallbackSearchResults = await ytmusic.search(fallbackQuery, 'songs');
+        console.log(`[yt-music-proxy] RAW fallbackSearchResults count for playlist: ${fallbackSearchResults.length}`);
+        console.log(`[yt-music-proxy] First 5 RAW fallbackSearchResults for playlist:`, JSON.stringify(fallbackSearchResults.slice(0, 5), null, 2));
+
+        fallbackSearchResults.forEach((item: any) => {
+          const videoId = item.videoId;
+          if (!videoId) {
+            console.log(`[yt-music-proxy] Skipping fallback track "${item.title}" due to missing videoId.`);
+            return;
+          }
+          const title = item.title || item.name || 'Unknown Title';
+          const artist = getArtistName(item.artists || item.artist);
+          const album = item.album ? item.album.name : undefined;
+          const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
+          const duration = item.duration;
+
+          formattedTracks.push({
+            type: 'track',
+            title,
+            artist,
+            album,
+            thumbnail,
+            videoId,
+            duration,
+          });
+        });
+        console.log(`[yt-music-proxy] Total formatted tracks after playlist fallback search: ${formattedTracks.length}`);
+      }
 
       return new Response(JSON.stringify({
         tracks: formattedTracks,
-        playlistName: playlistInfo.title,
+        playlistName: playlistInfo.name, // Use playlistInfo.name
         playlistThumbnail: playlistThumbnail, // Explicitly return playlist thumbnail
-        trackCount: playlistInfo.itemCount || 0,
+        trackCount: playlistInfo.videoCount || 0, // Use videoCount
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
