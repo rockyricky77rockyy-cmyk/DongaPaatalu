@@ -3,11 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { YouTubeMusicTrack } from "./use-youtube-music"; // Import YouTubeMusicTrack
 
 export const useNewReleases = () => {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().toLocaleString('en-us', { month: 'long' }); // e.g., "July"
+
+  const query = `Telugu new releases songs ${currentMonth} ${currentYear}`;
+
   return useQuery<YouTubeMusicTrack[], Error>({
-    queryKey: ["newReleases"],
+    queryKey: ["newReleases", query], // Update queryKey to reflect the dynamic query
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/search', {
-        body: { query: 'Telugu new releases songs', type: 'songs' }, // Request Telugu new releases songs
+        body: { query: query, type: 'songs' },
       });
 
       if (error) {
