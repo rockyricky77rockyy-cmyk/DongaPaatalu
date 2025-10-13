@@ -32,12 +32,12 @@ const YouTubeEmbed = ({
   const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying, currentTrack } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
   const playAttemptTimeoutRef = useRef<number | null>(null);
-  const [internalVideoId, setInternalVideoId] = useState<string | null>(null);
+  const [internalVideoId, setInternalVideoId] = useState<string | undefined>(undefined);
   const [toastId, setToastId] = useState<string | number | null>(null);
 
   // This effect manages the videoId passed to the YouTube component
   useEffect(() => {
-    console.log("YouTubeEmbed: videoId prop changed to:", videoId);
+    console.log("YouTubeEmbed: videoId prop changed to:", videoId); // NEW LOG
     if (videoId) {
       setInternalVideoId(videoId);
       if (toastId) {
@@ -45,15 +45,14 @@ const YouTubeEmbed = ({
         setToastId(null);
       }
     } else {
-      // Defensive check: Ensure playerRef.current exists and has the stopVideo method
-      if (playerRef.current && typeof playerRef.current.stopVideo === 'function') {
+      if (playerRef.current) {
         playerRef.current.stopVideo();
         setPlaybackProgress(0);
         setCurrentTime(0);
         setDuration(0);
         setIsPlaying(false);
       }
-      setInternalVideoId(null); // Explicitly set to null
+      setInternalVideoId(undefined);
       stopProgressInterval();
       clearAutoplayTimeout();
       if (toastId) {
@@ -63,7 +62,7 @@ const YouTubeEmbed = ({
     }
   }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration, setIsPlaying, toastId]);
 
-  // Effect to check if YouTube API script loaded
+  // NEW: Effect to check if YouTube API script loaded
   useEffect(() => {
     const checkApiLoaded = setTimeout(() => {
       if (typeof window.YT === 'undefined' || !window.YT.Player) {
@@ -233,7 +232,6 @@ const YouTubeEmbed = ({
   return (
     <div className={cn("hidden", className)}>
       <YouTube
-        key={internalVideoId || 'no-video'}
         videoId={internalVideoId}
         opts={opts}
         onReady={handleReady}

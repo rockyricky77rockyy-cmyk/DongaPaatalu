@@ -6,60 +6,33 @@ import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 import { YouTubeMusicTrack, useYouTubeRelatedTracks } from "@/hooks/use-youtube-music";
-import { useEffect } from "react";
 
 interface PlaylistQueueProps {
   activeVideoId?: string;
   isMobile?: boolean;
   isOpen?: boolean;
   onToggle?: () => void;
-  currentTrack?: YouTubeMusicTrack | null;
+  currentTrack?: YouTubeMusicTrack | null; // Changed to YouTubeMusicTrack
 }
 
 const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggle, currentTrack }: PlaylistQueueProps) => {
-  const { playTrack, updateRecommendations, currentRecommendations, recentlySearched } = useMusicPlayer();
-  const { data: fetchedRelatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
+  const { playTrack } = useMusicPlayer();
+  const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
-  // This effect ensures that if related tracks are fetched and there's no active album/playlist queue,
-  // they become the current recommendations.
-  useEffect(() => {
-    // Only update currentRecommendations if it's currently empty (meaning no album/playlist queue is active)
-    // AND we have fetched related tracks for the current playing track.
-    if (fetchedRelatedTracks && fetchedRelatedTracks.length > 0 && currentRecommendations.length === 0) {
-      updateRecommendations(fetchedRelatedTracks, currentTrack?.videoId || null);
-    }
-  }, [fetchedRelatedTracks, currentTrack?.videoId, updateRecommendations, currentRecommendations.length]);
+  // For mobile, we now always show related tracks (recommendations).
+  // For desktop, this component is used in ExpandablePlayer, which also shows related tracks.
+  const tracksToDisplay = relatedTracks;
+  const isLoadingData = isLoadingRelated;
+  const isErrorData = isErrorRelated;
+  const errorData = errorRelated;
 
-
-  let tracksToDisplay: YouTubeMusicTrack[] = [];
-  let queueTitle = "Recommendations";
-  let isLoadingQueue = false;
-  let isErrorQueue = false;
-  let errorQueue: Error | null = null;
-
-  if (currentRecommendations.length > 0) {
-    tracksToDisplay = currentRecommendations;
-    queueTitle = "Current Queue"; // Reflects album/playlist queue
-  } else if (currentTrack) {
-    // If no specific queue, but a track is playing, show related tracks
-    tracksToDisplay = fetchedRelatedTracks || [];
-    isLoadingQueue = isLoadingRelated;
-    isErrorQueue = isErrorRelated;
-    errorQueue = errorRelated;
-    queueTitle = "Related Tracks";
-  } else {
-    // If nothing playing, show recently searched
-    tracksToDisplay = recentlySearched;
-    queueTitle = "Recently Played";
-  }
-
-  if (isLoadingQueue) {
+  if (isLoadingData) {
     return (
       <div className="flex flex-col bg-card/50 backdrop-blur-sm h-full">
         <div className="p-4 space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-bold text-foreground">
-              {queueTitle}
+              Recommendations
             </h2>
             {!isMobile && <Search className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />}
           </div>
@@ -101,10 +74,10 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
     );
   }
 
-  if (isErrorQueue) {
+  if (isErrorData) {
     return (
       <div className="flex flex-col bg-card/50 backdrop-blur-sm h-full p-4">
-        <p className="text-destructive">Error loading {queueTitle.toLowerCase()}: {errorQueue?.message}</p>
+        <p className="text-destructive">Error loading recommendations: {errorData?.message}</p>
       </div>
     );
   }
@@ -115,7 +88,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
       <div className="p-4 space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-bold text-foreground">
-            {queueTitle}
+            Recommendations
           </h2>
           {isMobile && onToggle && ( // Show toggle button only on mobile
             <Button variant="ghost" size="icon" onClick={onToggle} className="w-8 h-8 text-muted-foreground hover:text-foreground">
@@ -191,7 +164,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
               ))
             ) : (
               <p className="text-muted-foreground text-center py-8">
-                No {queueTitle.toLowerCase()} found. Play a song to see suggestions!
+                No recommendations found. Play a song to see suggestions!
               </p>
             )}
           </div>

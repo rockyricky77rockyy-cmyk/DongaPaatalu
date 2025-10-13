@@ -3,7 +3,7 @@ import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
-import { useYouTubeMusicAlbums } from '@/hooks/use-youtube-music';
+import { useYouTubeMusicAlbums } from '@/hooks/use-youtube-music'; // Changed to useYouTubeMusicAlbums
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -13,8 +13,8 @@ interface HomeAlbumsSectionProps {
 
 const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
   const navigate = useNavigate();
-  // Fetch 'top Telugu albums' specifically for the home page section
-  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useYouTubeMusicAlbums('top Telugu albums'); 
+  // Fetch Telugu albums specifically
+  const { data: albums, isLoading: isAlbumsLoading, isError: isAlbumsError, error: albumsError } = useYouTubeMusicAlbums('Telugu albums'); 
 
   if (isAlbumsLoading) {
     return (
@@ -49,7 +49,7 @@ const HomeAlbumsSection = ({ className }: HomeAlbumsSectionProps) => {
   return (
     <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Albums</h2>
-      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md::grid-cols-2 lg:grid-cols-4 md:gap-4 md::space-x-0 md:pb-0">
+      <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md::grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
         {albums.map((album) => (
           <div
             key={album.albumId} // Use albumId as key

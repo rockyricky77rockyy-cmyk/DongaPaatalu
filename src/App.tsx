@@ -57,10 +57,10 @@ const AppContent = () => {
         playerRef.current?.playVideo();
         setIsPlaying(true);
       } else {
-        console.log("App.tsx: Not repeating track, playing next track from queue/recommendations.");
+        console.log("App.tsx: Not repeating track, playing next track.");
         setPlaybackProgress(0);
         setCurrentTime(0);
-        playNextTrack(); // This will now use the new logic from MusicPlayerContext
+        playNextTrack(); 
       }
     } else if (event.data === window.YT.PlayerState.BUFFERING) {
       console.log("App.tsx: Player state is BUFFERING.");
