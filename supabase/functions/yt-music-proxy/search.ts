@@ -1,4 +1,4 @@
-import { corsHeaders, ytmusic, formatTrack, formatAlbum, formatArtist } from '../utils.ts';
+import { corsHeaders, ytmusic, formatTrack, formatAlbum, formatArtist } from './utils.ts';
 
 export async function handleSearch(req: Request): Promise<Response> {
   const requestBody = await req.json();

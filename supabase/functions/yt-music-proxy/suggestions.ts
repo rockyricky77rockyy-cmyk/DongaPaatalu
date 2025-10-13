@@ -1,4 +1,4 @@
-import { corsHeaders, ytmusic } from '../utils.ts';
+import { corsHeaders, ytmusic } from './utils.ts';
 
 export async function handleSuggestions(req: Request): Promise<Response> {
   const requestBody = await req.json();

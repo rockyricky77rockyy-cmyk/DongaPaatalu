@@ -1,4 +1,4 @@
-import { corsHeaders, ytmusic, formatTrack } from '../utils.ts';
+import { corsHeaders, ytmusic, formatTrack } from './utils.ts';
 
 export async function handleAlbumTracks(req: Request): Promise<Response> {
   const requestBody = await req.json();
