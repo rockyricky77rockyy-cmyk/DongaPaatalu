@@ -163,10 +163,26 @@ serve(async (req) => {
 
       let formattedTracks = albumTracksRaw.map((item: any) => {
         // Enhanced videoId extraction logic
-        const videoId = item.videoId || item.feedbackTokens?.add || item.feedbackTokens?.remove; // Check common alternative fields
-        console.log(`[yt-music-proxy] Processing album track "${item.title}" (videoId: ${videoId})`); // Added log for each item
+        let videoId = item.videoId;
+        if (!videoId && item.setVideoId) {
+          videoId = item.setVideoId;
+        }
+        if (!videoId && item.playlistSetVideoId) {
+          videoId = item.playlistSetVideoId;
+        }
+        if (!videoId && item.feedbackTokens?.add) {
+          videoId = item.feedbackTokens.add;
+        }
+        if (!videoId && item.feedbackTokens?.remove) {
+          videoId = item.feedbackTokens.remove;
+        }
+        if (!videoId && item.video?.videoId) { // Check for nested video object
+          videoId = item.video.videoId;
+        }
+
+        console.log(`[yt-music-proxy] Processing album track "${item.title}" (extracted videoId: ${videoId})`); // Added log for each item
         if (!videoId) { // Only include tracks that have a videoId
-          console.log(`[yt-music-proxy] Skipping album track "${item.title}" due to missing videoId.`);
+          console.log(`[yt-music-proxy] Skipping album track "${item.title}" due to missing videoId after exhaustive check.`);
           return null; // Return null for unplayable tracks
         }
         const title = item.title || item.name || 'Unknown Title';
