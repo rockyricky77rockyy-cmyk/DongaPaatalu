@@ -267,13 +267,12 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           "w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10", // Added z-10
                           isPlaying && "animate-zoom-pulse" // Apply animation when playing
                         )}>
-                          {currentTrack ? ( // Changed condition: show thumbnail if currentTrack exists
-                            <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl" />
-                          ) : (
-                            <div className="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent">
-                              Donga Paatalu
-                            </div>
-                          )}
+                          <TrackThumbnail // Using TrackThumbnail component here
+                            thumbnail={currentTrack?.thumbnail}
+                            title={currentTrack?.title || 'No track'}
+                            className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl"
+                            iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
+                          />
                         </div>
 
                         {/* Right Visualizer */}
@@ -422,13 +421,12 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10",
                     isPlaying && "animate-zoom-pulse" // Apply animation when playing
                   )}>
-                    {currentTrack ? ( // Changed condition: show thumbnail if currentTrack exists
-                      <img src={currentTrack.thumbnail} alt={currentTrack.title} className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl" />
-                    ) : (
-                      <div className="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent">
-                        Donga Paatalu
-                      </div>
-                    )}
+                    <TrackThumbnail // Using TrackThumbnail component here
+                      thumbnail={currentTrack?.thumbnail}
+                      title={currentTrack?.title || 'No track'}
+                      className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                      iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
+                    />
                   </div>
 
                   {/* Right Visualizer */}
