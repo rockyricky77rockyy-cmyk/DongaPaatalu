@@ -6,21 +6,28 @@ import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 import { YouTubeMusicTrack, useYouTubeRelatedTracks } from "@/hooks/use-youtube-music";
+import { useEffect } from "react"; // Import useEffect
 
 interface PlaylistQueueProps {
   activeVideoId?: string;
   isMobile?: boolean;
   isOpen?: boolean;
   onToggle?: () => void;
-  currentTrack?: YouTubeMusicTrack | null; // Changed to YouTubeMusicTrack
+  currentTrack?: YouTubeMusicTrack | null;
 }
 
 const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggle, currentTrack }: PlaylistQueueProps) => {
-  const { playTrack } = useMusicPlayer();
+  const { playTrack, updateRecommendations } = useMusicPlayer(); // Get updateRecommendations
   const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
-  // For mobile, we now always show related tracks (recommendations).
-  // For desktop, this component is used in ExpandablePlayer, which also shows related tracks.
+  // NEW: Update recommendations in context whenever relatedTracks change
+  useEffect(() => {
+    if (relatedTracks) {
+      updateRecommendations(relatedTracks, currentTrack?.videoId || null);
+    }
+  }, [relatedTracks, currentTrack?.videoId, updateRecommendations]);
+
+
   const tracksToDisplay = relatedTracks;
   const isLoadingData = isLoadingRelated;
   const isErrorData = isErrorRelated;

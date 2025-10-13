@@ -2,15 +2,15 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Disc3, Play } from 'lucide-react';
-import { useYouTubeMusicAlbums } from '@/hooks/use-youtube-music'; // Changed to useYouTubeMusicAlbums
+import { useYouTubeMusicAlbums } from '@/hooks/use-youtube-music';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import TrackThumbnail from '@/components/TrackThumbnail'; // Import TrackThumbnail
+import TrackThumbnail from '@/components/TrackThumbnail';
 
 const AlbumsPage = () => {
   const navigate = useNavigate();
-  // Fetch Telugu albums specifically
-  const { data: albums, isLoading, isError, error } = useYouTubeMusicAlbums('Telugu albums'); 
+  // Fetch popular albums globally for the dedicated Albums page
+  const { data: albums, isLoading, isError, error } = useYouTubeMusicAlbums(null); 
   const { playTrack } = useMusicPlayer();
 
   // The play button on the album card will now navigate to the album details page

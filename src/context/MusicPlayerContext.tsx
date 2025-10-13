@@ -34,6 +34,8 @@ interface MusicPlayerContextType {
   toggleRepeatMode: () => void; // New: Function to toggle repeat mode
   setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>; // Added setIsPlaying
   setCurrentTrack: React.Dispatch<React.SetStateAction<Track | null>>; // Added setCurrentTrack
+  currentRecommendations: Track[]; // NEW: List of current recommendations
+  updateRecommendations: (tracks: Track[], currentTrackVideoId: string | null) => void; // NEW: Function to update recommendations
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -55,9 +57,13 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     return [];
   });
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null);
-  const [isShuffling, setIsShuffling] = useState(false); // New state
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none'); // New state
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
   const playerRef = useRef<any | null>(null);
+
+  // NEW: State for recommendations queue
+  const [currentRecommendations, setCurrentRecommendations] = useState<Track[]>([]);
+  const [currentRecommendationIndex, setCurrentRecommendationIndex] = useState<number | null>(null);
 
   // Effect to save recently searched to localStorage whenever it changes
   useEffect(() => {
@@ -76,6 +82,17 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [currentTrack, recentlySearched]);
 
+  // NEW: Effect to update currentRecommendationIndex when currentTrack or currentRecommendations changes
+  useEffect(() => {
+    if (currentTrack && currentRecommendations.length > 0) {
+      const index = currentRecommendations.findIndex(t => t.videoId === currentTrack.videoId);
+      setCurrentRecommendationIndex(index !== -1 ? index : null);
+    } else {
+      setCurrentRecommendationIndex(null);
+    }
+  }, [currentTrack, currentRecommendations]);
+
+
   const addRecentlySearched = useCallback((track: Track) => {
     setRecentlySearched((prev) => {
       const filtered = prev.filter((t) => t.videoId !== track.videoId);
@@ -87,18 +104,32 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     setCurrentTrack(track);
     setIsPlaying(true);
     addRecentlySearched(track);
+    // When a new track is played, reset recommendation index and clear previous recommendations
+    setCurrentRecommendationIndex(null);
+    setCurrentRecommendations([]); // Clear recommendations, they will be re-populated by PlaylistQueue
 
     if (playerRef.current && playerRef.current.loadVideoById) {
       playerRef.current.loadVideoById(track.videoId);
     }
-  }, [addRecentlySearched]);
+  }, [addRecentlySearched, playerRef]);
+
+  // NEW: Function to update recommendations from external components (e.g., PlaylistQueue)
+  const updateRecommendations = useCallback((tracks: Track[], currentTrackVideoId: string | null) => {
+    setCurrentRecommendations(tracks);
+    if (currentTrackVideoId) {
+      const index = tracks.findIndex(t => t.videoId === currentTrackVideoId);
+      setCurrentRecommendationIndex(index !== -1 ? index : null);
+    } else {
+      setCurrentRecommendationIndex(null);
+    }
+  }, []);
+
 
   const playNextTrack = useCallback(() => {
-    if (!currentTrack || recentlySearched.length === 0) {
-      // If no current track or no recently searched, stop playback
+    if (!currentTrack) {
       setIsPlaying(false);
-      setCurrentTrack(null); // Explicitly clear current track
-      playerRef.current?.stopVideo(); // Stop the player
+      setCurrentTrack(null);
+      playerRef.current?.stopVideo();
       return;
     }
 
@@ -108,38 +139,63 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    let nextIndex = currentTrackIndex;
+    let nextTrackToPlay: Track | null = null;
 
-    if (isShuffling) {
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * recentlySearched.length);
-      } while (randomIndex === currentTrackIndex && recentlySearched.length > 1); // Ensure different track if more than one
-      nextIndex = randomIndex;
-    } else if (currentTrackIndex !== null) {
-      nextIndex = (currentTrackIndex + 1) % recentlySearched.length;
+    // Priority 1: Play from currentRecommendations if available and not exhausted
+    if (currentRecommendations.length > 0 && currentRecommendationIndex !== null) {
+      let nextRecIndex = (currentRecommendationIndex + 1) % currentRecommendations.length;
+      if (isShuffling) {
+        let randomIndex;
+        do {
+          randomIndex = Math.floor(Math.random() * currentRecommendations.length);
+        } while (randomIndex === currentRecommendationIndex && currentRecommendations.length > 1);
+        nextRecIndex = randomIndex;
+      }
+      nextTrackToPlay = currentRecommendations[nextRecIndex];
+      setCurrentRecommendationIndex(nextRecIndex); // Update index for recommendations
     }
 
-    if (nextIndex !== null && recentlySearched[nextIndex]) {
-      const nextTrack = recentlySearched[nextIndex];
-      setCurrentTrack(nextTrack);
+    // Fallback to recentlySearched if recommendations are exhausted or not available
+    if (!nextTrackToPlay && recentlySearched.length > 0) {
+      let nextSearchIndex = currentTrackIndex;
+      if (isShuffling) {
+        let randomIndex;
+        do {
+          randomIndex = Math.floor(Math.random() * recentlySearched.length);
+        } while (randomIndex === currentTrackIndex && recentlySearched.length > 1);
+        nextSearchIndex = randomIndex;
+      } else if (currentTrackIndex !== null) {
+        nextSearchIndex = (currentTrackIndex + 1) % recentlySearched.length;
+      }
+      if (nextSearchIndex !== null) {
+        nextTrackToPlay = recentlySearched[nextSearchIndex];
+        setCurrentTrackIndex(nextSearchIndex); // Update index for recently searched
+      }
+    }
+
+    if (nextTrackToPlay) {
+      setCurrentTrack(nextTrackToPlay);
       setIsPlaying(true);
-      playerRef.current?.loadVideoById(nextTrack.videoId);
+      playerRef.current?.loadVideoById(nextTrackToPlay.videoId);
+      addRecentlySearched(nextTrackToPlay); // Add to recently searched if it's a recommendation
     } else if (repeatMode === 'all' && recentlySearched.length > 0) {
-      // If repeat all and no next track (end of list), loop to first track
+      // If repeat all and no next track, loop to first track in recently searched
       const firstTrack = recentlySearched[0];
       setCurrentTrack(firstTrack);
       setIsPlaying(true);
       playerRef.current?.loadVideoById(firstTrack.videoId);
+      setCurrentTrackIndex(0);
+      setCurrentRecommendationIndex(null); // Reset recommendation index
     } else {
-      setIsPlaying(false); // Stop if no next track and not repeating
-      setCurrentTrack(null); // Explicitly clear current track
-      playerRef.current?.stopVideo(); // Stop the player
+      setIsPlaying(false);
+      setCurrentTrack(null);
+      playerRef.current?.stopVideo();
+      setCurrentRecommendationIndex(null); // Reset recommendation index
     }
-  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef]);
+  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef, currentRecommendations, currentRecommendationIndex, addRecentlySearched]);
 
   const playPreviousTrack = useCallback(() => {
-    if (!currentTrack || recentlySearched.length === 0) {
+    if (!currentTrack) {
       setIsPlaying(false);
       setCurrentTrack(null);
       playerRef.current?.stopVideo();
@@ -152,49 +208,75 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    let prevIndex = currentTrackIndex;
+    let prevTrackToPlay: Track | null = null;
 
-    if (isShuffling) {
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * recentlySearched.length);
-      } while (randomIndex === currentTrackIndex && recentlySearched.length > 1);
-      prevIndex = randomIndex;
-    } else if (currentTrackIndex !== null) {
-      prevIndex = (currentTrackIndex - 1 + recentlySearched.length) % recentlySearched.length;
+    // Priority 1: Play from currentRecommendations if available and not exhausted
+    if (currentRecommendations.length > 0 && currentRecommendationIndex !== null) {
+      let prevRecIndex = (currentRecommendationIndex - 1 + currentRecommendations.length) % currentRecommendations.length;
+      if (isShuffling) {
+        let randomIndex;
+        do {
+          randomIndex = Math.floor(Math.random() * currentRecommendations.length);
+        } while (randomIndex === currentRecommendationIndex && currentRecommendations.length > 1);
+        prevRecIndex = randomIndex;
+      }
+      prevTrackToPlay = currentRecommendations[prevRecIndex];
+      setCurrentRecommendationIndex(prevRecIndex); // Update index for recommendations
     }
 
-    if (prevIndex !== null && recentlySearched[prevIndex]) {
-      const prevTrack = recentlySearched[prevIndex];
-      setCurrentTrack(prevTrack);
+    // Fallback to recentlySearched if recommendations are exhausted or not available
+    if (!prevTrackToPlay && recentlySearched.length > 0) {
+      let prevSearchIndex = currentTrackIndex;
+      if (isShuffling) {
+        let randomIndex;
+        do {
+          randomIndex = Math.floor(Math.random() * recentlySearched.length);
+        } while (randomIndex === currentTrackIndex && recentlySearched.length > 1);
+        prevSearchIndex = randomIndex;
+      } else if (currentTrackIndex !== null) {
+        prevSearchIndex = (currentTrackIndex - 1 + recentlySearched.length) % recentlySearched.length;
+      }
+      if (prevSearchIndex !== null) {
+        prevTrackToPlay = recentlySearched[prevSearchIndex];
+        setCurrentTrackIndex(prevSearchIndex); // Update index for recently searched
+      }
+    }
+
+    if (prevTrackToPlay) {
+      setCurrentTrack(prevTrackToPlay);
       setIsPlaying(true);
-      playerRef.current?.loadVideoById(prevTrack.videoId);
+      playerRef.current?.loadVideoById(prevTrackToPlay.videoId);
+      addRecentlySearched(prevTrackToPlay); // Add to recently searched if it's a recommendation
     } else if (repeatMode === 'all' && recentlySearched.length > 0) {
-      // If repeat all and no previous track (start of list), loop to last track
+      // If repeat all and no previous track, loop to last track in recently searched
       const lastTrack = recentlySearched[recentlySearched.length - 1];
       setCurrentTrack(lastTrack);
       setIsPlaying(true);
       playerRef.current?.loadVideoById(lastTrack.videoId);
+      setCurrentTrackIndex(recentlySearched.length - 1);
+      setCurrentRecommendationIndex(null); // Reset recommendation index
     } else {
       setIsPlaying(false);
       setCurrentTrack(null);
       playerRef.current?.stopVideo();
+      setCurrentRecommendationIndex(null); // Reset recommendation index
     }
-  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef]);
+  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef, currentRecommendations, currentRecommendationIndex, addRecentlySearched]);
+
 
   const pauseTrack = useCallback(() => {
     setIsPlaying(false);
     if (playerRef.current && playerRef.current.pauseVideo) {
       playerRef.current.pauseVideo();
     }
-  }, []);
+  }, [playerRef]);
 
   const resumeTrack = useCallback(() => {
     setIsPlaying(true);
     if (playerRef.current && playerRef.current.playVideo) {
       playerRef.current.playVideo();
     }
-  }, []);
+  }, [playerRef]);
 
   const togglePlayPause = useCallback(() => {
     if (isPlaying) {
@@ -216,16 +298,6 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  // Handle track ending - this is called from App.tsx's onStateChange
-  const handleTrackEnd = useCallback(() => {
-    if (repeatMode === 'track') {
-      playerRef.current?.seekTo(0);
-      playerRef.current?.playVideo();
-    } else {
-      playNextTrack();
-    }
-  }, [repeatMode, playNextTrack, playerRef]);
-
   const value = {
     currentTrack,
     isPlaying,
@@ -244,12 +316,14 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     addRecentlySearched,
     playNextTrack,
     playPreviousTrack,
-    isShuffling, // New
-    toggleShuffle, // New
-    repeatMode, // New
-    toggleRepeatMode, // New
-    setIsPlaying, // Exposed setIsPlaying
-    setCurrentTrack, // Exposed setCurrentTrack
+    isShuffling,
+    toggleShuffle,
+    repeatMode,
+    toggleRepeatMode,
+    setIsPlaying,
+    setCurrentTrack,
+    currentRecommendations, // NEW
+    updateRecommendations, // NEW
   };
 
   return (
