@@ -28,9 +28,51 @@ function getBestThumbnail(thumbnails: any[], context: string): { url?: string; w
   if (!thumbnails || thumbnails.length === 0) {
     return {};
   }
-  const bestThumbnail = thumbnails[thumbnails.length - 1];
-  console.log(`[yt-music-proxy] ${context} thumbnail: ${bestThumbnail.url} (${bestThumbnail.width}x${bestThumbnail.height})`);
-  return { url: bestThumbnail.url, width: bestThumbnail.width, height: bestThumbnail.height };
+
+  // Find the largest thumbnail available from the provided array
+  let bestThumbnail = thumbnails[0];
+  for (const thumb of thumbnails) {
+    if (thumb.width > bestThumbnail.width) {
+      bestThumbnail = thumb;
+    }
+  }
+
+  let finalUrl = bestThumbnail.url;
+  let finalWidth = bestThumbnail.width;
+  let finalHeight = bestThumbnail.height;
+
+  // Attempt to get a higher resolution if the current best is too small
+  // This pattern is common for Google-hosted images (lh3.googleusercontent.com)
+  if (finalUrl && finalWidth < 400) { // If width is less than 400px, try to get a larger one
+    const match = finalUrl.match(/=w(\d+)-h(\d+)/);
+    if (match) {
+      const currentWidth = parseInt(match[1]);
+      const currentHeight = parseInt(match[2]);
+      const targetSize = 500; // Aim for 500x500 or similar
+
+      // Only replace if the current size is smaller than our target
+      if (currentWidth < targetSize || currentHeight < targetSize) {
+        const newUrl = finalUrl.replace(/=w(\d+)-h(\d+)/, `=w${targetSize}-h${targetSize}`);
+        console.log(`[yt-music-proxy] ${context} - Attempting to upgrade thumbnail from ${currentWidth}x${currentHeight} to ${targetSize}x${targetSize}. New URL: ${newUrl}`);
+        finalUrl = newUrl;
+        finalWidth = targetSize; // Optimistically update dimensions
+        finalHeight = targetSize;
+      }
+    } else if (finalUrl.includes('ytimg.com')) {
+      // For youtube.com/ytimg.com URLs, try replacing 'default.jpg' or 'hqdefault.jpg' with 'maxresdefault.jpg'
+      if (finalUrl.includes('default.jpg') || finalUrl.includes('hqdefault.jpg')) {
+        const newUrl = finalUrl.replace(/(default|hqdefault)\.jpg/, 'maxresdefault.jpg');
+        console.log(`[yt-music-proxy] ${context} - Attempting to upgrade ytimg thumbnail. New URL: ${newUrl}`);
+        finalUrl = newUrl;
+        // We don't know the exact new dimensions, but maxresdefault is usually 1280x720 or 1920x1080
+        finalWidth = 1280; 
+        finalHeight = 720;
+      }
+    }
+  }
+
+  console.log(`[yt-music-proxy] ${context} final thumbnail: ${finalUrl} (${finalWidth}x${finalHeight})`);
+  return { url: finalUrl, width: finalWidth, height: finalHeight };
 }
 
 serve(async (req) => {
