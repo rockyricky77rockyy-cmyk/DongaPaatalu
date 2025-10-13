@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { cn, openExternalLink } from '@/lib/utils'; // Import cn and openExternalLink
-import { toast } from 'sonner'; // Import toast from sonner
+import { cn, openExternalLink } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface YouTubeEmbedProps {
   videoId: string | null;
@@ -31,12 +31,19 @@ const YouTubeEmbed = ({
 }: YouTubeEmbedProps) => {
   const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying, currentTrack } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
-  const [internalVideoId, setInternalVideoId] = useState<string | undefined>(undefined); // Use undefined initially
+  const playAttemptTimeoutRef = useRef<number | null>(null); // New ref for autoplay detection timeout
+  const [internalVideoId, setInternalVideoId] = useState<string | undefined>(undefined);
+  const [toastId, setToastId] = useState<string | number | null>(null); // To manage toast dismissal
 
   // This effect manages the videoId passed to the YouTube component
   useEffect(() => {
     if (videoId) {
       setInternalVideoId(videoId);
+      // Clear any previous autoplay detection toast
+      if (toastId) {
+        toast.dismiss(toastId);
+        setToastId(null);
+      }
     } else {
       // If videoId becomes null, stop the player and clear the internal videoId
       if (playerRef.current) {
@@ -47,61 +54,106 @@ const YouTubeEmbed = ({
         setIsPlaying(false);
       }
       setInternalVideoId(undefined); // Clear the videoId in the player
+      stopProgressInterval();
+      clearAutoplayTimeout();
+      if (toastId) {
+        toast.dismiss(toastId);
+        setToastId(null);
+      }
     }
-  }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration, setIsPlaying]);
+  }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration, setIsPlaying, toastId]);
 
 
   const opts: YouTubeProps['opts'] = {
-    height: '1', // Set to 1px to ensure API functions, but visually hidden
-    width: '1',  // Set to 1px to ensure API functions, but visually hidden
+    height: '1',
+    width: '1',
     playerVars: {
       autoplay: 1, // Auto-play the video
-      controls: 0, // Hide player controls
-      disablekb: 1, // Disable keyboard controls
-      fs: 0, // Disable fullscreen button
-      modestbranding: 1, // Hide YouTube logo
-      rel: 0, // Do not show related videos
-      showinfo: 0, // Hide video title and uploader info
-      iv_load_policy: 3, // Hide video annotations
-      origin: window.location.origin, // Crucial for cross-origin communication
+      controls: 0,
+      disablekb: 1,
+      fs: 0,
+      modestbranding: 1,
+      rel: 0,
+      showinfo: 0,
+      iv_load_policy: 3,
+      origin: window.location.origin,
     },
+  };
+
+  const clearAutoplayTimeout = () => {
+    if (playAttemptTimeoutRef.current) {
+      clearTimeout(playAttemptTimeoutRef.current);
+      playAttemptTimeoutRef.current = null;
+    }
   };
 
   const handleReady = (event: any) => {
     playerRef.current = event.target;
     onReady?.(event);
-    // If a videoId was set before ready, ensure it starts playing
+    
+    // Attempt to play and set a timeout to detect if autoplay was blocked
     if (internalVideoId && playerRef.current.getPlayerState() !== window.YT.PlayerState.PLAYING) {
       playerRef.current.playVideo();
+      clearAutoplayTimeout(); // Clear any previous timeout
+      playAttemptTimeoutRef.current = setTimeout(() => {
+        // If after 2 seconds, the player is not playing, assume autoplay was blocked
+        if (playerRef.current && playerRef.current.getPlayerState() !== window.YT.PlayerState.PLAYING) {
+          const trackTitle = currentTrack?.title || 'this track';
+          const newToastId = toast.info(`Autoplay blocked for "${trackTitle}".`, {
+            description: "Your device might require a direct tap to start playback.",
+            duration: 10000, // Keep toast visible for a while
+            action: {
+              label: "Tap to Play",
+              onClick: () => {
+                playerRef.current?.playVideo();
+                toast.dismiss(newToastId); // Dismiss toast after user taps
+              },
+            },
+            onDismiss: () => setToastId(null),
+            onAutoClose: () => setToastId(null),
+          });
+          setToastId(newToastId);
+        }
+      }, 2000) as unknown as number; // 2-second delay
     }
   };
 
   const handlePlay = (event: any) => {
+    clearAutoplayTimeout(); // Clear timeout if playback starts successfully
+    if (toastId) { // Dismiss autoplay toast if it was showing
+      toast.dismiss(toastId);
+      setToastId(null);
+    }
     setDuration(event.target.getDuration());
     startProgressInterval(event.target);
     onPlay?.(event);
   };
 
   const handlePause = (event: any) => {
+    clearAutoplayTimeout(); // Clear timeout if playback is paused
     stopProgressInterval();
     onPause?.(event);
   };
 
   const handleEnd = (event: any) => {
+    clearAutoplayTimeout(); // Clear timeout if playback ends
     stopProgressInterval();
     setPlaybackProgress(0);
     setCurrentTime(0);
     onEnd?.(event);
   };
 
-  // New error handler to catch errors from the YouTube player
   const handlePlayerError = (event: any) => {
     console.error("YouTube Player encountered an error:", event);
+    clearAutoplayTimeout(); // Clear timeout on error
+    if (toastId) { // Dismiss autoplay toast if it was showing
+      toast.dismiss(toastId);
+      setToastId(null);
+    }
     
     const videoUrl = `https://www.youtube.com/watch?v=${currentTrack?.videoId}`;
     const trackTitle = currentTrack?.title || 'this track';
 
-    // Common error codes for embedding restrictions: 150, 101
     if (event.data === 150 || event.data === 101) {
       toast.error(`"${trackTitle}" cannot be played in the app.`, {
         description: "This video is restricted from being embedded. Try opening it in YouTube.",
@@ -112,7 +164,6 @@ const YouTubeEmbed = ({
         },
       });
     } else {
-      // Generic error for other issues
       toast.error(`Failed to play "${trackTitle}".`, {
         description: `Error code: ${event.data}. It might be unavailable or restricted.`,
         duration: 5000,
@@ -123,8 +174,8 @@ const YouTubeEmbed = ({
       });
     }
     
-    onError?.(event); // Call the prop if provided
-    setIsPlaying(false); // Stop playing on error
+    onError?.(event);
+    setIsPlaying(false);
   };
 
   const startProgressInterval = (player: any) => {
@@ -140,7 +191,7 @@ const YouTubeEmbed = ({
           setPlaybackProgress((current / total) * 100);
         }
       }
-    }, 1000) as unknown as number; // Cast to number for clearInterval
+    }, 1000) as unknown as number;
   };
 
   const stopProgressInterval = () => {
@@ -152,23 +203,24 @@ const YouTubeEmbed = ({
 
   useEffect(() => {
     return () => {
-      // Cleanup function: clear interval when component unmounts
       stopProgressInterval();
-      // Do NOT clear playerRef.current here, as it's managed by the context
+      clearAutoplayTimeout();
+      if (toastId) {
+        toast.dismiss(toastId);
+      }
     };
-  }, []); // Empty dependency array ensures this runs once on mount and once on unmount
+  }, [toastId]);
 
-  // Always render the YouTube component, but pass internalVideoId
   return (
-    <div className={cn("hidden", className)}> {/* Use 'hidden' class to hide it visually */}
+    <div className={cn("hidden", className)}>
       <YouTube
-        videoId={internalVideoId} // Use internalVideoId
+        videoId={internalVideoId}
         opts={opts}
         onReady={handleReady}
         onPlay={handlePlay}
         onPause={handlePause}
         onEnd={handleEnd}
-        onError={handlePlayerError} // Use the new error handler
+        onError={handlePlayerError}
         onStateChange={onStateChange}
         onPlaybackRateChange={onPlaybackRateChange}
         onPlaybackQualityChange={onPlaybackQualityChange}
