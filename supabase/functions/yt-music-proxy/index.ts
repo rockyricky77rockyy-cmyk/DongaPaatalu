@@ -554,9 +554,9 @@ serve(async (req) => {
       let relatedResults: any[] = [];
 
       if (videoId) {
-        // Prioritize fetching related songs by videoId
-        const relatedSongs = await ytmusic.getRelatedSongs(videoId);
-        relatedResults = relatedSongs.results || [];
+        // Prioritize fetching related songs by videoId using getSong
+        const songInfo = await ytmusic.getSong(videoId);
+        relatedResults = songInfo.related?.results || []; // Access related.results
       } else if (artist || album) {
         // Fallback to searching if no videoId, combine artist and album for better results
         const searchQuery = `${artist || ''} ${album || ''} songs`.trim();
