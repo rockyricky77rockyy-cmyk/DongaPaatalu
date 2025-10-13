@@ -458,9 +458,9 @@ serve(async (req) => {
     if (pathname.endsWith('/playlist-tracks')) {
       const requestBody = await req.json();
       const { playlistId } = requestBody;
-      console.log(`[yt-music-proxy] Received playlistId for /playlist-tracks: "${playlistId}"`); // Added log here
+      console.log(`[yt-music-proxy] Received playlistId for /playlist-tracks: "${playlistId}" (type: ${typeof playlistId})`); // Added log here
 
-      if (!playlistId || playlistId === 'undefined') { // Added check for 'undefined' string
+      if (!playlistId || typeof playlistId !== 'string' || playlistId.trim() === '' || playlistId === 'undefined') { // Added check for 'undefined' string
         console.error('[yt-music-proxy] Missing or invalid playlistId for /playlist-tracks');
         return new Response(JSON.stringify({ error: 'Missing or invalid playlistId' }), {
           status: 400,
