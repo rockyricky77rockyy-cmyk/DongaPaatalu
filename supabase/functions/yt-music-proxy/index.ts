@@ -132,7 +132,7 @@ serve(async (req) => {
     if (pathname.endsWith('/album-tracks')) {
       const requestBody = await req.json();
       const { albumId } = requestBody;
-      console.log(`[yt-music-proxy] Fetching tracks for albumId: "${albumId}"`);
+      console.log(`[yt-music-proxy] Fetching tracks for albumId: "${albumId}" (type: ${typeof albumId})`); // Added type log
 
       // Ensure albumId is a non-empty string
       if (!albumId || typeof albumId !== 'string' || albumId.trim() === '') {
@@ -179,6 +179,11 @@ serve(async (req) => {
         if (!videoId && item.video?.videoId) { // Check for nested video object
           videoId = item.video.videoId;
         }
+        // NEW: Check for content.videoId if it's a more complex object
+        if (!videoId && item.content?.videoId) {
+          videoId = item.content.videoId;
+        }
+
 
         console.log(`[yt-music-proxy] Processing album track "${item.title}" (extracted videoId: ${videoId})`); // Added log for each item
         if (!videoId) { // Only include tracks that have a videoId
@@ -509,8 +514,29 @@ serve(async (req) => {
 
 
       const formattedTracks = playlistTracks.map((item: any) => {
-        const videoId = item.videoId;
-        console.log(`[yt-music-proxy] Playlist track "${item.title}" videoId: ${videoId}`); // Added log
+        // Enhanced videoId extraction logic for playlist tracks
+        let videoId = item.videoId;
+        if (!videoId && item.setVideoId) {
+          videoId = item.setVideoId;
+        }
+        if (!videoId && item.playlistSetVideoId) {
+          videoId = item.playlistSetVideoId;
+        }
+        if (!videoId && item.feedbackTokens?.add) {
+          videoId = item.feedbackTokens.add;
+        }
+        if (!videoId && item.feedbackTokens?.remove) {
+          videoId = item.feedbackTokens.remove;
+        }
+        if (!videoId && item.video?.videoId) { // Check for nested video object
+          videoId = item.video.videoId;
+        }
+        // NEW: Check for content.videoId if it's a more complex object
+        if (!videoId && item.content?.videoId) {
+          videoId = item.content.videoId;
+        }
+
+        console.log(`[yt-music-proxy] Processing playlist track "${item.title}" (extracted videoId: ${videoId})`); // Added log
         if (!videoId) {
           console.log(`[yt-music-proxy] Skipping playlist track "${item.title}" due to missing videoId.`);
           return null;
