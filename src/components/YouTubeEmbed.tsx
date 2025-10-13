@@ -37,6 +37,7 @@ const YouTubeEmbed = ({
 
   // This effect manages the videoId passed to the YouTube component
   useEffect(() => {
+    console.log("YouTubeEmbed: videoId prop changed to:", videoId); // NEW LOG
     if (videoId) {
       setInternalVideoId(videoId);
       if (toastId) {
@@ -102,7 +103,7 @@ const YouTubeEmbed = ({
 
   const handleReady = (event: any) => {
     playerRef.current = event.target;
-    console.log("YouTubeEmbed: Player is ready. Player instance:", playerRef.current); // Added log
+    console.log("YouTubeEmbed: Player is ready. Player instance:", playerRef.current);
     onReady?.(event);
     
     if (internalVideoId && playerRef.current.getPlayerState() !== window.YT.PlayerState.PLAYING) {
@@ -131,7 +132,7 @@ const YouTubeEmbed = ({
   };
 
   const handlePlay = (event: any) => {
-    console.log("YouTubeEmbed: Player state changed to PLAYING."); // Added log
+    console.log("YouTubeEmbed: Player state changed to PLAYING.");
     clearAutoplayTimeout();
     if (toastId) {
       toast.dismiss(toastId);
@@ -143,14 +144,14 @@ const YouTubeEmbed = ({
   };
 
   const handlePause = (event: any) => {
-    console.log("YouTubeEmbed: Player state changed to PAUSED."); // Added log
+    console.log("YouTubeEmbed: Player state changed to PAUSED.");
     clearAutoplayTimeout();
     stopProgressInterval();
     onPause?.(event);
   };
 
   const handleEnd = (event: any) => {
-    console.log("YouTubeEmbed: Player state changed to ENDED."); // Added log
+    console.log("YouTubeEmbed: Player state changed to ENDED.");
     clearAutoplayTimeout();
     stopProgressInterval();
     setPlaybackProgress(0);
@@ -159,7 +160,7 @@ const YouTubeEmbed = ({
   };
 
   const handlePlayerError = (event: any) => {
-    console.error("YouTubeEmbed: YouTube Player encountered an error:", event); // Modified log
+    console.error("YouTubeEmbed: YouTube Player encountered an error:", event);
     clearAutoplayTimeout();
     if (toastId) {
       toast.dismiss(toastId);

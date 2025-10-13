@@ -14,7 +14,7 @@ import NotFound from "./pages/NotFound";
 import Player from "./components/Player";
 import { MusicPlayerProvider, useMusicPlayer } from "./context/MusicPlayerContext";
 import YouTubeEmbed from "./components/YouTubeEmbed";
-import React, { useCallback, useEffect } from "react"; // Import useEffect
+import React, { useCallback, useEffect } from "react";
 import AlbumDetailsPage from "./pages/AlbumDetailsPage";
 import ArtistDetailsPage from "./pages/ArtistDetailsPage";
 import PlaylistDetailsPage from "./pages/PlaylistDetailsPage";
@@ -34,27 +34,42 @@ const AppContent = () => {
   };
 
   const handlePlayerStateChange = (event: any) => {
+    console.log("App.tsx: handlePlayerStateChange - event.data:", event.data, "currentTrack:", currentTrack?.title);
+
     if (!window.YT || !window.YT.PlayerState) {
-      console.warn("YouTube PlayerState not available yet.");
+      console.warn("App.tsx: YouTube PlayerState not available yet.");
       return;
     }
 
     if (event.data === window.YT.PlayerState.PLAYING) {
+      console.log("App.tsx: Player state is PLAYING. Updating context.");
       setIsPlaying(true);
       setDuration(event.target.getDuration());
     } else if (event.data === window.YT.PlayerState.PAUSED) {
+      console.log("App.tsx: Player state is PAUSED. Updating context.");
       setIsPlaying(false);
     } else if (event.data === window.YT.PlayerState.ENDED) {
+      console.log("App.tsx: Player state is ENDED. Handling track end.");
       setIsPlaying(false);
       if (repeatMode === 'track') {
+        console.log("App.tsx: Repeat track mode, seeking to 0 and replaying.");
         playerRef.current?.seekTo(0);
         playerRef.current?.playVideo();
         setIsPlaying(true);
       } else {
+        console.log("App.tsx: Not repeating track, playing next track.");
         setPlaybackProgress(0);
         setCurrentTime(0);
         playNextTrack(); 
       }
+    } else if (event.data === window.YT.PlayerState.BUFFERING) {
+      console.log("App.tsx: Player state is BUFFERING.");
+      // Optionally set isPlaying to false or show a loading indicator
+    } else if (event.data === window.YT.PlayerState.CUED) {
+      console.log("App.tsx: Player state is CUED (video loaded but not playing).");
+      // This state is often reached before PLAYING, especially with autoplay=1
+      // You might want to explicitly call playVideo() here if autoplay isn't reliable
+      // playerRef.current?.playVideo(); // Uncomment if needed for more aggressive autoplay
     }
   };
 
