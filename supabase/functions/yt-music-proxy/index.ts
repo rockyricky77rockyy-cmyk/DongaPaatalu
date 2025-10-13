@@ -146,7 +146,7 @@ serve(async (req) => {
       let albumInfo;
       try {
         albumInfo = await ytmusic.getAlbum(albumId);
-        console.log(`[yt-music-proxy] Raw albumInfo for ${albumId}:`, JSON.stringify(albumInfo, null, 2));
+        console.log(`[yt-music-proxy] RAW albumInfo for ${albumId}:`, JSON.stringify(albumInfo, null, 2)); // Log full raw albumInfo
       } catch (ytError: any) {
         console.error(`[yt-music-proxy] Error fetching album ${albumId}:`, ytError.message);
         return new Response(JSON.stringify({ error: `Album not found or inaccessible: ${ytError.message}` }), {
@@ -155,19 +155,15 @@ serve(async (req) => {
         });
       }
       
-      const albumTracks = albumInfo.tracks || [];
-      console.log(`[yt-music-proxy] Raw albumTracks count for ${albumId}: ${albumTracks.length}`);
-      if (albumTracks.length === 0) {
-        console.log(`[yt-music-proxy] Full albumInfo for ${albumId} when tracks are empty:`, JSON.stringify(albumInfo, null, 2));
-      }
-      console.log(`[yt-music-proxy] First 3 raw albumTracks for ${albumId}:`, JSON.stringify(albumTracks.slice(0, 3), null, 2));
+      const albumTracksRaw = albumInfo.tracks || [];
+      console.log(`[yt-music-proxy] RAW albumTracks count for ${albumId}: ${albumTracksRaw.length}`);
+      console.log(`[yt-music-proxy] First 5 RAW albumTracks for ${albumId}:`, JSON.stringify(albumTracksRaw.slice(0, 5), null, 2));
 
       const albumThumbnail = albumInfo.thumbnails && albumInfo.thumbnails.length > 0 ? albumInfo.thumbnails[albumInfo.thumbnails.length - 1].url : undefined;
 
-      let formattedTracks = albumTracks.map((item: any) => {
-        console.log(`[yt-music-proxy] Processing album track item:`, JSON.stringify(item, null, 2)); // Added detailed log for each item
+      let formattedTracks = albumTracksRaw.map((item: any) => {
         const videoId = item.videoId;
-        console.log(`[yt-music-proxy] Album track "${item.title}" videoId: ${videoId}`); // Added log
+        console.log(`[yt-music-proxy] Processing album track "${item.title}" (videoId: ${videoId})`); // Added log for each item
         if (!videoId) { // Only include tracks that have a videoId
           console.log(`[yt-music-proxy] Skipping album track "${item.title}" due to missing videoId.`);
           return null; // Return null for unplayable tracks
@@ -188,13 +184,17 @@ serve(async (req) => {
           duration,
         };
       }).filter(Boolean); // Filter out null entries
-      console.log(`[yt-music-proxy] Formatted album tracks count for ${albumId}: ${formattedTracks.length}`);
+      console.log(`[yt-music-proxy] Formatted album tracks count from getAlbum for ${albumId}: ${formattedTracks.length}`);
 
-      // NEW: Fallback search if no playable tracks found directly from the album
+      // Fallback search if no playable tracks found directly from the album
       if (formattedTracks.length === 0 && albumInfo.title && albumInfo.artist) {
         console.log(`[yt-music-proxy] No direct playable tracks found for album "${albumInfo.title}". Attempting fallback search.`);
         const fallbackQuery = `${albumInfo.title} by ${getArtistName(albumInfo.artist)} songs`;
+        console.log(`[yt-music-proxy] Fallback search query: "${fallbackQuery}"`);
         const fallbackSearchResults = await ytmusic.search(fallbackQuery, 'songs');
+        console.log(`[yt-music-proxy] RAW fallbackSearchResults count: ${fallbackSearchResults.length}`);
+        console.log(`[yt-music-proxy] First 5 RAW fallbackSearchResults:`, JSON.stringify(fallbackSearchResults.slice(0, 5), null, 2));
+
 
         fallbackSearchResults.forEach((item: any) => {
           const videoId = item.videoId;
@@ -218,7 +218,7 @@ serve(async (req) => {
             duration,
           });
         });
-        console.log(`[yt-music-proxy] Fallback search added ${formattedTracks.length} tracks.`);
+        console.log(`[yt-music-proxy] Total formatted tracks after fallback search: ${formattedTracks.length}`);
       }
 
 
