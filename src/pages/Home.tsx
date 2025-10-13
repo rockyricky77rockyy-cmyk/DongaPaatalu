@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search } from "lucide-react";
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search, X } from "lucide-react"; // Import X icon
 import { Input } from "@/components/ui/input";
 import MobileSidebar from "@/components/MobileSidebar";
 import NeonLogo from "@/components/NeonLogo";
@@ -103,6 +103,16 @@ const Home = () => {
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
+            {searchTerm && ( // Show clear button only when searchTerm is not empty
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground"
+                onClick={handleClearSearch}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </header>
 
