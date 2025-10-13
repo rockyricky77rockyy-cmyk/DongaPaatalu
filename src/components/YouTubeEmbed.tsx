@@ -32,12 +32,12 @@ const YouTubeEmbed = ({
   const { playerRef, setDuration, setCurrentTime, setPlaybackProgress, setIsPlaying, currentTrack } = useMusicPlayer();
   const intervalRef = useRef<number | null>(null);
   const playAttemptTimeoutRef = useRef<number | null>(null);
-  const [internalVideoId, setInternalVideoId] = useState<string | undefined>(undefined);
+  const [internalVideoId, setInternalVideoId] = useState<string | null>(null); // Changed to null
   const [toastId, setToastId] = useState<string | number | null>(null);
 
   // This effect manages the videoId passed to the YouTube component
   useEffect(() => {
-    console.log("YouTubeEmbed: videoId prop changed to:", videoId); // NEW LOG
+    console.log("YouTubeEmbed: videoId prop changed to:", videoId);
     if (videoId) {
       setInternalVideoId(videoId);
       if (toastId) {
@@ -53,7 +53,7 @@ const YouTubeEmbed = ({
         setDuration(0);
         setIsPlaying(false);
       }
-      setInternalVideoId(undefined);
+      setInternalVideoId(null); // Explicitly set to null
       stopProgressInterval();
       clearAutoplayTimeout();
       if (toastId) {
@@ -63,7 +63,7 @@ const YouTubeEmbed = ({
     }
   }, [videoId, playerRef, setPlaybackProgress, setCurrentTime, setDuration, setIsPlaying, toastId]);
 
-  // NEW: Effect to check if YouTube API script loaded
+  // Effect to check if YouTube API script loaded
   useEffect(() => {
     const checkApiLoaded = setTimeout(() => {
       if (typeof window.YT === 'undefined' || !window.YT.Player) {
@@ -233,6 +233,7 @@ const YouTubeEmbed = ({
   return (
     <div className={cn("hidden", className)}>
       <YouTube
+        key={internalVideoId || 'no-video'} {/* Added key prop */}
         videoId={internalVideoId}
         opts={opts}
         onReady={handleReady}
