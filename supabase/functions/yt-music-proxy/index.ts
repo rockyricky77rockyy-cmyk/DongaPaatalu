@@ -9,6 +9,20 @@ const corsHeaders = {
 const ytmusic = new YouTubeMusic();
 let isInitialized = false;
 
+// Helper function to safely extract artist name
+function getArtistName(artistData: any): string {
+  if (typeof artistData === 'string') {
+    return artistData;
+  }
+  if (typeof artistData === 'object' && artistData !== null && artistData.name) {
+    return artistData.name;
+  }
+  if (Array.isArray(artistData) && artistData.length > 0 && artistData[0].name) {
+    return artistData[0].name;
+  }
+  return 'Unknown Artist';
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -62,16 +76,7 @@ serve(async (req) => {
           return;
         }
         const title = item.title || item.name || 'Unknown Title';
-        let artist = 'Unknown Artist';
-        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
-          artist = item.artists[0].name;
-        } else if (item.artist) {
-          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
-            artist = item.artist.name;
-          } else if (typeof item.artist === 'string') {
-            artist = item.artist;
-          }
-        }
+        const artist = getArtistName(item.artists || item.artist);
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const duration = item.duration;
@@ -90,16 +95,7 @@ serve(async (req) => {
       // Process album results
       albumResults.forEach((item: any) => {
         const title = item.title || item.name || 'Unknown Album';
-        let artist = 'Unknown Artist';
-        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
-          artist = item.artists[0].name;
-        } else if (item.artist) {
-          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
-            artist = item.artist.name;
-          } else if (typeof item.artist === 'string') {
-            artist = item.artist;
-          }
-        }
+        const artist = getArtistName(item.artists || item.artist);
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const albumId = item.albumId; // YouTube Music specific album ID
 
@@ -186,22 +182,7 @@ serve(async (req) => {
           return null; // Return null for unplayable tracks
         }
         const title = item.title || item.name || 'Unknown Title';
-        let artist = 'Unknown Artist';
-        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
-          artist = item.artists[0].name;
-        } else if (item.artist) {
-          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
-            artist = item.artist.name;
-          } else if (typeof item.artist === 'string') {
-            artist = item.artist;
-          }
-        } else if (albumInfo.artist) { // Fallback to album's artist if track artist is missing
-            if (typeof albumInfo.artist === 'object' && albumInfo.artist !== null && albumInfo.artist.name) {
-                artist = albumInfo.artist.name;
-            } else if (typeof albumInfo.artist === 'string') {
-                artist = albumInfo.artist;
-            }
-        }
+        const artist = getArtistName(item.artists || item.artist || albumInfo.artist); // Fallback to album's artist
         const album = albumInfo.title; // Use the album title from getAlbum response
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : albumThumbnail; // Use track thumbnail or album thumbnail
         const duration = item.duration; // Duration might be available
@@ -221,7 +202,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({ 
         tracks: formattedTracks, 
         albumTitle: albumInfo.title, 
-        albumArtist: albumInfo.artist,
+        albumArtist: getArtistName(albumInfo.artist), // Use helper for albumArtist
         albumThumbnail: albumThumbnail, // Explicitly return album thumbnail
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -262,7 +243,7 @@ serve(async (req) => {
           return null; // Return null for unplayable tracks
         }
         const title = item.title || item.name || 'Unknown Title';
-        let artist = artistInfo.name || 'Unknown Artist'; // Use artistInfo.name for consistency
+        const artist = getArtistName(artistInfo.name); // Use helper for artist name
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const duration = item.duration;
@@ -279,7 +260,7 @@ serve(async (req) => {
       }).filter(Boolean); // Filter out null entries
 
       return new Response(JSON.stringify({
-        artistName: artistInfo.name,
+        artistName: getArtistName(artistInfo.name), // Use helper for artistName
         artistThumbnail: artistInfo.thumbnails && artistInfo.thumbnails.length > 0 ? artistInfo.thumbnails[artistInfo.thumbnails.length - 1].url : undefined,
         tracks: formattedTracks
       }), {
@@ -327,16 +308,7 @@ serve(async (req) => {
 
       const formattedAlbums = albumResults.map((item: any) => {
         const title = item.title || item.name || 'Unknown Album';
-        let artist = 'Unknown Artist';
-        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
-          artist = item.artists[0].name;
-        } else if (item.artist) {
-          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
-            artist = item.artist.name;
-          } else if (typeof item.artist === 'string') {
-            artist = item.artist;
-          }
-        }
+        const artist = getArtistName(item.artists || item.artist);
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const albumId = item.albumId;
 
@@ -410,7 +382,7 @@ serve(async (req) => {
         playlistResults = searchRes;
       } else {
         const trendingPlaylists = await ytmusic.search('popular playlists', 'playlists'); // Changed to 'popular playlists' for potentially better results
-        playlistResults = trendingPlaylists;
+        playlistResults = trendingPlayplaylists;
       }
 
       const formattedPlaylists = playlistResults.map((item: any) => {
@@ -504,22 +476,7 @@ serve(async (req) => {
           return null;
         }
         const title = item.title || item.name || 'Unknown Title';
-        let artist = 'Unknown Artist';
-        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
-          artist = item.artists[0].name;
-        } else if (item.artist) {
-          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
-            artist = item.artist.name;
-          } else if (typeof item.artist === 'string') {
-            artist = item.artist;
-          }
-        } else if (playlistInfo.author) { // Fallback to playlist's author if track artist is missing
-            if (typeof playlistInfo.author === 'object' && playlistInfo.author !== null && playlistInfo.author.name) {
-                artist = playlistInfo.author.name;
-            } else if (typeof playlistInfo.author === 'string') {
-                artist = playlistInfo.author;
-            }
-        }
+        const artist = getArtistName(item.artists || item.artist || playlistInfo.author); // Fallback to playlist's author
         const album = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : playlistThumbnail; // Use track thumbnail or playlist thumbnail
         const duration = item.duration;
@@ -584,16 +541,7 @@ serve(async (req) => {
           return null;
         }
         const title = item.title || item.name || 'Unknown Title';
-        let trackArtist = 'Unknown Artist';
-        if (item.artists && item.artists.length > 0 && item.artists[0].name) {
-          trackArtist = item.artists[0].name;
-        } else if (item.artist) {
-          if (typeof item.artist === 'object' && item.artist !== null && item.artist.name) {
-            trackArtist = item.artist.name;
-          } else if (typeof item.artist === 'string') {
-            trackArtist = item.artist;
-          }
-        }
+        const trackArtist = getArtistName(item.artists || item.artist);
         const trackAlbum = item.album ? item.album.name : undefined;
         const thumbnail = item.thumbnails && item.thumbnails.length > 0 ? item.thumbnails[item.thumbnails.length - 1].url : undefined;
         const duration = item.duration;
