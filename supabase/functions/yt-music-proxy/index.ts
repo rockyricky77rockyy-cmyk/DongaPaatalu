@@ -24,6 +24,15 @@ serve(async (req) => {
       console.log('[yt-music-proxy] YouTubeMusic API initialized.');
     }
 
+    // Removed manual authentication handling to allow public access
+    // const authHeader = req.headers.get('Authorization')
+    // if (!authHeader) {
+    //   return new Response('Unauthorized', { 
+    //     status: 401, 
+    //     headers: corsHeaders 
+    //   })
+    // }
+
     if (pathname.endsWith('/search')) {
       const requestBody = await req.json();
       const query = requestBody.query;
