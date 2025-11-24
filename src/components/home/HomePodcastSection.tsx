@@ -57,7 +57,7 @@ const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
           <div
             key={podcast.podcastId}
             className="group cursor-pointer bg-card rounded-2xl p-3 text-center transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => console.log(`Navigate to podcast: ${podcast.title}`)} // Placeholder for podcast details navigation
+            onClick={() => navigate(`/podcast/${podcast.podcastId}`, { state: { podcastTitle: podcast.title, podcastThumbnail: podcast.thumbnail } })}
           >
             <TrackThumbnail
               thumbnail={podcast.thumbnail}

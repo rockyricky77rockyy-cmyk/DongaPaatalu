@@ -18,7 +18,8 @@ import React, { useCallback, useEffect } from "react";
 import AlbumDetailsPage from "./pages/AlbumDetailsPage";
 import ArtistDetailsPage from "./pages/ArtistDetailsPage";
 import PlaylistDetailsPage from "./pages/PlaylistDetailsPage";
-import GenreOrRadioSongsPage from "./pages/GenreOrRadioSongsPage"; // Import the new page
+import GenreOrRadioSongsPage from "./pages/GenreOrRadioSongsPage";
+import PodcastDetailsPage from "./pages/PodcastDetailsPage"; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -81,7 +82,8 @@ const AppContent = () => {
           <Route path="/album/:albumId" element={<AlbumDetailsPage />} />
           <Route path="/artist/:artistId" element={<ArtistDetailsPage />} />
           <Route path="/playlist/:playlistId" element={<PlaylistDetailsPage />} />
-          <Route path="/:queryType/songs" element={<GenreOrRadioSongsPage />} /> {/* New route */}
+          <Route path="/:queryType/songs" element={<GenreOrRadioSongsPage />} />
+          <Route path="/podcast/:podcastId" element={<PodcastDetailsPage />} /> {/* New route for podcast details */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
