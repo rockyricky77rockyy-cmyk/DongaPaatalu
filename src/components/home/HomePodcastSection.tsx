@@ -13,22 +13,18 @@ interface HomePodcastSectionProps {
 
 const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
   const navigate = useNavigate();
-  // Fetch Telugu podcasts
-  const { data: teluguPodcasts, isLoading: isLoadingTelugu, isError: isErrorTelugu, error: errorTelugu } = useYouTubeMusicPodcasts('Telugu podcasts');
-  // Fetch Bhagavatgitha podcasts
-  const { data: bhagavatgithaPodcasts, isLoading: isLoadingBhagavatgitha, isError: isErrorBhagavatgitha, error: errorBhagavatgitha } = useYouTubeMusicPodcasts('Bhagavatgitha podcasts');
-  // Fetch Gurujis podcasts
-  const { data: gurujisPodcasts, isLoading: isLoadingGurujis, isError: isErrorGurujis, error: errorGurujis } = useYouTubeMusicPodcasts('Gurujis podcasts');
+  // Fetch trending podcasts
+  const { data: trendingPodcasts, isLoading: isLoadingTrending, isError: isErrorTrending, error: errorTrending } = useYouTubeMusicPodcasts('trending podcasts');
+  // Fetch popular podcasts
+  const { data: popularPodcasts, isLoading: isLoadingPopular, isError: isErrorPopular, error: errorPopular } = useYouTubeMusicPodcasts('popular podcasts');
 
-  const podcasts = [
-    ...(teluguPodcasts || []),
-    ...(bhagavatgithaPodcasts || []),
-    ...(gurujisPodcasts || []),
-  ];
+  // Combine and deduplicate podcasts
+  const allPodcasts = [...(trendingPodcasts || []), ...(popularPodcasts || [])];
+  const uniquePodcasts = Array.from(new Map(allPodcasts.map(podcast => [podcast.podcastId, podcast])).values());
 
-  const isLoading = isLoadingTelugu || isLoadingBhagavatgitha || isLoadingGurujis;
-  const isError = isErrorTelugu || isErrorBhagavatgitha || isErrorGurujis;
-  const error = errorTelugu || errorBhagavatgitha || errorGurujis; // Display the first error encountered
+  const isLoading = isLoadingTrending || isLoadingPopular;
+  const isError = isErrorTrending || isErrorPopular;
+  const error = errorTrending || errorPopular; // Display the first error encountered
 
   if (isLoading) {
     return (
@@ -56,7 +52,7 @@ const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
     );
   }
 
-  if (!podcasts || podcasts.length === 0) {
+  if (!uniquePodcasts || uniquePodcasts.length === 0) {
     return null;
   }
 
@@ -64,7 +60,7 @@ const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
     <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Podcasts</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
-        {podcasts.slice(0, 4).map((podcast) => (
+        {uniquePodcasts.slice(0, 4).map((podcast) => (
           <div
             key={podcast.podcastId}
             className="group cursor-pointer bg-card rounded-2xl p-3 text-center transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
