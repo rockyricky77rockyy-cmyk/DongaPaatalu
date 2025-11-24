@@ -15,24 +15,24 @@ const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
   const navigate = useNavigate();
 
   // Fetch specific podcasts
-  const { data: rawTalksPodcasts, isLoading: isLoadingRawTalks, isError: isErrorRawTalks, error: errorRawTalks } = useYouTubeMusicPodcasts('Raw Talks With VK channel podcast');
-  const { data: gurujiPodcasts, isLoading: isLoadingGuruji, isError: isErrorGuruji, error: errorGuruji } = useYouTubeMusicPodcasts('Guruji podcast');
-  const { data: bhagavatgithaPodcasts, isLoading: isLoadingBhagavatgitha, isError: isErrorBhagavatgitha, error: errorBhagavatgitha } = useYouTubeMusicPodcasts('Bhagavatgitha episodes podcast');
+  const { data: bhagavadgeethaPodcasts, isLoading: isLoadingBhagavadgeetha, isError: isErrorBhagavadgeetha, error: errorBhagavadgeetha } = useYouTubeMusicPodcasts('Bhagavadgeetha podcast');
+  const { data: teluguPodcasts, isLoading: isLoadingTelugu, isError: isErrorTelugu, error: errorTelugu } = useYouTubeMusicPodcasts('Telugu podcasts');
+  const { data: hindiPodcasts, isLoading: isLoadingHindi, isError: isErrorHindi, error: errorHindi } = useYouTubeMusicPodcasts('Hindi podcasts');
 
   // Combine all fetched podcasts
   const allPodcasts = [
-    ...(rawTalksPodcasts || []),
-    ...(gurujiPodcasts || []),
-    ...(bhagavatgithaPodcasts || []),
+    ...(bhagavadgeethaPodcasts || []),
+    ...(teluguPodcasts || []),
+    ...(hindiPodcasts || []),
   ];
 
   // Deduplicate podcasts by podcastId
   const uniquePodcasts = Array.from(new Map(allPodcasts.map(podcast => [podcast.podcastId, podcast])).values());
 
   // Aggregate loading and error states
-  const isLoading = isLoadingRawTalks || isLoadingGuruji || isLoadingBhagavatgitha;
-  const isError = isErrorRawTalks || isErrorGuruji || isErrorBhagavatgitha;
-  const error = errorRawTalks || errorGuruji || errorBhagavatgitha; // Display the first error encountered
+  const isLoading = isLoadingBhagavadgeetha || isLoadingTelugu || isLoadingHindi;
+  const isError = isErrorBhagavadgeetha || isErrorTelugu || isLoadingHindi;
+  const error = errorBhagavadgeetha || errorTelugu || errorHindi; // Display the first error encountered
 
   if (isLoading) {
     return (
