@@ -15,24 +15,24 @@ const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
   const navigate = useNavigate();
 
   // Fetch specific podcasts
-  const { data: rawTalksPodcasts, isLoading: isLoadingRawTalks, isError: isErrorRawTalks, error: errorRawTalks } = useYouTubeMusicPodcasts('Raw Talks With VK podcast');
-  const { data: bhagavatgithaPodcasts, isLoading: isLoadingBhagavatgitha, isError: isErrorBhagavatgitha, error: errorBhagavatgitha } = useYouTubeMusicPodcasts('Bhagavatgitha podcasts');
-  const { data: techPodcasts, isLoading: isLoadingTech, isError: isErrorTech, error: errorTech } = useYouTubeMusicPodcasts('Tech podcasts');
+  const { data: rawTalksPodcasts, isLoading: isLoadingRawTalks, isError: isErrorRawTalks, error: errorRawTalks } = useYouTubeMusicPodcasts('Raw Talks With VK channel podcast');
+  const { data: gurujiPodcasts, isLoading: isLoadingGuruji, isError: isErrorGuruji, error: errorGuruji } = useYouTubeMusicPodcasts('Guruji podcast');
+  const { data: bhagavatgithaPodcasts, isLoading: isLoadingBhagavatgitha, isError: isErrorBhagavatgitha, error: errorBhagavatgitha } = useYouTubeMusicPodcasts('Bhagavatgitha episodes podcast');
 
   // Combine all fetched podcasts
   const allPodcasts = [
     ...(rawTalksPodcasts || []),
+    ...(gurujiPodcasts || []),
     ...(bhagavatgithaPodcasts || []),
-    ...(techPodcasts || []),
   ];
 
   // Deduplicate podcasts by podcastId
   const uniquePodcasts = Array.from(new Map(allPodcasts.map(podcast => [podcast.podcastId, podcast])).values());
 
   // Aggregate loading and error states
-  const isLoading = isLoadingRawTalks || isLoadingBhagavatgitha || isLoadingTech;
-  const isError = isErrorRawTalks || isErrorBhagavatgitha || isErrorTech;
-  const error = errorRawTalks || errorBhagavatgitha || errorTech; // Display the first error encountered
+  const isLoading = isLoadingRawTalks || isLoadingGuruji || isLoadingBhagavatgitha;
+  const isError = isErrorRawTalks || isErrorGuruji || isErrorBhagavatgitha;
+  const error = errorRawTalks || errorGuruji || errorBhagavatgitha; // Display the first error encountered
 
   if (isLoading) {
     return (
