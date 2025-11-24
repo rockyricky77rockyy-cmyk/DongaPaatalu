@@ -13,13 +13,24 @@ interface HomePodcastSectionProps {
 
 const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
   const navigate = useNavigate();
-  // Fetch Telugu and English podcasts
+  // Fetch Telugu podcasts
   const { data: teluguPodcasts, isLoading: isLoadingTelugu, isError: isErrorTelugu, error: errorTelugu } = useYouTubeMusicPodcasts('Telugu podcasts');
-  const { data: englishPodcasts, isLoading: isLoadingEnglish, isError: isErrorEnglish, error: errorEnglish } = useYouTubeMusicPodcasts('English podcasts');
+  // Fetch Bhagavatgitha podcasts
+  const { data: bhagavatgithaPodcasts, isLoading: isLoadingBhagavatgitha, isError: isErrorBhagavatgitha, error: errorBhagavatgitha } = useYouTubeMusicPodcasts('Bhagavatgitha podcasts');
+  // Fetch Gurujis podcasts
+  const { data: gurujisPodcasts, isLoading: isLoadingGurujis, isError: isErrorGurujis, error: errorGurujis } = useYouTubeMusicPodcasts('Gurujis podcasts');
 
-  const podcasts = [...(teluguPodcasts || []), ...(englishPodcasts || [])];
+  const podcasts = [
+    ...(teluguPodcasts || []),
+    ...(bhagavatgithaPodcasts || []),
+    ...(gurujisPodcasts || []),
+  ];
 
-  if (isLoadingTelugu || isLoadingEnglish) {
+  const isLoading = isLoadingTelugu || isLoadingBhagavatgitha || isLoadingGurujis;
+  const isError = isErrorTelugu || isErrorBhagavatgitha || isErrorGurujis;
+  const error = errorTelugu || errorBhagavatgitha || errorGurujis; // Display the first error encountered
+
+  if (isLoading) {
     return (
       <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Podcasts</h2>
@@ -36,11 +47,11 @@ const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
     );
   }
 
-  if (isErrorTelugu || isErrorEnglish) {
+  if (isError) {
     return (
       <div className={cn(className)}>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Podcasts</h2>
-        <p className="text-destructive">Error loading podcasts: {errorTelugu?.message || errorEnglish?.message}</p>
+        <p className="text-destructive">Error loading podcasts: {error?.message}</p>
       </div>
     );
   }
