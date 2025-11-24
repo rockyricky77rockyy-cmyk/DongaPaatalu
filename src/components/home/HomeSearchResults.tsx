@@ -4,7 +4,7 @@ import TrackThumbnail from '@/components/TrackThumbnail';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack, YouTubeMusicArtist } from '@/hooks/use-youtube-music';
 import { useNavigate } from 'react-router-dom';
-import { Disc3, Play, ChevronLeft, Headphones } from 'lucide-react'; // Import Headphones icon
+import { Folder, Play, ChevronLeft, Headphones } from 'lucide-react'; // Changed Disc3 to Folder
 import { Button } from '@/components/ui/button';
 
 interface HomeSearchResultsProps {
@@ -102,7 +102,7 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                       navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
                     }}
                   >
-                    <Disc3 className="w-4 h-4 fill-current" />
+                    <Folder className="w-4 h-4 fill-current" /> {/* Changed to Folder icon */}
                   </Button>
                 </div>
               );
