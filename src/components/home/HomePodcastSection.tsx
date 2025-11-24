@@ -16,29 +16,23 @@ const HomePodcastSection = ({ className }: HomePodcastSectionProps) => {
 
   // Fetch specific podcasts
   const { data: rawTalksPodcasts, isLoading: isLoadingRawTalks, isError: isErrorRawTalks, error: errorRawTalks } = useYouTubeMusicPodcasts('Raw Talks With VK podcast');
-  const { data: pointEntantePodcasts, isLoading: isLoadingPointEntante, isError: isErrorPointEntante, error: errorPointEntante } = useYouTubeMusicPodcasts('Point Entante podcast');
-  const { data: tollywoodProjectPodcasts, isLoading: isLoadingTollywoodProject, isError: isErrorTollywoodProject, error: errorTollywoodProject } = useYouTubeMusicPodcasts('The Tollywood Project podcast');
-  const { data: chitraAlochanaPodcasts, isLoading: isLoadingChitraAlochana, isError: isErrorChitraAlochana, error: errorChitraAlochana } = useYouTubeMusicPodcasts('Chitra Alochana podcast');
   const { data: bhagavatgithaPodcasts, isLoading: isLoadingBhagavatgitha, isError: isErrorBhagavatgitha, error: errorBhagavatgitha } = useYouTubeMusicPodcasts('Bhagavatgitha podcasts');
-  const { data: gurujisPodcasts, isLoading: isLoadingGurujis, isError: isErrorGurujis, error: errorGurujis } = useYouTubeMusicPodcasts('Gurujis podcasts');
+  const { data: techPodcasts, isLoading: isLoadingTech, isError: isErrorTech, error: errorTech } = useYouTubeMusicPodcasts('Tech podcasts');
 
   // Combine all fetched podcasts
   const allPodcasts = [
     ...(rawTalksPodcasts || []),
-    ...(pointEntantePodcasts || []),
-    ...(tollywoodProjectPodcasts || []),
-    ...(chitraAlochanaPodcasts || []),
     ...(bhagavatgithaPodcasts || []),
-    ...(gurujisPodcasts || []),
+    ...(techPodcasts || []),
   ];
 
   // Deduplicate podcasts by podcastId
   const uniquePodcasts = Array.from(new Map(allPodcasts.map(podcast => [podcast.podcastId, podcast])).values());
 
   // Aggregate loading and error states
-  const isLoading = isLoadingRawTalks || isLoadingPointEntante || isLoadingTollywoodProject || isLoadingChitraAlochana || isLoadingBhagavatgitha || isLoadingGurujis;
-  const isError = isErrorRawTalks || isErrorPointEntante || isErrorTollywoodProject || isErrorChitraAlochana || isErrorBhagavatgitha || isErrorGurujis;
-  const error = errorRawTalks || errorPointEntante || errorTollywoodProject || errorChitraAlochana || errorBhagavatgitha || errorGurujis; // Display the first error encountered
+  const isLoading = isLoadingRawTalks || isLoadingBhagavatgitha || isLoadingTech;
+  const isError = isErrorRawTalks || isErrorBhagavatgitha || isErrorTech;
+  const error = errorRawTalks || errorBhagavatgitha || errorTech; // Display the first error encountered
 
   if (isLoading) {
     return (
