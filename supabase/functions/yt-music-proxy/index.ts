@@ -651,30 +651,45 @@ serve(async (req) => {
     if (pathname.endsWith('/related-tracks')) {
       const requestBody = await req.json();
       const { videoId, artist, album } = requestBody;
-      console.log(`[yt-music-proxy] Fetching related tracks for videoId: "${videoId}", artist: "${artist}", album: "${album}"`);
+      console.log(`[yt-music-proxy] RELATED TRACKS REQUEST: videoId="${videoId}", artist="${artist}", album="${album}"`);
 
       let relatedResults: any[] = [];
 
       // Ensure videoId is a non-empty string before attempting to use it with getSong
       if (videoId && videoId.trim() !== '') {
         try {
+          console.log(`[yt-music-proxy] Attempting ytmusic.getSong(${videoId}) for related tracks.`);
           const songInfo = await ytmusic.getSong(videoId);
           relatedResults = songInfo.related?.results || [];
+          console.log(`[yt-music-proxy] ytmusic.getSong(${videoId}) returned ${relatedResults.length} related results.`);
+          if (relatedResults.length > 0) {
+            console.log(`[yt-music-proxy] First 3 raw related results from getSong:`, JSON.stringify(relatedResults.slice(0, 3), null, 2));
+          }
         } catch (error) {
           console.warn(`[yt-music-proxy] Failed to get song info for videoId "${videoId}": ${error.message}. Falling back to search.`);
           // Fallback to search if getSong fails for a valid-looking videoId
           const searchQuery = `${artist || ''} ${album || ''} songs`.trim();
           if (searchQuery) {
+            console.log(`[yt-music-proxy] Falling back to search for related tracks with query: "${searchQuery}"`);
             const searchRes = await ytmusic.search(searchQuery, 'songs');
             relatedResults = searchRes;
+            console.log(`[yt-music-proxy] Fallback search returned ${relatedResults.length} results.`);
+            if (relatedResults.length > 0) {
+              console.log(`[yt-music-proxy] First 3 raw related results from fallback search:`, JSON.stringify(relatedResults.slice(0, 3), null, 2));
+            }
           }
         }
       } else if (artist || album) {
         // Fallback to searching if no valid videoId, combine artist and album for better results
         const searchQuery = `${artist || ''} ${album || ''} songs`.trim();
         if (searchQuery) {
+          console.log(`[yt-music-proxy] No videoId, searching for related tracks with query: "${searchQuery}"`);
           const searchRes = await ytmusic.search(searchQuery, 'songs');
           relatedResults = searchRes;
+          console.log(`[yt-music-proxy] Search returned ${relatedResults.length} results.`);
+          if (relatedResults.length > 0) {
+            console.log(`[yt-music-proxy] First 3 raw related results from search:`, JSON.stringify(relatedResults.slice(0, 3), null, 2));
+          }
         }
       }
 
@@ -700,6 +715,8 @@ serve(async (req) => {
           duration,
         };
       }).filter(Boolean);
+
+      console.log(`[yt-music-proxy] Formatted related tracks count: ${formattedTracks.length}`);
 
       return new Response(JSON.stringify({ relatedTracks: formattedTracks }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
