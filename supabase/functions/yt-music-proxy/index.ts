@@ -724,6 +724,54 @@ serve(async (req) => {
       });
     }
 
+    // NEW: Endpoint for fetching podcasts
+    if (pathname.endsWith('/podcasts')) {
+      const requestBody = await req.json();
+      const query = requestBody.query;
+      console.log(`[yt-music-proxy] Fetching podcasts for query: "${query}"`);
+
+      if (!query) {
+        return new Response(JSON.stringify({ error: 'Missing query for podcasts' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const podcastResults = await ytmusic.search(query, 'podcasts');
+      console.log(`[yt-music-proxy] Raw podcast results count: ${podcastResults.length}`);
+      if (podcastResults.length > 0) {
+        console.log(`[yt-music-proxy] First 3 raw podcast results:`, JSON.stringify(podcastResults.slice(0, 3), null, 2));
+      }
+
+      const formattedPodcasts = podcastResults.map((item: any) => {
+        const title = item.title || item.name || 'Unknown Podcast';
+        const artist = getArtistName(item.artists || item.artist);
+        const { url: thumbnail } = getBestThumbnail(item.thumbnails, `Podcast "${title}"`);
+        const podcastId = item.playlistId || item.browseId; // Use playlistId or browseId for podcasts
+
+        if (!podcastId) {
+          console.warn(`[yt-music-proxy] Skipping podcast "${title}" due to missing ID.`);
+          return null;
+        }
+
+        return {
+          type: 'podcast',
+          title,
+          artist,
+          thumbnail,
+          podcastId,
+          description: item.description || '', // Add description if available
+        };
+      }).filter(Boolean);
+
+      console.log(`[yt-music-proxy] Formatted podcast results count: ${formattedPodcasts.length}`);
+
+      return new Response(JSON.stringify({ podcasts: formattedPodcasts }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
 
     console.log(`[yt-music-proxy] Path not found: ${pathname}`);
     return new Response(JSON.stringify({ error: 'Not Found' }), {

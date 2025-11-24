@@ -39,8 +39,18 @@ export interface YouTubeMusicPlaylist {
   // trackCount?: number; // Removed as it's not reliably available in search results
 }
 
+// NEW: Define the expected structure of a YouTube Music podcast
+export interface YouTubeMusicPodcast {
+  type: 'podcast';
+  title: string;
+  artist: string; // Host or creator of the podcast
+  thumbnail?: string;
+  podcastId: string; // YouTube Music specific podcast ID (could be playlistId or browseId)
+  description?: string;
+}
+
 // Union type for search results
-export type YouTubeSearchResult = YouTubeMusicTrack | YouTubeMusicAlbum | YouTubeMusicArtist | YouTubeMusicPlaylist;
+export type YouTubeSearchResult = YouTubeMusicTrack | YouTubeMusicAlbum | YouTubeMusicArtist | YouTubeMusicPlaylist | YouTubeMusicPodcast;
 
 export const useYouTubeMusicSearch = (query: string) => {
   return useQuery<YouTubeSearchResult[], Error>({
@@ -77,7 +87,7 @@ export const useYouTubeAlbumTracks = (albumId: string | null) => {
       });
 
       if (error) {
-        console.error("Supabase Edge Function Error:", error);
+        console.error("Supabase Edge Function Error (album-tracks):", error);
         throw new Error(error.message || "An unknown error occurred with the Edge Function.");
       }
 
@@ -273,5 +283,28 @@ export const useYouTubeRelatedTracks = (currentTrack: YouTubeMusicTrack | null) 
     enabled: !!currentTrack, // Only enable query if a current track is playing
     staleTime: 5 * 60 * 1000, // Cache related tracks for 5 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+  });
+};
+
+// NEW: Hook for fetching podcasts
+export const useYouTubeMusicPodcasts = (query?: string | null) => {
+  return useQuery<YouTubeMusicPodcast[], Error>({
+    queryKey: ["youtubeMusicPodcasts", query],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/podcasts', {
+        body: { query: query || 'popular podcasts' }, // Default to popular podcasts
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error (podcasts):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.podcasts) {
+        return data.podcasts as YouTubeMusicPodcast[];
+      }
+      return [];
+    },
+    enabled: true,
   });
 };

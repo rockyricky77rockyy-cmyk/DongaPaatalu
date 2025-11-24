@@ -14,6 +14,7 @@ import HomeArtistsSection from "@/components/home/HomeArtistsSection";
 import HomeGenresSection from "@/components/home/HomeGenresSection";
 import HomePlaylistsSection from "@/components/home/HomePlaylistsSection";
 import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection";
+import HomePodcastSection from "@/components/home/HomePodcastSection"; // NEW: Import HomePodcastSection
 import AppSidebar from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
@@ -173,6 +174,7 @@ const Home = () => {
                 <HomeAlbumsSection />
                 <HomePlaylistsSection /> {/* Moved Playlists after Albums */}
                 <HomeArtistsSection />
+                <HomePodcastSection /> {/* NEW: Added HomePodcastSection here */}
                 <HomeGenresSection />
                 <HomeRadioStationsSection />
               </>

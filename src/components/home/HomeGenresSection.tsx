@@ -2,7 +2,7 @@ import React from 'react';
 import { Mic2, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGenres } from '@/hooks/use-genres';
+// import { useGenres } from '@/hooks/use-genres'; // Removed useGenres hook
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -10,9 +10,22 @@ interface HomeGenresSectionProps {
   className?: string;
 }
 
+// Hardcoded popular genres
+const popularGenres = [
+  { id: 'telugu', name: 'Telugu', color: 'bg-red-600' },
+  { id: 'hindi', name: 'Hindi', color: 'bg-blue-600' },
+  { id: 'english', name: 'English', color: 'bg-green-600' },
+  { id: 'pop', name: 'Pop', color: 'bg-purple-600' }, // Added Pop as an example
+];
+
 const HomeGenresSection = ({ className }: HomeGenresSectionProps) => {
   const navigate = useNavigate();
-  const { data: genres, isLoading, isError, error } = useGenres();
+  // const { data: genres, isLoading, isError, error } = useGenres(); // No longer needed
+
+  // Simulate loading for consistency with other sections, though data is static
+  const isLoading = false; 
+  const isError = false;
+  const error = null;
 
   if (isLoading) {
     return (
@@ -36,7 +49,7 @@ const HomeGenresSection = ({ className }: HomeGenresSectionProps) => {
     );
   }
 
-  if (!genres || genres.length === 0) {
+  if (!popularGenres || popularGenres.length === 0) {
     return null;
   }
 
@@ -44,11 +57,11 @@ const HomeGenresSection = ({ className }: HomeGenresSectionProps) => {
     <div className={cn(className)}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Genres</h2>
       <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
-        {genres.slice(0, 4).map((genre) => (
+        {popularGenres.slice(0, 4).map((genre) => (
           <div
             key={genre.id}
             className={`group cursor-pointer ${genre.color} rounded-xl p-3 text-center shadow-card border border-border transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink`}
-            onClick={() => navigate('/genre')}
+            onClick={() => navigate(`/genre/songs`, { state: { queryName: genre.name } })}
           >
             <Mic2 className="w-8 h-8 text-white opacity-70 mx-auto mb-2" />
             <h3 className="text-base font-semibold text-white truncate">{genre.name}</h3>
