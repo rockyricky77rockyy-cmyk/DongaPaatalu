@@ -18,29 +18,53 @@ const ArtistDetailsPage = () => {
   console.log("Received state from location:", { initialArtistName, initialArtistThumbnail });
 
   const { data, isLoading, isError, error } = useYouTubeArtistTracks(artistId || null);
-  const { playTrack, addRecentlySearched } = useMusicPlayer();
+  const { playTrack } = useMusicPlayer();
 
   const artistName = String(data?.artistName || initialArtistName || 'Unknown Artist'); // Ensure artistName is always a string
   const artistThumbnail = data?.artistThumbnail || initialArtistThumbnail;
 
   const handlePlayAll = () => {
     if (data && data.tracks.length > 0) {
-      // Add all tracks to recently searched for queue management
-      data.tracks.forEach(track => addRecentlySearched({
-        videoId: track.videoId,
-        title: track.title,
-        artist: track.artist,
-        thumbnail: track.thumbnail,
-        album: track.album,
-      }));
-      // Play the first track
-      playTrack({
-        videoId: data.tracks[0].videoId,
-        title: data.tracks[0].title,
-        artist: data.tracks[0].artist,
-        thumbnail: data.tracks[0].thumbnail,
-        album: data.tracks[0].album,
-      });
+      // Play the first track and set the entire artist's top tracks as the current playlist
+      playTrack(
+        {
+          videoId: data.tracks[0].videoId,
+          title: data.tracks[0].title,
+          artist: data.tracks[0].artist,
+          thumbnail: data.tracks[0].thumbnail,
+          album: data.tracks[0].album,
+        },
+        data.tracks.map(track => ({ // Map to the simpler Track interface
+          videoId: track.videoId,
+          title: track.title,
+          artist: track.artist,
+          thumbnail: track.thumbnail,
+          album: track.album,
+        })),
+        0 // Start index
+      );
+    }
+  };
+
+  const handlePlayIndividualTrack = (track: typeof data.tracks[0], index: number) => {
+    if (data && data.tracks.length > 0) {
+      playTrack(
+        {
+          videoId: track.videoId,
+          title: track.title,
+          artist: track.artist,
+          thumbnail: track.thumbnail,
+          album: track.album,
+        },
+        data.tracks.map(t => ({ // Map to the simpler Track interface
+          videoId: t.videoId,
+          title: t.title,
+          artist: t.artist,
+          thumbnail: t.thumbnail,
+          album: t.album,
+        })),
+        index // Start index for the clicked track
+      );
     }
   };
 
@@ -120,11 +144,11 @@ const ArtistDetailsPage = () => {
         <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">Top Tracks</h2>
         <div className="space-y-4">
           {data?.tracks && data.tracks.length > 0 ? (
-            data.tracks.map((track) => (
+            data.tracks.map((track, index) => (
               <div
                 key={track.videoId}
                 className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer border border-border hover:border-primary/50 hover:shadow-neon"
-                onClick={() => playTrack({ videoId: track.videoId, title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album })}
+                onClick={() => handlePlayIndividualTrack(track, index)}
               >
                 <TrackThumbnail
                   thumbnail={track.thumbnail}

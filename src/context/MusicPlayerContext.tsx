@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from 'react';
+import { supabase } from "@/integrations/supabase/client"; // Import supabase client
+import { YouTubeMusicTrack } from '@/hooks/use-youtube-music'; // Import YouTubeMusicTrack
 
 interface Track {
   videoId: string;
@@ -13,7 +15,7 @@ type RepeatMode = 'none' | 'track' | 'all';
 interface MusicPlayerContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
-  playTrack: (track: Track) => void;
+  playTrack: (track: Track, playlist?: Track[], startIndex?: number) => void;
   pauseTrack: () => void;
   resumeTrack: () => void;
   togglePlayPause: () => void;
@@ -26,14 +28,16 @@ interface MusicPlayerContextType {
   setCurrentTime: (time: number) => void;
   recentlySearched: Track[]; // List of recently searched tracks
   addRecentlySearched: (track: Track) => void; // Function to add a track to recently searched
-  playNextTrack: () => void; // Play the next track in the recently searched list
-  playPreviousTrack: () => void; // Play the previous track in the recently searched list
+  playNextTrack: () => void; // Play the next track in the current playlist/queue
+  playPreviousTrack: () => void; // Play the previous track in the current playlist/queue
   isShuffling: boolean; // New: State for shuffle mode
   toggleShuffle: () => void; // New: Function to toggle shuffle mode
   repeatMode: RepeatMode; // New: State for repeat mode
   toggleRepeatMode: () => void; // New: Function to toggle repeat mode
   setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>; // Added setIsPlaying
   setCurrentTrack: React.Dispatch<React.SetStateAction<Track | null>>; // Added setCurrentTrack
+  currentPlaylist: Track[]; // The currently active playlist/queue
+  currentPlaylistIndex: number | null; // The index of the current track in the active playlist
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -54,9 +58,10 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
     return [];
   });
-  const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null);
-  const [isShuffling, setIsShuffling] = useState(false); // New state
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none'); // New state
+  const [currentPlaylist, setCurrentPlaylist] = useState<Track[]>([]); // New state for the active playlist
+  const [currentPlaylistIndex, setCurrentPlaylistIndex] = useState<number | null>(null); // New state for the index in the active playlist
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
   const playerRef = useRef<any | null>(null);
 
   // Effect to save recently searched to localStorage whenever it changes
@@ -66,16 +71,6 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [recentlySearched]);
 
-  // Effect to update currentTrackIndex when currentTrack or recentlySearched changes
-  useEffect(() => {
-    if (currentTrack && recentlySearched.length > 0) {
-      const index = recentlySearched.findIndex(t => t.videoId === currentTrack.videoId);
-      setCurrentTrackIndex(index !== -1 ? index : null);
-    } else {
-      setCurrentTrackIndex(null);
-    }
-  }, [currentTrack, recentlySearched]);
-
   const addRecentlySearched = useCallback((track: Track) => {
     setRecentlySearched((prev) => {
       const filtered = prev.filter((t) => t.videoId !== track.videoId);
@@ -83,104 +78,160 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  const playTrack = useCallback((track: Track) => {
+  const playTrack = useCallback((track: Track, playlist?: Track[], startIndex?: number) => {
     setCurrentTrack(track);
     setIsPlaying(true);
     addRecentlySearched(track);
+
+    if (playlist && startIndex !== undefined) {
+      setCurrentPlaylist(playlist);
+      setCurrentPlaylistIndex(startIndex);
+    } else {
+      // If playing a single track not from an explicit playlist, create a temporary playlist
+      setCurrentPlaylist([track]);
+      setCurrentPlaylistIndex(0);
+    }
 
     if (playerRef.current && playerRef.current.loadVideoById) {
       playerRef.current.loadVideoById(track.videoId);
     }
   }, [addRecentlySearched]);
 
-  const playNextTrack = useCallback(() => {
-    if (!currentTrack || recentlySearched.length === 0) {
-      // If no current track or no recently searched, stop playback
+  const loadAndPlayRelatedTracks = useCallback(async (lastPlayedTrack: Track) => {
+    console.log("MusicPlayerContext: Attempting to load and play related tracks.");
+    try {
+      const { data, error } = await supabase.functions.invoke('yt-music-proxy/related-tracks', {
+        body: {
+          videoId: lastPlayedTrack.videoId,
+          artist: lastPlayedTrack.artist,
+          album: lastPlayedTrack.album,
+        },
+      });
+
+      if (error) {
+        console.error("Supabase Edge Function Error (related-tracks in context):", error);
+        throw new Error(error.message || "An unknown error occurred with the Edge Function.");
+      }
+
+      if (data && data.relatedTracks && data.relatedTracks.length > 0) {
+        const relatedTracks = data.relatedTracks as YouTubeMusicTrack[];
+        setCurrentPlaylist(relatedTracks);
+        setCurrentPlaylistIndex(0);
+        playTrack(relatedTracks[0], relatedTracks, 0); // Play the first related track
+        console.log("MusicPlayerContext: Successfully loaded and started playing related tracks.");
+      } else {
+        console.log("MusicPlayerContext: No related tracks found.");
+        setIsPlaying(false);
+        setCurrentTrack(null);
+        setCurrentPlaylist([]);
+        setCurrentPlaylistIndex(null);
+        playerRef.current?.stopVideo();
+      }
+    } catch (error) {
+      console.error("MusicPlayerContext: Failed to load related tracks:", error);
       setIsPlaying(false);
-      setCurrentTrack(null); // Explicitly clear current track
-      playerRef.current?.stopVideo(); // Stop the player
+      setCurrentTrack(null);
+      setCurrentPlaylist([]);
+      setCurrentPlaylistIndex(null);
+      playerRef.current?.stopVideo();
+    }
+  }, [playTrack]);
+
+
+  const playNextTrack = useCallback(() => {
+    if (!currentTrack || currentPlaylist.length === 0 || currentPlaylistIndex === null) {
+      console.log("MusicPlayerContext: No current track, empty playlist, or invalid index. Stopping playback.");
+      setIsPlaying(false);
+      setCurrentTrack(null);
+      setCurrentPlaylist([]);
+      setCurrentPlaylistIndex(null);
+      playerRef.current?.stopVideo();
       return;
     }
 
     if (repeatMode === 'track') {
+      console.log("MusicPlayerContext: Repeat track mode, replaying current track.");
       playerRef.current?.seekTo(0);
       playerRef.current?.playVideo();
       return;
     }
 
-    let nextIndex = currentTrackIndex;
+    let nextIndex = currentPlaylistIndex;
 
     if (isShuffling) {
       let randomIndex;
       do {
-        randomIndex = Math.floor(Math.random() * recentlySearched.length);
-      } while (randomIndex === currentTrackIndex && recentlySearched.length > 1); // Ensure different track if more than one
+        randomIndex = Math.floor(Math.random() * currentPlaylist.length);
+      } while (randomIndex === currentPlaylistIndex && currentPlaylist.length > 1);
       nextIndex = randomIndex;
-    } else if (currentTrackIndex !== null) {
-      nextIndex = (currentTrackIndex + 1) % recentlySearched.length;
+    } else {
+      nextIndex = (currentPlaylistIndex + 1);
     }
 
-    if (nextIndex !== null && recentlySearched[nextIndex]) {
-      const nextTrack = recentlySearched[nextIndex];
-      setCurrentTrack(nextTrack);
-      setIsPlaying(true);
-      playerRef.current?.loadVideoById(nextTrack.videoId);
-    } else if (repeatMode === 'all' && recentlySearched.length > 0) {
-      // If repeat all and no next track (end of list), loop to first track
-      const firstTrack = recentlySearched[0];
-      setCurrentTrack(firstTrack);
-      setIsPlaying(true);
-      playerRef.current?.loadVideoById(firstTrack.videoId);
+    if (nextIndex < currentPlaylist.length) {
+      console.log(`MusicPlayerContext: Playing next track in current playlist. Index: ${nextIndex}`);
+      const nextTrack = currentPlaylist[nextIndex];
+      setCurrentPlaylistIndex(nextIndex);
+      playTrack(nextTrack, currentPlaylist, nextIndex);
+    } else if (repeatMode === 'all') {
+      console.log("MusicPlayerContext: End of playlist, repeat all mode. Looping to first track.");
+      const firstTrack = currentPlaylist[0];
+      setCurrentPlaylistIndex(0);
+      playTrack(firstTrack, currentPlaylist, 0);
     } else {
-      setIsPlaying(false); // Stop if no next track and not repeating
-      setCurrentTrack(null); // Explicitly clear current track
-      playerRef.current?.stopVideo(); // Stop the player
+      console.log("MusicPlayerContext: End of playlist, no repeat. Attempting to load related tracks.");
+      // End of current explicit playlist (e.g., album finished), transition to related tracks
+      loadAndPlayRelatedTracks(currentTrack);
     }
-  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef]);
+  }, [currentTrack, currentPlaylist, currentPlaylistIndex, isShuffling, repeatMode, playerRef, playTrack, loadAndPlayRelatedTracks]);
 
   const playPreviousTrack = useCallback(() => {
-    if (!currentTrack || recentlySearched.length === 0) {
+    if (!currentTrack || currentPlaylist.length === 0 || currentPlaylistIndex === null) {
+      console.log("MusicPlayerContext: No current track, empty playlist, or invalid index. Stopping playback.");
       setIsPlaying(false);
       setCurrentTrack(null);
+      setCurrentPlaylist([]);
+      setCurrentPlaylistIndex(null);
       playerRef.current?.stopVideo();
       return;
     }
 
     if (repeatMode === 'track') {
+      console.log("MusicPlayerContext: Repeat track mode, replaying current track.");
       playerRef.current?.seekTo(0);
       playerRef.current?.playVideo();
       return;
     }
 
-    let prevIndex = currentTrackIndex;
+    let prevIndex = currentPlaylistIndex;
 
     if (isShuffling) {
       let randomIndex;
       do {
-        randomIndex = Math.floor(Math.random() * recentlySearched.length);
-      } while (randomIndex === currentTrackIndex && recentlySearched.length > 1);
+        randomIndex = Math.floor(Math.random() * currentPlaylist.length);
+      } while (randomIndex === currentPlaylistIndex && currentPlaylist.length > 1);
       prevIndex = randomIndex;
-    } else if (currentTrackIndex !== null) {
-      prevIndex = (currentTrackIndex - 1 + recentlySearched.length) % recentlySearched.length;
+    } else {
+      prevIndex = (currentPlaylistIndex - 1);
     }
 
-    if (prevIndex !== null && recentlySearched[prevIndex]) {
-      const prevTrack = recentlySearched[prevIndex];
-      setCurrentTrack(prevTrack);
-      setIsPlaying(true);
-      playerRef.current?.loadVideoById(prevTrack.videoId);
-    } else if (repeatMode === 'all' && recentlySearched.length > 0) {
-      // If repeat all and no previous track (start of list), loop to last track
-      const lastTrack = recentlySearched[recentlySearched.length - 1];
-      setCurrentTrack(lastTrack);
-      setIsPlaying(true);
-      playerRef.current?.loadVideoById(lastTrack.videoId);
+    if (prevIndex >= 0) {
+      console.log(`MusicPlayerContext: Playing previous track in current playlist. Index: ${prevIndex}`);
+      const prevTrack = currentPlaylist[prevIndex];
+      setCurrentPlaylistIndex(prevIndex);
+      playTrack(prevTrack, currentPlaylist, prevIndex);
+    } else if (repeatMode === 'all') {
+      console.log("MusicPlayerContext: Start of playlist, repeat all mode. Looping to last track.");
+      const lastTrack = currentPlaylist[currentPlaylist.length - 1];
+      setCurrentPlaylistIndex(currentPlaylist.length - 1);
+      playTrack(lastTrack, currentPlaylist, currentPlaylist.length - 1);
     } else {
+      console.log("MusicPlayerContext: Start of playlist, no repeat. Cannot go back further.");
+      // Optionally, stop playback or loop to the end if desired
       setIsPlaying(false);
-      setCurrentTrack(null);
       playerRef.current?.stopVideo();
     }
-  }, [currentTrack, currentTrackIndex, recentlySearched, isShuffling, repeatMode, playerRef]);
+  }, [currentTrack, currentPlaylist, currentPlaylistIndex, isShuffling, repeatMode, playerRef, playTrack]);
 
   const pauseTrack = useCallback(() => {
     setIsPlaying(false);
@@ -216,16 +267,6 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  // Handle track ending - this is called from App.tsx's onStateChange
-  const handleTrackEnd = useCallback(() => {
-    if (repeatMode === 'track') {
-      playerRef.current?.seekTo(0);
-      playerRef.current?.playVideo();
-    } else {
-      playNextTrack();
-    }
-  }, [repeatMode, playNextTrack, playerRef]);
-
   const value = {
     currentTrack,
     isPlaying,
@@ -244,12 +285,14 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     addRecentlySearched,
     playNextTrack,
     playPreviousTrack,
-    isShuffling, // New
-    toggleShuffle, // New
-    repeatMode, // New
-    toggleRepeatMode, // New
-    setIsPlaying, // Exposed setIsPlaying
-    setCurrentTrack, // Exposed setCurrentTrack
+    isShuffling,
+    toggleShuffle,
+    repeatMode,
+    toggleRepeatMode,
+    setIsPlaying,
+    setCurrentTrack,
+    currentPlaylist, // Expose currentPlaylist
+    currentPlaylistIndex, // Expose currentPlaylistIndex
   };
 
   return (

@@ -49,19 +49,11 @@ const AppContent = () => {
       console.log("App.tsx: Player state is PAUSED. Updating context.");
       setIsPlaying(false);
     } else if (event.data === window.YT.PlayerState.ENDED) {
-      console.log("App.tsx: Player state is ENDED. Handling track end.");
+      console.log("App.tsx: Player state is ENDED. Handling track end by calling playNextTrack.");
       setIsPlaying(false);
-      if (repeatMode === 'track') {
-        console.log("App.tsx: Repeat track mode, seeking to 0 and replaying.");
-        playerRef.current?.seekTo(0);
-        playerRef.current?.playVideo();
-        setIsPlaying(true);
-      } else {
-        console.log("App.tsx: Not repeating track, playing next track.");
-        setPlaybackProgress(0);
-        setCurrentTime(0);
-        playNextTrack(); 
-      }
+      setPlaybackProgress(0);
+      setCurrentTime(0);
+      playNextTrack(); // Let MusicPlayerContext handle repeat/next logic
     } else if (event.data === window.YT.PlayerState.BUFFERING) {
       console.log("App.tsx: Player state is BUFFERING.");
       // Optionally set isPlaying to false or show a loading indicator

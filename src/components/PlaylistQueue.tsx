@@ -12,19 +12,20 @@ interface PlaylistQueueProps {
   isMobile?: boolean;
   isOpen?: boolean;
   onToggle?: () => void;
-  currentTrack?: YouTubeMusicTrack | null; // Changed to YouTubeMusicTrack
+  currentTrack?: YouTubeMusicTrack | null;
 }
 
 const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggle, currentTrack }: PlaylistQueueProps) => {
-  const { playTrack } = useMusicPlayer();
+  const { playTrack, currentPlaylist, currentPlaylistIndex } = useMusicPlayer();
   const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
-  // For mobile, we now always show related tracks (recommendations).
-  // For desktop, this component is used in ExpandablePlayer, which also shows related tracks.
-  const tracksToDisplay = relatedTracks;
-  const isLoadingData = isLoadingRelated;
-  const isErrorData = isErrorRelated;
-  const errorData = errorRelated;
+  // Determine which tracks to display: currentPlaylist if available, otherwise relatedTracks
+  const tracksToDisplay = currentPlaylist.length > 0 ? currentPlaylist : relatedTracks;
+  const isLoadingData = currentPlaylist.length === 0 ? isLoadingRelated : false; // Only show loading for related if no current playlist
+  const isErrorData = currentPlaylist.length === 0 ? isErrorRelated : false;
+  const errorData = currentPlaylist.length === 0 ? errorRelated : undefined;
+
+  const title = currentPlaylist.length > 0 ? "Current Playlist" : "Recommendations";
 
   if (isLoadingData) {
     return (
@@ -32,7 +33,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
         <div className="p-4 space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-bold text-foreground">
-              Recommendations
+              {title}
             </h2>
             {!isMobile && <Search className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />}
           </div>
@@ -77,7 +78,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
   if (isErrorData) {
     return (
       <div className="flex flex-col bg-card/50 backdrop-blur-sm h-full p-4">
-        <p className="text-destructive">Error loading recommendations: {errorData?.message}</p>
+        <p className="text-destructive">Error loading {title.toLowerCase()}: {errorData?.message}</p>
       </div>
     );
   }
@@ -88,7 +89,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
       <div className="p-4 space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-bold text-foreground">
-            Recommendations
+            {title}
           </h2>
           {isMobile && onToggle && ( // Show toggle button only on mobile
             <Button variant="ghost" size="icon" onClick={onToggle} className="w-8 h-8 text-muted-foreground hover:text-foreground">
@@ -130,7 +131,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
         <ScrollArea className="flex-1">
           <div className="px-4 pb-4 space-y-2">
             {tracksToDisplay && tracksToDisplay.length > 0 ? (
-              tracksToDisplay.map((track) => (
+              tracksToDisplay.map((track, index) => (
                 <div
                   key={track.videoId}
                   className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
@@ -138,7 +139,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
                       ? 'bg-primary/20 border border-primary/50 shadow-neon'
                       : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
+                  onClick={() => playTrack(track, currentPlaylist.length > 0 ? currentPlaylist : relatedTracks, currentPlaylist.length > 0 ? index : undefined)}
                 >
                   {/* Album Art */}
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
@@ -164,7 +165,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
               ))
             ) : (
               <p className="text-muted-foreground text-center py-8">
-                No recommendations found. Play a song to see suggestions!
+                No {title.toLowerCase()} found. Play a song to see suggestions!
               </p>
             )}
           </div>
