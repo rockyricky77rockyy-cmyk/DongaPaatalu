@@ -19,13 +19,19 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
   const { playTrack, currentPlaylist, currentPlaylistIndex } = useMusicPlayer();
   const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
-  // Determine which tracks to display: currentPlaylist if available, otherwise relatedTracks
-  const tracksToDisplay = currentPlaylist.length > 0 ? currentPlaylist : relatedTracks;
-  const isLoadingData = currentPlaylist.length === 0 ? isLoadingRelated : false; // Only show loading for related if no current playlist
-  const isErrorData = currentPlaylist.length === 0 ? isErrorRelated : false;
-  const errorData = currentPlaylist.length === 0 ? errorRelated : undefined;
+  // Determine if we are in a "single track" mode (i.e., currentPlaylist has only one track, which is the current one)
+  const isSingleTrackMode = currentPlaylist.length === 1 && currentPlaylist[0].videoId === currentTrack?.videoId;
 
-  const title = currentPlaylist.length > 0 ? "Current Playlist" : "Recommendations";
+  // Determine which tracks to display based on the mode
+  const tracksToDisplay = isSingleTrackMode ? relatedTracks : (currentPlaylist.length > 0 ? currentPlaylist : relatedTracks);
+  
+  // Determine the title based on the mode
+  const title = isSingleTrackMode ? "Recommendations" : (currentPlaylist.length > 0 ? "Current Playlist" : "Recommendations");
+
+  // Loading/error state should reflect what's being displayed
+  const isLoadingData = (isSingleTrackMode || currentPlaylist.length === 0) ? isLoadingRelated : false;
+  const isErrorData = (isSingleTrackMode || currentPlaylist.length === 0) ? isErrorRelated : false;
+  const errorData = (isSingleTrackMode || currentPlaylist.length === 0) ? errorRelated : undefined;
 
   if (isLoadingData) {
     return (
