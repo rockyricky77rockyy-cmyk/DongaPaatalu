@@ -15,7 +15,7 @@ type RepeatMode = 'none' | 'track' | 'all';
 interface MusicPlayerContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
-  playTrack: (track: Track, playlist?: Track[], startIndex?: number) => void;
+  playTrack: (track: Track, playlist?: Track[], startIndex?: number, isFromRecommendations?: boolean) => void; // Added isFromRecommendations
   pauseTrack: () => void;
   resumeTrack: () => void;
   togglePlayPause: () => void;
@@ -78,12 +78,17 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  const playTrack = useCallback((track: Track, playlist?: Track[], startIndex?: number) => {
+  const playTrack = useCallback((track: Track, playlist?: Track[], startIndex?: number, isFromRecommendations: boolean = false) => {
     setCurrentTrack(track);
     setIsPlaying(true);
     addRecentlySearched(track);
 
-    if (playlist && startIndex !== undefined) {
+    if (isFromRecommendations) {
+      // If playing a track explicitly from recommendations, treat it as a new single track
+      // so that new recommendations are fetched after it finishes.
+      setCurrentPlaylist([track]);
+      setCurrentPlaylistIndex(0);
+    } else if (playlist && startIndex !== undefined) {
       setCurrentPlaylist(playlist);
       setCurrentPlaylistIndex(startIndex);
     } else {

@@ -145,7 +145,12 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
                       ? 'bg-primary/20 border border-primary/50 shadow-neon'
                       : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => playTrack(track, currentPlaylist.length > 0 ? currentPlaylist : relatedTracks, currentPlaylist.length > 0 ? index : undefined)}
+                  onClick={() => playTrack(
+                    track, 
+                    currentPlaylist.length > 0 ? currentPlaylist : relatedTracks, 
+                    currentPlaylist.length > 0 ? index : undefined,
+                    isSingleTrackMode // Pass isFromRecommendations flag
+                  )}
                 >
                   {/* Album Art */}
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
