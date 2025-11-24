@@ -9,6 +9,10 @@ const RadioPage = () => {
   const navigate = useNavigate();
   const { data: radioStations, isLoading, isError, error } = useRadioStations();
 
+  const handleRadioStationClick = (stationName: string) => {
+    navigate(`/radio/songs`, { state: { queryName: stationName } });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
@@ -56,7 +60,11 @@ const RadioPage = () => {
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Radio</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {radioStations?.map((station) => (
-            <div key={station.id} className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon">
+            <div 
+              key={station.id} 
+              className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border flex items-center gap-4 hover:border-primary/50 hover:shadow-neon"
+              onClick={() => handleRadioStationClick(station.name)}
+            >
               <Radio className={`w-8 h-8 ${station.icon_color}`} />
               <div>
                 <h2 className="text-xl font-semibold text-foreground">{station.name}</h2>
