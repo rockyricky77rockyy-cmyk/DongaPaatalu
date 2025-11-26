@@ -2,11 +2,12 @@ import React from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Play, Podcast } from 'lucide-react';
-import { useYouTubePlaylistTracks } from '@/hooks/use-youtube-music'; // Reusing for podcast episodes
+import { useYouTubePlaylistTracks } from '@/hooks/use-youtube-music';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
-import { formatDuration } from '@/lib/utils'; // Import formatDuration
+import { formatDuration } from '@/lib/utils';
+import Visualizer from '@/components/Visualizer'; // Import Visualizer
 
 const PodcastDetailsPage = () => {
   const navigate = useNavigate();
@@ -34,9 +35,8 @@ const PodcastDetailsPage = () => {
   console.log("Received podcastId from URL params:", podcastId);
   console.log("Received state from location:", { initialPodcastTitle, initialPodcastThumbnail });
 
-  // Use useYouTubePlaylistTracks, treating podcastId as a playlistId for episodes
   const { data, isLoading, isError, error } = useYouTubePlaylistTracks(podcastId, initialPodcastTitle || null);
-  const { playTrack } = useMusicPlayer();
+  const { playTrack, currentTrack, isPlaying } = useMusicPlayer(); // Get currentTrack and isPlaying
 
   const podcastTitle = String(data?.playlistName || initialPodcastTitle || 'Unknown Podcast');
   const podcastThumbnail = data?.playlistThumbnail || initialPodcastThumbnail;
@@ -162,28 +162,38 @@ const PodcastDetailsPage = () => {
         <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">Episodes</h2>
         <div className="space-y-4">
           {data?.tracks && data.tracks.length > 0 ? (
-            data.tracks.map((track, index) => (
-              <div
-                key={track.videoId}
-                className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer border border-border hover:border-primary/50 hover:shadow-neon"
-                onClick={() => handlePlayIndividualEpisode(track, index)}
-              >
-                <TrackThumbnail
-                  thumbnail={track.thumbnail}
-                  title={track.title}
-                  className="w-12 h-12 rounded-md flex-shrink-0"
-                  iconClassName="w-6 h-6 text-primary"
-                />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg text-foreground truncate">{track.title}</h3>
-                  <p className="text-sm text-muted-foreground truncate">{String(track.artist)}</p>
+            data.tracks.map((track, index) => {
+              const isCurrentTrack = currentTrack?.videoId === track.videoId;
+              return (
+                <div
+                  key={track.videoId}
+                  className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer border border-border hover:border-primary/50 hover:shadow-neon"
+                  onClick={() => handlePlayIndividualEpisode(track, index)}
+                >
+                  <TrackThumbnail
+                    thumbnail={track.thumbnail}
+                    title={track.title}
+                    className="w-12 h-12 rounded-md flex-shrink-0"
+                    iconClassName="w-6 h-6 text-primary"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg text-foreground truncate">{track.title}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{String(track.artist)}</p>
+                  </div>
+                  {track.duration && (
+                    <div className="flex items-center">
+                      {isCurrentTrack && isPlaying && (
+                        <Visualizer barCount={5} className="h-4 w-8 mr-2" isPlaying={isPlaying} animationIntervalMs={150} />
+                      )}
+                      <span className="text-sm text-muted-foreground">{formatDuration(track.duration)}</span>
+                    </div>
+                  )}
+                  <Button size="icon" variant="ghost" className="text-muted-foreground hover:text-primary">
+                    <Play className="w-4 h-4 fill-current" />
+                  </Button>
                 </div>
-                {track.duration && <span className="text-sm text-muted-foreground">{formatDuration(track.duration)}</span>}
-                <Button size="icon" variant="ghost" className="text-muted-foreground hover:text-primary">
-                  <Play className="w-4 h-4 fill-current" />
-                </Button>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className="text-muted-foreground">No episodes found for this podcast.</p>
           )}

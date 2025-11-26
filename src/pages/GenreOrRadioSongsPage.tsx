@@ -6,19 +6,19 @@ import { useYouTubeMusicSearch, YouTubeMusicTrack } from '@/hooks/use-youtube-mu
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
-import { formatDuration } from '@/lib/utils'; // Import formatDuration
+import { formatDuration } from '@/lib/utils';
+import Visualizer from '@/components/Visualizer'; // Import Visualizer
 
 const GenreOrRadioSongsPage = () => {
   const navigate = useNavigate();
-  const { queryType } = useParams<{ queryType: string }>(); // 'genre' or 'radio'
+  const { queryType } = useParams<{ queryType: string }>();
   const location = useLocation();
-  const { queryName } = (location.state || {}) as { queryName?: string }; // The actual genre or radio station name
+  const { queryName } = (location.state || {}) as { queryName?: string };
 
-  // Construct the search term
   const searchTerm = queryName ? `${queryName} songs` : '';
 
   const { data: tracks, isLoading, isError, error } = useYouTubeMusicSearch(searchTerm);
-  const { playTrack } = useMusicPlayer();
+  const { playTrack, currentTrack, isPlaying } = useMusicPlayer(); // Get currentTrack and isPlaying
 
   if (!queryName) {
     return (
@@ -81,29 +81,39 @@ const GenreOrRadioSongsPage = () => {
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">{queryName} Songs</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {playableTracks.length > 0 ? (
-            playableTracks.map((track, index) => (
-              <div
-                key={track.videoId}
-                className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border relative overflow-hidden hover:border-primary/50 hover:shadow-neon transition-all"
-                onClick={() => handlePlayIndividualTrack(track, index)}
-              >
-                <TrackThumbnail
-                  thumbnail={track.thumbnail}
-                  title={track.title}
-                  className="w-full h-32 rounded-md mb-4"
-                  iconClassName="w-12 h-12 text-white opacity-70"
-                />
-                <h2 className="text-xl font-semibold text-foreground mb-2">{track.title}</h2>
-                <p className="text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
-                {track.duration && <span className="text-sm text-muted-foreground absolute top-4 right-4 bg-card/70 px-2 py-1 rounded-md">{formatDuration(track.duration)}</span>}
-                <Button
-                  size="icon"
-                  className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+            playableTracks.map((track, index) => {
+              const isCurrentTrack = currentTrack?.videoId === track.videoId;
+              return (
+                <div
+                  key={track.videoId}
+                  className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border relative overflow-hidden hover:border-primary/50 hover:shadow-neon transition-all"
+                  onClick={() => handlePlayIndividualTrack(track, index)}
                 >
-                  <Play className="w-5 h-5 fill-current" />
-                </Button>
-              </div>
-            ))
+                  <TrackThumbnail
+                    thumbnail={track.thumbnail}
+                    title={track.title}
+                    className="w-full h-32 rounded-md mb-4"
+                    iconClassName="w-12 h-12 text-white opacity-70"
+                  />
+                  <h2 className="text-xl font-semibold text-foreground mb-2">{track.title}</h2>
+                  <p className="text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
+                  {track.duration && (
+                    <div className="flex items-center absolute top-4 right-4 bg-card/70 px-2 py-1 rounded-md">
+                      {isCurrentTrack && isPlaying && (
+                        <Visualizer barCount={5} className="h-4 w-8 mr-2" isPlaying={isPlaying} animationIntervalMs={150} />
+                      )}
+                      <span className="text-sm text-muted-foreground">{formatDuration(track.duration)}</span>
+                    </div>
+                  )}
+                  <Button
+                    size="icon"
+                    className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                  >
+                    <Play className="w-5 h-5 fill-current" />
+                  </Button>
+                </div>
+              );
+            })
           ) : (
             <p className="text-muted-foreground">No songs found for "{queryName}".</p>
           )}

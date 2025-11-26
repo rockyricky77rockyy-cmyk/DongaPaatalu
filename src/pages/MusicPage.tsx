@@ -5,13 +5,14 @@ import { ChevronLeft, Play } from 'lucide-react';
 import { useTracks } from '@/hooks/use-tracks';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import TrackThumbnail from '@/components/TrackThumbnail'; // Import the new component
-import { formatDuration } from '@/lib/utils'; // Import formatDuration
+import TrackThumbnail from '@/components/TrackThumbnail';
+import { formatDuration } from '@/lib/utils';
+import Visualizer from '@/components/Visualizer'; // Import Visualizer
 
 const MusicPage = () => {
   const navigate = useNavigate();
   const { data: tracks, isLoading, isError, error } = useTracks();
-  const { playTrack } = useMusicPlayer();
+  const { playTrack, currentTrack, isPlaying } = useMusicPlayer(); // Get currentTrack and isPlaying
 
   if (isLoading) {
     return (
@@ -53,30 +54,40 @@ const MusicPage = () => {
         </Button>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">Music</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tracks?.map((track) => (
-            <div 
-              key={track.id} 
-              className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border relative overflow-hidden hover:border-primary/50 hover:shadow-neon transition-all"
-              onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
-            >
-              <TrackThumbnail 
-                thumbnail={track.thumbnail} 
-                title={track.title} 
-                color={track.color} 
-                className="w-full h-32 rounded-md mb-4" 
-                iconClassName="w-12 h-12 text-white opacity-70"
-              />
-              <h2 className="text-xl font-semibold text-foreground mb-2">{track.title}</h2>
-              <p className="text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
-              {track.duration && <span className="text-sm text-muted-foreground absolute top-4 right-4 bg-card/70 px-2 py-1 rounded-md">{formatDuration(track.duration)}</span>}
-              <Button 
-                size="icon" 
-                className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+          {tracks?.map((track) => {
+            const isCurrentTrack = currentTrack?.videoId === track.video_id;
+            return (
+              <div 
+                key={track.id} 
+                className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border relative overflow-hidden hover:border-primary/50 hover:shadow-neon transition-all"
+                onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
               >
-                <Play className="w-5 h-5 fill-current" />
-              </Button>
-            </div>
-          ))}
+                <TrackThumbnail 
+                  thumbnail={track.thumbnail} 
+                  title={track.title} 
+                  color={track.color} 
+                  className="w-full h-32 rounded-md mb-4" 
+                  iconClassName="w-12 h-12 text-white opacity-70"
+                />
+                <h2 className="text-xl font-semibold text-foreground mb-2">{track.title}</h2>
+                <p className="text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
+                {track.duration && (
+                  <div className="flex items-center absolute top-4 right-4 bg-card/70 px-2 py-1 rounded-md">
+                    {isCurrentTrack && isPlaying && (
+                      <Visualizer barCount={5} className="h-4 w-8 mr-2" isPlaying={isPlaying} animationIntervalMs={150} />
+                    )}
+                    <span className="text-sm text-muted-foreground">{formatDuration(track.duration)}</span>
+                  </div>
+                )}
+                <Button 
+                  size="icon" 
+                  className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
+                >
+                  <Play className="w-5 h-5 fill-current" />
+                </Button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

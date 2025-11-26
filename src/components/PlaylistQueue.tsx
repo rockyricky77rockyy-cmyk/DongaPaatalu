@@ -6,7 +6,8 @@ import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 import { YouTubeMusicTrack, useYouTubeRelatedTracks } from "@/hooks/use-youtube-music";
-import { formatDuration } from '@/lib/utils'; // Import formatDuration
+import { formatDuration } from '@/lib/utils';
+import Visualizer from '@/components/Visualizer'; // Import Visualizer
 
 interface PlaylistQueueProps {
   activeVideoId?: string;
@@ -17,19 +18,15 @@ interface PlaylistQueueProps {
 }
 
 const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggle, currentTrack }: PlaylistQueueProps) => {
-  const { playTrack, currentPlaylist, currentPlaylistIndex } = useMusicPlayer();
+  const { playTrack, currentPlaylist, currentPlaylistIndex, isPlaying } = useMusicPlayer(); // Get isPlaying
   const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
 
-  // Determine if we are in a "single track" mode (i.e., currentPlaylist has only one track, which is the current one)
   const isSingleTrackMode = currentPlaylist.length === 1 && currentPlaylist[0].videoId === currentTrack?.videoId;
 
-  // Determine which tracks to display based on the mode
   const tracksToDisplay = isSingleTrackMode ? relatedTracks : (currentPlaylist.length > 0 ? currentPlaylist : relatedTracks);
   
-  // Determine the title based on the mode
   const title = isSingleTrackMode ? "Recommendations" : (currentPlaylist.length > 0 ? "Current Playlist" : "Recommendations");
 
-  // Loading/error state should reflect what's being displayed
   const isLoadingData = (isSingleTrackMode || currentPlaylist.length === 0) ? isLoadingRelated : false;
   const isErrorData = (isSingleTrackMode || currentPlaylist.length === 0) ? isErrorRelated : false;
   const errorData = (isSingleTrackMode || currentPlaylist.length === 0) ? errorRelated : undefined;
@@ -98,7 +95,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
           <h2 className="text-lg sm:text-xl font-bold text-foreground">
             {title}
           </h2>
-          {isMobile && onToggle && ( // Show toggle button only on mobile
+          {isMobile && onToggle && (
             <Button variant="ghost" size="icon" onClick={onToggle} className="w-8 h-8 text-muted-foreground hover:text-foreground">
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
             </Button>
@@ -106,7 +103,6 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
           {!isMobile && <Search className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />}
         </div>
         
-        {/* Search Input (Desktop Only) */}
         {!isMobile && (
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
@@ -117,7 +113,6 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
           </div>
         )}
 
-        {/* Tabs (Desktop Only) */}
         {!isMobile && (
           <div className="flex gap-2">
             <Button
@@ -133,48 +128,50 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
         )}
       </div>
 
-      {/* Playlist / Similarities */}
-      {isOpen && ( // Conditionally render content based on isOpen
+      {isOpen && (
         <ScrollArea className="flex-1">
           <div className="px-4 pb-4 space-y-2">
             {tracksToDisplay && tracksToDisplay.length > 0 ? (
-              tracksToDisplay.map((track, index) => (
-                <div
-                  key={track.videoId}
-                  className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
-                    track.videoId === activeVideoId
-                      ? 'bg-primary/20 border border-primary/50 shadow-neon'
-                      : 'hover:bg-muted/50'
-                  }`}
-                  onClick={() => playTrack(
-                    track, 
-                    currentPlaylist.length > 0 ? currentPlaylist : relatedTracks, 
-                    currentPlaylist.length > 0 ? index : undefined,
-                    isSingleTrackMode // Pass isFromRecommendations flag
-                  )}
-                >
-                  {/* Album Art */}
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
-                    {track.thumbnail ? (
-                      <img src={track.thumbnail} alt={track.title} className="w-full h-full object-cover rounded-md sm:rounded-lg" />
-                    ) : (
-                      <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" />
+              tracksToDisplay.map((track, index) => {
+                const isCurrentTrack = track.videoId === activeVideoId;
+                return (
+                  <div
+                    key={track.videoId}
+                    className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all cursor-pointer group ${
+                      isCurrentTrack
+                        ? 'bg-primary/20 border border-primary/50 shadow-neon'
+                        : 'hover:bg-muted/50'
+                    }`}
+                    onClick={() => playTrack(
+                      track, 
+                      currentPlaylist.length > 0 ? currentPlaylist : relatedTracks, 
+                      currentPlaylist.length > 0 ? index : undefined,
+                      isSingleTrackMode
                     )}
-                  </div>
+                  >
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
+                      {track.thumbnail ? (
+                        <img src={track.thumbnail} alt={track.title} className="w-full h-full object-cover rounded-md sm:rounded-lg" />
+                      ) : (
+                        <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" />
+                      )}
+                    </div>
 
-                  {/* Track Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{track.title}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{String(track.artist)}</p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{track.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{String(track.artist)}</p>
+                    </div>
 
-                  {/* Duration & Action */}
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <span className="text-xs sm:text-sm text-muted-foreground">{formatDuration(track.duration)}</span>
-                    <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      {isCurrentTrack && isPlaying && (
+                        <Visualizer barCount={5} className="h-4 w-8" isPlaying={isPlaying} animationIntervalMs={150} />
+                      )}
+                      <span className="text-xs sm:text-sm text-muted-foreground">{formatDuration(track.duration)}</span>
+                      <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p className="text-muted-foreground text-center py-8">
                 No {title.toLowerCase()} found. Play a song to see suggestions!
