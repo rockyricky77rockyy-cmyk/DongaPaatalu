@@ -83,17 +83,17 @@ All colors MUST be HSL.
 /* Custom scrollbar styles */
 @layer utilities {
   /* For Webkit browsers (Chrome, Safari, Edge) */
-  ::-webkit-scrollbar {
+  *::-webkit-scrollbar { /* Changed to *::-webkit-scrollbar for broader application */
     width: 8px; /* Width of the scrollbar */
     height: 8px; /* Height of horizontal scrollbar */
   }
 
-  ::-webkit-scrollbar-track {
+  *::-webkit-scrollbar-track { /* Changed to *::-webkit-scrollbar-track */
     background: hsl(var(--background)); /* Background of the scrollbar track */
     border-radius: 10px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  *::-webkit-scrollbar-thumb { /* Changed to *::-webkit-scrollbar-thumb */
     background: hsl(var(--primary) / 0.5); /* Color of the scrollbar thumb */
     border-radius: 10px;
     border: 1px solid hsl(var(--primary) / 0.3); /* Border around the thumb */
@@ -101,7 +101,7 @@ All colors MUST be HSL.
     transition: background 0.3s ease, box-shadow 0.3s ease;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  *::-webkit-scrollbar-thumb:hover { /* Changed to *::-webkit-scrollbar-thumb:hover */
     background: hsl(var(--primary)); /* Brighter color on hover */
     box-shadow: 0 0 10px hsl(var(--primary) / 0.7); /* Stronger glow on hover */
   }
