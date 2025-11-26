@@ -6,6 +6,7 @@ import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack, YouTubeMus
 import { useNavigate } from 'react-router-dom';
 import { Folder, Play, ChevronLeft, Headphones } from 'lucide-react'; // Changed Disc3 to Folder
 import { Button } from '@/components/ui/button';
+import Visualizer from '@/components/Visualizer'; // Import Visualizer
 
 interface HomeSearchResultsProps {
   searchTerm: string;
@@ -14,7 +15,7 @@ interface HomeSearchResultsProps {
 
 const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps) => {
   const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
-  const { playTrack } = useMusicPlayer();
+  const { playTrack, currentTrack, isPlaying } = useMusicPlayer(); // Get currentTrack and isPlaying
   const navigate = useNavigate();
 
   const handleBackToHome = () => {
@@ -45,6 +46,7 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
           {searchResults.map((item, index) => {
             if (item.type === 'track') {
               const track = item as YouTubeMusicTrack;
+              const isCurrentTrack = currentTrack?.videoId === track.videoId; // Check if this is the current track
               return (
                 <div
                   key={track.videoId || index}
@@ -57,10 +59,15 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                     className="w-12 h-12 rounded-md"
                     iconClassName="w-6 h-6 text-primary"
                   />
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
                     <p className="text-sm text-muted-foreground">{track.artist} {track.album && `• ${track.album}`}</p>
                   </div>
+                  {isCurrentTrack && isPlaying && ( // Conditionally render Visualizer
+                    <div className="absolute top-1/2 right-16 -translate-y-1/2">
+                      <Visualizer barCount={5} className="h-4 w-8" isPlaying={isPlaying} animationIntervalMs={150} />
+                    </div>
+                  )}
                   <Button
                     size="icon"
                     className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
