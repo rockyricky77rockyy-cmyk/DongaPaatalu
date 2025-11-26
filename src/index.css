@@ -79,3 +79,36 @@ All colors MUST be HSL.
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Custom scrollbar styles */
+@layer utilities {
+  /* For Webkit browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    height: 8px; /* Height of horizontal scrollbar */
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background)); /* Background of the scrollbar track */
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.5); /* Color of the scrollbar thumb */
+    border-radius: 10px;
+    border: 1px solid hsl(var(--primary) / 0.3); /* Border around the thumb */
+    box-shadow: 0 0 5px hsl(var(--primary) / 0.3); /* Subtle glow */
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary)); /* Brighter color on hover */
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.7); /* Stronger glow on hover */
+  }
+
+  /* For Firefox */
+  html {
+    scrollbar-width: thin; /* "auto" or "thin" */
+    scrollbar-color: hsl(var(--primary) / 0.5) hsl(var(--background)); /* thumb and track color */
+  }
+}
