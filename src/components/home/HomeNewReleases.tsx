@@ -53,7 +53,7 @@ const HomeNewReleases = ({ className }: HomeNewReleasesProps) => {
           <div
             key={track.videoId}
             className="group cursor-pointer bg-card rounded-2xl p-3 transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[140px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
+            onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album, duration: track.duration })}
           >
             <TrackThumbnail 
               thumbnail={track.thumbnail} 

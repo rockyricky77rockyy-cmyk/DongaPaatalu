@@ -49,7 +49,7 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                 <div
                   key={track.videoId || index}
                   className="flex items-center gap-4 p-3 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer relative group"
-                  onClick={() => playTrack(track)}
+                  onClick={() => playTrack({ videoId: track.videoId, title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album, duration: track.duration })}
                 >
                   <TrackThumbnail
                     thumbnail={track.thumbnail}
@@ -66,7 +66,7 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                     className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
                     onClick={(e) => { // Explicitly play track
                       e.stopPropagation(); 
-                      playTrack(track);
+                      playTrack({ videoId: track.videoId, title: track.title, artist: track.artist, thumbnail: track.thumbnail, album: track.album, duration: track.duration });
                     }}
                   >
                     <Play className="w-4 h-4 fill-current" />
@@ -102,7 +102,7 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                       navigate(`/album/${album.albumId}`, { state: { albumTitle: album.title, albumArtist: album.artist } });
                     }}
                   >
-                    <Folder className="w-4 h-4 fill-current" /> {/* Changed to Folder icon */}
+                    <Folder className="w-4 h-4 fill-current" />
                   </Button>
                 </div>
               );
@@ -120,7 +120,7 @@ const HomeSearchResults = ({ searchTerm, onClearSearch }: HomeSearchResultsProps
                   <TrackThumbnail
                     thumbnail={artist.thumbnail}
                     title={typeof artist.name === 'string' ? artist.name : 'Unknown Artist'} // Defensive check
-                    className="w-12 h-12 rounded-full" // Artists usually have round avatars
+                    className="w-12 h-12 rounded-full"
                     iconClassName="w-6 h-6 text-primary"
                   />
                   <div>

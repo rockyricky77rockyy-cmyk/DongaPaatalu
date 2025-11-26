@@ -60,7 +60,7 @@ const MusicPage = () => {
               <div 
                 key={track.id} 
                 className="group cursor-pointer bg-card rounded-xl p-6 shadow-card border border-border relative overflow-hidden hover:border-primary/50 hover:shadow-neon transition-all"
-                onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
+                onClick={() => playTrack({ videoId: track.video_id || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album, duration: track.duration })}
               >
                 <TrackThumbnail 
                   thumbnail={track.thumbnail} 

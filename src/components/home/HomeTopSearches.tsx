@@ -3,7 +3,7 @@ import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
-import { useTopSearches } from '@/hooks/use-top-searches'; // Changed to useTopSearches
+import { useTopSearches } from '@/hooks/use-top-searches';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ interface HomeTopSearchesProps {
 }
 
 const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
-  const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useTopSearches(); // Use the new hook
+  const { data: topTracks, isLoading: isTopTracksLoading, isError: isTopTracksError, error: topTracksError } = useTopSearches();
   const { playTrack } = useMusicPlayer();
 
   if (isTopTracksLoading) {
@@ -49,7 +49,7 @@ const HomeTopSearches = ({ className }: HomeTopSearchesProps) => {
           <div 
             key={track.videoId} 
             className="flex items-center gap-3 p-3 bg-card rounded-lg transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album })}
+            onClick={() => playTrack({ videoId: track.videoId || '', title: track.title, artist: String(track.artist), thumbnail: track.thumbnail, album: track.album, duration: track.duration })}
           >
             <TrackThumbnail 
               thumbnail={track.thumbnail} 

@@ -85,7 +85,14 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   };
 
   const handlePlaySearchResult = (track: YouTubeMusicTrack) => {
-    playTrack(track);
+    playTrack({
+      videoId: track.videoId,
+      title: track.title,
+      artist: track.artist,
+      thumbnail: track.thumbnail,
+      album: track.album,
+      duration: track.duration, // Include duration
+    });
     // Optionally, clear search after playing a track
     // handleClearSearch();
   };
@@ -231,7 +238,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                             >
                               <TrackThumbnail
                                 thumbnail={artist.thumbnail}
-                                title={String(artist.name)}
+                                title={typeof artist.name === 'string' ? artist.name : 'Unknown Artist'} // Defensive check
                                 className="w-12 h-12 rounded-full"
                                 iconClassName="w-6 h-6 text-primary"
                               />

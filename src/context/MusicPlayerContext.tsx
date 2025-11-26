@@ -8,6 +8,7 @@ interface Track {
   artist: string;
   thumbnail?: string;
   album?: string;
+  duration?: string | number; // Added duration property
 }
 
 type RepeatMode = 'none' | 'track' | 'all';
@@ -120,9 +121,18 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
 
       if (data && data.relatedTracks && data.relatedTracks.length > 0) {
         const relatedTracks = data.relatedTracks as YouTubeMusicTrack[];
-        setCurrentPlaylist(relatedTracks);
+        // Ensure duration is included when setting the playlist
+        const formattedRelatedTracks: Track[] = relatedTracks.map(t => ({
+          videoId: t.videoId,
+          title: t.title,
+          artist: t.artist,
+          thumbnail: t.thumbnail,
+          album: t.album,
+          duration: t.duration, // Include duration
+        }));
+        setCurrentPlaylist(formattedRelatedTracks);
         setCurrentPlaylistIndex(0);
-        playTrack(relatedTracks[0], relatedTracks, 0); // Play the first related track
+        playTrack(formattedRelatedTracks[0], formattedRelatedTracks, 0); // Play the first related track
         console.log("MusicPlayerContext: Successfully loaded and started playing related tracks.");
       } else {
         console.log("MusicPlayerContext: No related tracks found.");

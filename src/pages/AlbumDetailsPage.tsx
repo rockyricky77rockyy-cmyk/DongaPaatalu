@@ -51,6 +51,7 @@ const AlbumDetailsPage = () => {
           artist: String(data.tracks[0].artist),
           thumbnail: data.tracks[0].thumbnail,
           album: data.tracks[0].album,
+          duration: data.tracks[0].duration, // Include duration
         },
         data.tracks.map(track => ({
           videoId: track.videoId,
@@ -58,6 +59,7 @@ const AlbumDetailsPage = () => {
           artist: String(track.artist),
           thumbnail: track.thumbnail,
           album: track.album,
+          duration: track.duration, // Include duration
         })),
         0
       );
@@ -73,6 +75,7 @@ const AlbumDetailsPage = () => {
           artist: String(track.artist),
           thumbnail: track.thumbnail,
           album: track.album,
+          duration: track.duration, // Include duration
         },
         data.tracks.map(t => ({
           videoId: t.videoId,
@@ -80,6 +83,7 @@ const AlbumDetailsPage = () => {
           artist: String(t.artist),
           thumbnail: t.thumbnail,
           album: t.album,
+          duration: t.duration, // Include duration
         })),
         index
       );

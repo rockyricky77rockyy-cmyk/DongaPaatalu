@@ -22,7 +22,7 @@ const HomeRecentlySearched = ({ className }: HomeRecentlySearchedProps) => {
           <div 
             key={index} 
             className="flex items-center gap-3 p-3 bg-card rounded-lg transition-all border border-border hover:border-primary/50 hover:shadow-neon-strong cursor-pointer w-[220px] flex-shrink-0 md:w-auto md:flex-shrink"
-            onClick={() => playTrack(track)}
+            onClick={() => playTrack(track)} // track already has duration if it was played from a source that provided it
           >
             <TrackThumbnail 
               thumbnail={track.thumbnail} 
