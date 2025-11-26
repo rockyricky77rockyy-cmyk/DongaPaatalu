@@ -6,6 +6,7 @@ import { useYouTubePlaylistTracks } from '@/hooks/use-youtube-music'; // Reusing
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
+import { formatDuration } from '@/lib/utils'; // Import formatDuration
 
 const PodcastDetailsPage = () => {
   const navigate = useNavigate();
@@ -177,7 +178,7 @@ const PodcastDetailsPage = () => {
                   <h3 className="font-semibold text-lg text-foreground truncate">{track.title}</h3>
                   <p className="text-sm text-muted-foreground truncate">{String(track.artist)}</p>
                 </div>
-                {track.duration && <span className="text-sm text-muted-foreground">{track.duration}</span>}
+                {track.duration && <span className="text-sm text-muted-foreground">{formatDuration(track.duration)}</span>}
                 <Button size="icon" variant="ghost" className="text-muted-foreground hover:text-primary">
                   <Play className="w-4 h-4 fill-current" />
                 </Button>

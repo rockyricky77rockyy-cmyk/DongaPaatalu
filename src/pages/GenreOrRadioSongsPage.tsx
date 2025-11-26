@@ -6,6 +6,7 @@ import { useYouTubeMusicSearch, YouTubeMusicTrack } from '@/hooks/use-youtube-mu
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
+import { formatDuration } from '@/lib/utils'; // Import formatDuration
 
 const GenreOrRadioSongsPage = () => {
   const navigate = useNavigate();
@@ -94,6 +95,7 @@ const GenreOrRadioSongsPage = () => {
                 />
                 <h2 className="text-xl font-semibold text-foreground mb-2">{track.title}</h2>
                 <p className="text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
+                {track.duration && <span className="text-sm text-muted-foreground absolute top-4 right-4 bg-card/70 px-2 py-1 rounded-md">{formatDuration(track.duration)}</span>}
                 <Button
                   size="icon"
                   className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"

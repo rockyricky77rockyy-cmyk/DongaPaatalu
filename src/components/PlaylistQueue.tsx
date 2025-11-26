@@ -6,6 +6,7 @@ import { useMusicPlayer } from "@/context/MusicPlayerContext";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 import { YouTubeMusicTrack, useYouTubeRelatedTracks } from "@/hooks/use-youtube-music";
+import { formatDuration } from '@/lib/utils'; // Import formatDuration
 
 interface PlaylistQueueProps {
   activeVideoId?: string;
@@ -169,7 +170,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
 
                   {/* Duration & Action */}
                   <div className="flex items-center gap-1 sm:gap-2">
-                    <span className="text-xs sm:text-sm text-muted-foreground">{track.duration}</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">{formatDuration(track.duration)}</span>
                     <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                 </div>
