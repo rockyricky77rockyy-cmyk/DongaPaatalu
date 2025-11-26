@@ -178,6 +178,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                       {searchResults?.map((item, index) => {
                         if (item.type === 'track') {
                           const track = item as YouTubeMusicTrack;
+                          const isCurrentTrack = currentTrack?.videoId === track.videoId; // Check if this is the current track
                           return (
                             <div
                               key={track.videoId || index}
@@ -194,6 +195,11 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                                 <h3 className="font-semibold text-lg text-foreground">{track.title}</h3>
                                 <p className="text-sm text-muted-foreground">{String(track.artist)} {track.album && `• ${track.album}`}</p>
                               </div>
+                              {isCurrentTrack && isPlaying && ( // Conditionally render Visualizer
+                                <div className="absolute top-1/2 right-16 -translate-y-1/2">
+                                  <Visualizer barCount={5} className="h-4 w-8" isPlaying={isPlaying} animationIntervalMs={150} />
+                                </div>
+                              )}
                               <Button
                                 size="icon"
                                 className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full shadow-lg"
