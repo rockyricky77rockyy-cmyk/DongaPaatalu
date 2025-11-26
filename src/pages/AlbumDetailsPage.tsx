@@ -7,7 +7,7 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrackThumbnail from '@/components/TrackThumbnail';
 import { formatDuration } from '@/lib/utils';
-// import Visualizer from '@/components/Visualizer'; // Removed Visualizer import
+import Visualizer from '@/components/Visualizer'; // Import Visualizer
 
 const AlbumDetailsPage = () => {
   const navigate = useNavigate();
@@ -186,7 +186,9 @@ const AlbumDetailsPage = () => {
                   </div>
                   {track.duration && (
                     <div className="flex items-center">
-                      {/* Removed Visualizer for current track in album details */}
+                      {isCurrentTrack && isPlaying && (
+                        <Visualizer barCount={5} className="h-4 w-8 mr-2" isPlaying={isPlaying} animationIntervalMs={150} />
+                      )}
                       <span className="text-sm text-muted-foreground">{formatDuration(track.duration)}</span>
                     </div>
                   )}
