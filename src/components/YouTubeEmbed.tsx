@@ -91,8 +91,7 @@ const YouTubeEmbed = ({
       showinfo: 0,
       iv_load_policy: 3,
       origin: window.location.origin,
-      // Forcing 'highres' for video quality. Audio quality is automatically optimized by YouTube.
-      suggestedQuality: 'highres', 
+      // Removed suggestedQuality: 'highres' to allow YouTube to adapt quality automatically
     },
   };
 
@@ -240,8 +239,6 @@ const YouTubeEmbed = ({
         onEnd={handleEnd}
         onError={handlePlayerError}
         onStateChange={onStateChange}
-        onPlaybackRateChange={onPlaybackRateChange}
-        onPlaybackQualityChange={onPlaybackQualityChange}
       />
     </div>
   );

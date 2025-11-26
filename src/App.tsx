@@ -20,6 +20,7 @@ import ArtistDetailsPage from "./pages/ArtistDetailsPage";
 import PlaylistDetailsPage from "./pages/PlaylistDetailsPage";
 import GenreOrRadioSongsPage from "./pages/GenreOrRadioSongsPage";
 import PodcastDetailsPage from "./pages/PodcastDetailsPage"; // Import the new page
+import AppPreloader from "./components/AppPreloader"; // Import AppPreloader
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,8 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Preloader runs immediately to fetch data for the Home page */}
+      <AppPreloader /> 
       <div className="flex-1 pb-[120px]">
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
