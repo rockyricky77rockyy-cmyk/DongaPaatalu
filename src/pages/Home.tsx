@@ -120,13 +120,13 @@ const Home = () => {
         {/* Mobile Search Suggestions (rendered outside the header) */}
         {showSuggestions && suggestions && suggestions.length > 0 && (
           <ScrollArea
-            className="absolute z-50 w-[calc(100%-2rem)] left-4 right-4 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto lg:hidden"
+            className="absolute z-50 w-[calc(100%-2rem)] left-4 right-4 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-neon-strong max-h-60 overflow-y-auto lg:hidden"
             style={{ top: `${mobileSuggestionsTop}px` }}
           >
             {suggestions.map((suggestion, index) => (
               <div
                 key={index}
-                className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
+                className="p-3 cursor-pointer text-foreground text-sm border-b border-border/50 last:border-b-0 hover:bg-primary/20 hover:text-primary transition-colors rounded-md"
                 onClick={() => handleSuggestionClick(suggestion)}
               >
                 {suggestion}
@@ -146,13 +146,13 @@ const Home = () => {
           {/* Desktop Search Suggestions */}
           {showSuggestions && suggestions && suggestions.length > 0 && (
             <ScrollArea
-              className="absolute z-50 w-[calc(100%-4rem)] left-8 right-8 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto hidden lg:block"
+              className="absolute z-50 w-[calc(100%-4rem)] left-8 right-8 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-neon-strong max-h-60 overflow-y-auto hidden lg:block"
               style={{ top: `${desktopSuggestionsTop}px` }}
             >
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="p-3 cursor-pointer hover:bg-muted text-foreground text-sm"
+                  className="p-3 cursor-pointer text-foreground text-sm border-b border-border/50 last:border-b-0 hover:bg-primary/20 hover:text-primary transition-colors rounded-md"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}
