@@ -79,3 +79,25 @@ All colors MUST be HSL.
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Global Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px; /* vertical scrollbar width */
+  height: 8px; /* horizontal scrollbar height */
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--card)); /* Dark background for the track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-neon); /* Neon gradient for the thumb */
+  border-radius: 10px;
+  box-shadow: 0 0 8px hsl(var(--primary) / 0.5); /* Subtle neon glow */
+  border: 1px solid hsl(var(--primary) / 0.3); /* Slight border */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  box-shadow: 0 0 12px hsl(var(--primary) / 0.7); /* Stronger glow on hover */
+}
