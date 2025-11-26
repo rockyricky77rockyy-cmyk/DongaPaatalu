@@ -18,5 +18,7 @@ export const useRadioStations = () => {
       if (error) throw new Error(error.message);
       return data || [];
     },
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };

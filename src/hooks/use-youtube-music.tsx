@@ -73,6 +73,8 @@ export const useYouTubeMusicSearch = (query: string) => {
       return [];
     },
     enabled: !!query,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
 
@@ -102,6 +104,8 @@ export const useYouTubeAlbumTracks = (albumId: string | null) => {
       return { tracks: [], albumTitle: '', albumArtist: '', albumThumbnail: undefined };
     },
     enabled: !!albumId,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
 
@@ -130,6 +134,8 @@ export const useYouTubeArtistTracks = (artistId: string | null) => {
       return { tracks: [], artistName: '', artistThumbnail: undefined };
     },
     enabled: !!artistId,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
 
@@ -178,6 +184,8 @@ export const useYouTubeMusicAlbums = (query?: string | null) => {
       return [];
     },
     enabled: true,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
 
@@ -200,6 +208,8 @@ export const useYouTubeMusicArtists = (query?: string | null) => {
       return [];
     },
     enabled: true,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
 
@@ -222,6 +232,8 @@ export const useYouTubeMusicPlaylists = (query?: string | null) => {
       return [];
     },
     enabled: true,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
 
@@ -252,6 +264,8 @@ export const useYouTubePlaylistTracks = (playlistId: string | null, playlistName
       return { tracks: [], playlistName: '', playlistThumbnail: undefined, trackCount: 0 };
     },
     enabled: !!playlistId,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
 
@@ -306,5 +320,7 @@ export const useYouTubeMusicPodcasts = (query?: string | null) => {
       return [];
     },
     enabled: true,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Data is garbage collected after 10 minutes
   });
 };
