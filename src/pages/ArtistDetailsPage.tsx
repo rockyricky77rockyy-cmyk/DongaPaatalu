@@ -150,7 +150,7 @@ const ArtistDetailsPage = () => {
         <div className="space-y-4">
           {data?.tracks && data.tracks.length > 0 ? (
             data.tracks.map((track, index) => {
-              const isCurrentTrack = currentTrack?.videoId?.trim() === track.videoId?.trim(); // Added .trim()
+              const isCurrentTrack = currentTrack?.videoId === track.videoId;
               return (
                 <div
                   key={track.videoId}
