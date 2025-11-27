@@ -104,7 +104,7 @@ All colors MUST be HSL.
 /* Responsive scrollbar hiding for body on screens <= 768px */
 @media (max-width: 768px) {
   body {
-    overflow: hidden;
+    /* Removed overflow: hidden; to allow scrolling */
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
