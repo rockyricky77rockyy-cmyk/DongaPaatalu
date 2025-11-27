@@ -69,7 +69,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="flex-1 pb-[120px]">
+      <div className="flex-1 pb-[120px] overflow-y-auto"> {/* Added overflow-y-auto here */}
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
