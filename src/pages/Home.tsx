@@ -161,7 +161,7 @@ const Home = () => {
             </ScrollArea>
           )}
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12 no-scrollbar">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
