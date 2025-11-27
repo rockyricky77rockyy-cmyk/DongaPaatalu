@@ -100,3 +100,16 @@ All colors MUST be HSL.
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground)); /* Slightly lighter on hover */
 }
+
+/* Responsive scrollbar hiding for body on screens <= 768px */
+@media (max-width: 768px) {
+  body {
+    overflow: hidden;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  body::-webkit-scrollbar {
+    display: none; /* WebKit browsers */
+  }
+}
