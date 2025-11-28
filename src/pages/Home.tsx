@@ -82,7 +82,7 @@ const Home = () => {
 
   return (
     <div className="h-full bg-background flex flex-col relative">
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex flex-col lg:flex-row h-full">
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
         <header
           ref={mobileHeaderRef}
@@ -161,7 +161,7 @@ const Home = () => {
             </ScrollArea>
           )}
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12 no-scrollbar">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
