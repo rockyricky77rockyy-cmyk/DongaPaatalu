@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react"; // Import useCallback
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import HomeHeader from "@/components/home/HomeHeader";
-import VoiceSearchButton from "@/components/VoiceSearchButton"; // Import VoiceSearchButton
+import VoiceSearchButton from "@/components/VoiceSearchButton";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ const Home = () => {
   const desktopHeaderRef = useRef<HTMLDivElement>(null);
   const [mobileSuggestionsTop, setMobileSuggestionsTop] = useState(0);
   const [desktopSuggestionsTop, setDesktopSuggestionsTop] = useState(0);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false); // New state for mobile search bar visibility
 
   const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
@@ -75,16 +76,22 @@ const Home = () => {
     setShowSuggestions(false);
   };
 
-  // Moved handleVoiceSearchResult here
   const handleVoiceSearchResult = useCallback((transcript: string) => {
     setSearchTerm(transcript);
     setShowSuggestions(transcript.length > 0);
+    setIsMobileSearchOpen(true); // Ensure search bar is open when voice result comes in
   }, []);
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
     setShowSuggestions(false);
     // Optionally trigger search immediately
+  };
+
+  const handleCloseMobileSearch = () => {
+    setSearchTerm("");
+    setShowSuggestions(false);
+    setIsMobileSearchOpen(false);
   };
 
   return (
@@ -96,33 +103,52 @@ const Home = () => {
           className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border sticky top-0 z-20"
         >
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
-          {/* Replaced NeonLogo with "DPaata" text */}
-          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]">
-            DPaata
-          </div>
-          {/* Mobile Search Bar */}
-          <div className="relative flex-1 flex items-center">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              className="pl-10 pr-[7.5rem] bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-[7.5rem]
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-            />
-            <VoiceSearchButton onResult={handleVoiceSearchResult} className="absolute right-2 top-1/2 -translate-y-1/2" />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right-[4.5rem]
-                onClick={handleClearSearch}
-              >
-                <X className="w-4 h-4" />
+          {!isMobileSearchOpen && (
+            <div className="flex-1 flex items-center justify-between">
+              <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]">
+                DPaata
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setIsMobileSearchOpen(true)}>
+                <Search className="w-5 h-5 text-muted-foreground" />
               </Button>
-            )}
-          </div>
+            </div>
+          )}
+          {isMobileSearchOpen && (
+            <>
+              {/* Mobile Search Bar */}
+              <div className="relative flex-1 flex items-center">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search..."
+                  className="pl-10 pr-[7.5rem] bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-[7.5rem]
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+                />
+                <VoiceSearchButton onResult={handleVoiceSearchResult} className="absolute right-2 top-1/2 -translate-y-1/2" />
+                {searchTerm ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right-[4.5rem]
+                    onClick={handleClearSearch}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Position for close button
+                    onClick={handleCloseMobileSearch}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
         </header>
 
         {/* Mobile Search Suggestions (rendered outside the header) */}
