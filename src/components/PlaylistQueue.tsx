@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { YouTubeMusicTrack, useYouTubeRelatedTracks } from "@/hooks/use-youtube-music";
 import { formatDuration } from '@/lib/utils';
 import Visualizer from '@/components/Visualizer'; // Import Visualizer
-import React, { useState } from "react"; // Import useState
 
 interface PlaylistQueueProps {
   activeVideoId?: string;
@@ -18,27 +17,19 @@ interface PlaylistQueueProps {
   currentTrack?: YouTubeMusicTrack | null;
 }
 
-type QueueTab = 'queue' | 'recent';
-
 const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggle, currentTrack }: PlaylistQueueProps) => {
-  const { playTrack, currentPlaylist, currentPlaylistIndex, isPlaying, recentlySearched } = useMusicPlayer(); // Get recentlySearched
+  const { playTrack, currentPlaylist, currentPlaylistIndex, isPlaying } = useMusicPlayer(); // Get isPlaying
   const { data: relatedTracks, isLoading: isLoadingRelated, isError: isErrorRelated, error: errorRelated } = useYouTubeRelatedTracks(currentTrack);
-
-  const [activeQueueTab, setActiveQueueTab] = useState<QueueTab>('queue'); // New state for active tab
 
   const isSingleTrackMode = currentPlaylist.length === 1 && currentPlaylist[0].videoId === currentTrack?.videoId;
 
   const tracksToDisplay = isSingleTrackMode ? relatedTracks : (currentPlaylist.length > 0 ? currentPlaylist : relatedTracks);
   
-  const title = activeQueueTab === 'queue' 
-    ? (isSingleTrackMode ? "Recommendations" : (currentPlaylist.length > 0 ? "Current Playlist" : "Recommendations"))
-    : "Recently Played";
+  const title = isSingleTrackMode ? "Recommendations" : (currentPlaylist.length > 0 ? "Current Playlist" : "Recommendations");
 
-  const isLoadingData = activeQueueTab === 'queue' && (isSingleTrackMode || currentPlaylist.length === 0) ? isLoadingRelated : false;
-  const isErrorData = activeQueueTab === 'queue' && (isSingleTrackMode || currentPlaylist.length === 0) ? isErrorRelated : false;
-  const errorData = activeQueueTab === 'queue' && (isSingleTrackMode || currentPlaylist.length === 0) ? errorRelated : undefined;
-
-  const listToRender = activeQueueTab === 'queue' ? tracksToDisplay : recentlySearched;
+  const isLoadingData = (isSingleTrackMode || currentPlaylist.length === 0) ? isLoadingRelated : false;
+  const isErrorData = (isSingleTrackMode || currentPlaylist.length === 0) ? isErrorRelated : false;
+  const errorData = (isSingleTrackMode || currentPlaylist.length === 0) ? errorRelated : undefined;
 
   if (isLoadingData) {
     return (
@@ -62,10 +53,10 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
           {!isMobile && (
             <div className="flex gap-2">
               <Button variant="ghost" className="flex-1 text-primary bg-primary/10 hover:bg-primary/20 text-sm h-9 sm:h-10">
-                Queue
+                Plist
               </Button>
               <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground text-sm h-9 sm:h-10">
-                Recent
+                Playlet Plesly
               </Button>
             </div>
           )}
@@ -122,39 +113,26 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
           </div>
         )}
 
-        <div className="flex gap-2">
-          <Button
-            variant={activeQueueTab === 'queue' ? "default" : "ghost"}
-            className={cn(
-              "flex-1 text-sm h-9 sm:h-10",
-              activeQueueTab === 'queue'
-                ? "bg-primary text-primary-foreground shadow-neon"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            )}
-            onClick={() => setActiveQueueTab('queue')}
-          >
-            Queue
-          </Button>
-          <Button
-            variant={activeQueueTab === 'recent' ? "default" : "ghost"}
-            className={cn(
-              "flex-1 text-sm h-9 sm:h-10",
-              activeQueueTab === 'recent'
-                ? "bg-primary text-primary-foreground shadow-neon"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            )}
-            onClick={() => setActiveQueueTab('recent')}
-          >
-            Recently Played
-          </Button>
-        </div>
+        {!isMobile && (
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              className="flex-1 text-primary bg-primary/10 hover:bg-primary/20 text-sm h-9 sm:h-10"
+            >
+              Plist
+            </Button>
+            <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground text-sm h-9 sm:h-10">
+              Playlet Plesly
+            </Button>
+          </div>
+        )}
       </div>
 
       {isOpen && (
         <ScrollArea className="flex-1">
           <div className="px-4 pb-4 space-y-2">
-            {listToRender && listToRender.length > 0 ? (
-              listToRender.map((track, index) => {
+            {tracksToDisplay && tracksToDisplay.length > 0 ? (
+              tracksToDisplay.map((track, index) => {
                 const isCurrentTrack = track.videoId === activeVideoId;
                 return (
                   <div
@@ -166,9 +144,9 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
                     }`}
                     onClick={() => playTrack(
                       track, 
-                      activeQueueTab === 'queue' ? (currentPlaylist.length > 0 ? currentPlaylist : relatedTracks) : recentlySearched, 
-                      index,
-                      activeQueueTab === 'queue' && isSingleTrackMode // isFromRecommendations only if it's the queue tab and single track mode
+                      currentPlaylist.length > 0 ? currentPlaylist : relatedTracks, 
+                      currentPlaylist.length > 0 ? index : undefined,
+                      isSingleTrackMode
                     )}
                   >
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg bg-gradient-to-br ${track.color || 'from-gray-600 to-gray-800'} flex items-center justify-center flex-shrink-0`}>
@@ -196,7 +174,7 @@ const PlaylistQueue = ({ activeVideoId, isMobile = false, isOpen = true, onToggl
               })
             ) : (
               <p className="text-muted-foreground text-center py-8">
-                No {title.toLowerCase()} found. Play a song to see them here!
+                No {title.toLowerCase()} found. Play a song to see suggestions!
               </p>
             )}
           </div>

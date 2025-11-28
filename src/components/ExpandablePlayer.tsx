@@ -38,7 +38,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     toggleShuffle,
     repeatMode,
     toggleRepeatMode,
-    // recentlySearched, // Removed as it's now handled internally by PlaylistQueue
+    recentlySearched,
     playTrack,
   } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home");
@@ -537,7 +537,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             <PlaylistQueue
               activeVideoId={currentTrack?.videoId}
               isMobile
-              // recentlySearched={recentlySearched} // Removed
+              recentlySearched={recentlySearched}
               isOpen={isPlaylistQueueOpen} // Pass isOpen prop
               onToggle={() => setIsPlaylistQueueOpen(prev => !prev)} // Pass toggle function
               currentTrack={currentTrack} // Pass currentTrack to PlaylistQueue
