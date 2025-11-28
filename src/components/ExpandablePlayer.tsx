@@ -167,7 +167,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
 
                 {/* Main Content Area: Player or Search Results */}
                 {isSearching && searchTerm.length > 0 ? (
-                  <div className="flex-1 p-6 lg:p-12 overflow-y-auto">
+                  <div className="flex-1 p-6 lg:p-12 overflow-y-auto no-scrollbar">
                     <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Search Results for "{searchTerm}"</h2>
                     {isSearchLoading && <p className="text-muted-foreground">Searching...</p>}
                     {isSearchError && <p className="text-destructive">Error: {searchError?.message}</p>}
@@ -391,7 +391,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
       ) : (
         /* Mobile Version */
         <div className="h-full flex flex-col bg-gradient-to-br from-cyan-500/10 via-background to-purple-500/10">
-          <div className="flex-1 overflow-y-auto"> {/* This div will handle scrolling for the top content */}
+          <div className="flex-1 overflow-y-auto no-scrollbar"> {/* This div will handle scrolling for the top content */}
             {/* Top Bar */}
             <header className="p-4 flex items-center justify-between">
               <Button variant="ghost" size="icon" onClick={onClose} className="w-9 h-9">

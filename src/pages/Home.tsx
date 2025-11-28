@@ -120,7 +120,7 @@ const Home = () => {
         {/* Mobile Search Suggestions (rendered outside the header) */}
         {showSuggestions && suggestions && suggestions.length > 0 && (
           <ScrollArea
-            className="absolute z-50 w-[calc(100%-2rem)] left-4 right-4 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-neon-strong max-h-60 overflow-y-auto lg:hidden"
+            className="absolute z-50 w-[calc(100%-2rem)] left-4 right-4 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-neon-strong max-h-60 overflow-y-auto lg:hidden no-scrollbar"
             style={{ top: `${mobileSuggestionsTop}px` }}
           >
             {suggestions.map((suggestion, index) => (
@@ -146,7 +146,7 @@ const Home = () => {
           {/* Desktop Search Suggestions */}
           {showSuggestions && suggestions && suggestions.length > 0 && (
             <ScrollArea
-              className="absolute z-50 w-[calc(100%-4rem)] left-8 right-8 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-neon-strong max-h-60 overflow-y-auto hidden lg:block"
+              className="absolute z-50 w-[calc(100%-4rem)] left-8 right-8 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-neon-strong max-h-60 overflow-y-auto hidden lg:block no-scrollbar"
               style={{ top: `${desktopSuggestionsTop}px` }}
             >
               {suggestions.map((suggestion, index) => (
@@ -161,7 +161,7 @@ const Home = () => {
             </ScrollArea>
           )}
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-0 sm:space-y-6 lg:space-y-12 no-scrollbar">
             {/* Conditional rendering for search results or home sections */}
             {searchTerm ? (
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
