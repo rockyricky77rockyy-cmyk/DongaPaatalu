@@ -20,7 +20,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Radio Stations</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:space-x-0 md:pb-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-3 flex items-center gap-3 w-[200px] flex-shrink-0 md:w-auto md:flex-shrink">
+            <div key={i} className="group cursor-pointer bg-card rounded-2xl p-3 flex items-center gap-3 min-w-[180px] flex-shrink-0 md:w-auto md:flex-shrink">
               <Skeleton className="w-8 h-8 rounded-full" />
               <div className="flex-1 space-y-1">
                 <Skeleton className="h-4 w-3/4" />
@@ -53,7 +53,7 @@ const HomeRadioStationsSection = ({ className }: HomeRadioStationsSectionProps) 
         {radioStations.slice(0, 4).map((station) => (
           <div
             key={station.id}
-            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden w-[200px] flex-shrink-0 md:w-auto md:flex-shrink"
+            className="group cursor-pointer bg-card rounded-2xl p-3 shadow-card border border-border flex items-center gap-3 transition-all hover:border-primary/50 hover:shadow-neon-strong relative overflow-hidden min-w-[180px] flex-shrink-0 md:w-auto md:flex-shrink"
             onClick={() => navigate('/radio')}
           >
             <Radio className={`w-6 h-6 ${station.icon_color}`} />
