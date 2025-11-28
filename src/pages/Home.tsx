@@ -105,7 +105,7 @@ const Home = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
-              className="pl-10 pr-[6rem] bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-[6rem]
+              className="pl-10 pr-[7.5rem] bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-[7.5rem]
               value={searchTerm}
               onChange={handleSearchChange}
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
@@ -116,7 +116,7 @@ const Home = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-[3.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right-[3.5rem]
+                className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right-[4.5rem]
                 onClick={handleClearSearch}
               >
                 <X className="w-4 h-4" />
