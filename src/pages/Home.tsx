@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search, X } from "lucide-react";
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search, X } from "lucide-react"; // Import X icon
 import { Input } from "@/components/ui/input";
 import MobileSidebar from "@/components/MobileSidebar";
 import NeonLogo from "@/components/NeonLogo";
@@ -14,13 +14,12 @@ import HomeArtistsSection from "@/components/home/HomeArtistsSection";
 import HomeGenresSection from "@/components/home/HomeGenresSection";
 import HomePlaylistsSection from "@/components/home/HomePlaylistsSection";
 import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection";
-import HomePodcastSection from "@/components/home/HomePodcastSection";
+import HomePodcastSection from "@/components/home/HomePodcastSection"; // NEW: Import HomePodcastSection
 import AppSidebar from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import HomeHeader from "@/components/home/HomeHeader";
-import VoiceSearchButton from "@/components/VoiceSearchButton";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ const Home = () => {
   const desktopHeaderRef = useRef<HTMLDivElement>(null);
   const [mobileSuggestionsTop, setMobileSuggestionsTop] = useState(0);
   const [desktopSuggestionsTop, setDesktopSuggestionsTop] = useState(0);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false); // New state for mobile search bar visibility
+
 
   const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
@@ -71,27 +70,14 @@ const Home = () => {
     setShowSuggestions(e.target.value.length > 0);
   };
 
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setShowSuggestions(false);
-  };
-
-  const handleVoiceSearchResult = useCallback((transcript: string) => {
-    setSearchTerm(transcript);
-    setShowSuggestions(transcript.length > 0);
-    setIsMobileSearchOpen(true); // Ensure search bar is open when voice result comes in
-  }, []);
-
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
     setShowSuggestions(false);
-    // Optionally trigger search immediately
   };
 
-  const handleCloseMobileSearch = () => {
+  const handleClearSearch = () => {
     setSearchTerm("");
     setShowSuggestions(false);
-    setIsMobileSearchOpen(false);
   };
 
   return (
@@ -103,52 +89,32 @@ const Home = () => {
           className="lg:hidden w-full p-4 flex items-center gap-4 bg-card border-b border-border sticky top-0 z-20"
         >
           <MobileSidebar navItems={navItems} activeNav={activeNav} onNavigate={handleNavClick} />
-          {!isMobileSearchOpen && (
-            <div className="flex-1 flex items-center justify-between">
-              <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]">
-                DPaata
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => setIsMobileSearchOpen(true)}>
-                <Search className="w-5 h-5 text-muted-foreground" />
+          {/* Replaced NeonLogo with "DPaata" text */}
+          <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent ml-[-3px]">
+            DPaata
+          </div>
+          {/* Mobile Search Bar */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search..."
+              className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onFocus={() => setShowSuggestions(searchTerm.length > 0)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+            />
+            {searchTerm && ( // Show clear button only when searchTerm is not empty
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground"
+                onClick={handleClearSearch}
+              >
+                <X className="w-4 h-4" />
               </Button>
-            </div>
-          )}
-          {isMobileSearchOpen && (
-            <>
-              {/* Mobile Search Bar */}
-              <div className="relative flex-1 flex items-center">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search..."
-                  className="pl-10 pr-[7.5rem] bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-[7.5rem]
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-                />
-                <VoiceSearchButton onResult={handleVoiceSearchResult} className="absolute right-2 top-1/2 -translate-y-1/2" />
-                {searchTerm ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right-[4.5rem]
-                    onClick={handleClearSearch}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Position for close button
-                    onClick={handleCloseMobileSearch}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            </>
-          )}
+            )}
+          </div>
         </header>
 
         {/* Mobile Search Suggestions (rendered outside the header) */}
@@ -173,15 +139,9 @@ const Home = () => {
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col relative lg:ml-64">
+        <div className="flex-1 flex flex-col relative lg:ml-64"> {/* Added lg:ml-64 */}
           {/* Desktop Search Bar (now in HomeHeader) */}
-          <HomeHeader
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            setShowSuggestions={setShowSuggestions}
-            onVoiceSearchResult={handleVoiceSearchResult} // Pass the handler
-            ref={desktopHeaderRef}
-          />
+          <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} setShowSuggestions={setShowSuggestions} ref={desktopHeaderRef} />
 
           {/* Desktop Search Suggestions */}
           {showSuggestions && suggestions && suggestions.length > 0 && (
@@ -207,14 +167,14 @@ const Home = () => {
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
             ) : (
               <>
-                <HomeHeroSection className="mb-8" />
-                <HomeRecentlySearched className="mt-0" />
+                <HomeHeroSection className="mb-8" /> {/* Added mb-8 here */}
+                <HomeRecentlySearched className="mt-0" /> {/* Overriding space-y with mt-0 */}
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />
-                <HomePlaylistsSection />
+                <HomePlaylistsSection /> {/* Moved Playlists after Albums */}
                 <HomeArtistsSection />
-                <HomePodcastSection />
+                <HomePodcastSection /> {/* NEW: Added HomePodcastSection here */}
                 <HomeGenresSection />
                 <HomeRadioStationsSection />
               </>
