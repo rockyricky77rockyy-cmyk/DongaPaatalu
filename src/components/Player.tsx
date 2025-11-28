@@ -76,8 +76,7 @@ const Player = () => {
                 iconClassName="w-4 h-4 sm:w-5 sm:h-5 text-white"
               />
             </div>
-            {/* Adjusted flex properties for text container */}
-            <div className="flex flex-col min-w-0 flex-1"> 
+            <div className="flex flex-col min-w-0 max-w-[150px] sm:max-w-[200px]">
               <span className="text-sm sm:text-base font-medium text-foreground truncate">
                 {currentTrack ? currentTrack.title : 'No track playing'}
               </span>
@@ -93,8 +92,7 @@ const Player = () => {
           </div>
 
           {/* Center: Playback Controls */}
-          {/* Added flex-shrink-0 to prevent shrinking */}
-          <div className="flex items-center gap-2 sm:gap-4 justify-center flex-shrink-0"> 
+          <div className="flex items-center gap-2 sm:gap-4 justify-center"> {/* Added justify-center */}
             <Button 
               variant="ghost" 
               size="icon" 
