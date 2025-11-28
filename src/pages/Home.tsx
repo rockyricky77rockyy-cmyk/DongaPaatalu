@@ -82,7 +82,7 @@ const Home = () => {
 
   return (
     <div className="h-full bg-background flex flex-col relative">
-      <div className="flex-1 flex flex-col lg:flex-row h-full"> {/* Added h-full here */}
+      <div className="flex-1 flex flex-col lg:flex-row h-full">
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
         <header
           ref={mobileHeaderRef}
@@ -139,7 +139,7 @@ const Home = () => {
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 flex flex-col relative lg:ml-64"> {/* Added lg:ml-64 */}
           {/* Desktop Search Bar (now in HomeHeader) */}
           <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} setShowSuggestions={setShowSuggestions} ref={desktopHeaderRef} />
 
