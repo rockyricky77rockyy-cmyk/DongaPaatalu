@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import HomeHeader from "@/components/home/HomeHeader";
+import VoiceSearchButton from "@/components/VoiceSearchButton"; // Import VoiceSearchButton
 
 const Home = () => {
   const navigate = useNavigate();
@@ -70,6 +71,11 @@ const Home = () => {
     setShowSuggestions(e.target.value.length > 0);
   };
 
+  const handleVoiceSearchResult = (transcript: string) => {
+    setSearchTerm(transcript);
+    setShowSuggestions(transcript.length > 0);
+  };
+
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
     setShowSuggestions(false);
@@ -82,7 +88,7 @@ const Home = () => {
 
   return (
     <div className="h-full bg-background flex flex-col relative">
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex flex-col lg:flex-row h-full">
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
         <header
           ref={mobileHeaderRef}
@@ -94,7 +100,7 @@ const Home = () => {
             DPaata
           </div>
           {/* Mobile Search Bar */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex items-center"> {/* Added flex items-center */}
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
@@ -104,7 +110,7 @@ const Home = () => {
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
-            {searchTerm && ( // Show clear button only when searchTerm is not empty
+            {searchTerm ? ( // Show clear button only when searchTerm is not empty
               <Button
                 variant="ghost"
                 size="icon"
@@ -113,6 +119,8 @@ const Home = () => {
               >
                 <X className="w-4 h-4" />
               </Button>
+            ) : (
+              <VoiceSearchButton onResult={handleVoiceSearchResult} className="absolute right-2 top-1/2 -translate-y-1/2" />
             )}
           </div>
         </header>
@@ -139,7 +147,7 @@ const Home = () => {
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 flex flex-col relative lg:ml-64">
           {/* Desktop Search Bar (now in HomeHeader) */}
           <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} setShowSuggestions={setShowSuggestions} ref={desktopHeaderRef} />
 

@@ -16,6 +16,7 @@ import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import TrackThumbnail from "./TrackThumbnail";
 import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack, YouTubeMusicArtist } from "@/hooks/use-youtube-music";
+import VoiceSearchButton from "./VoiceSearchButton"; // Import VoiceSearchButton
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
@@ -38,7 +39,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     toggleShuffle,
     repeatMode,
     toggleRepeatMode,
-    recentlySearched,
     playTrack,
   } = useMusicPlayer();
   const [activeNav, setActiveNav] = useState("home");
@@ -74,6 +74,11 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setIsSearching(e.target.value.length > 0); // Show search results if there's a query
+  };
+
+  const handleVoiceSearchResult = (transcript: string) => {
+    setSearchTerm(transcript);
+    setIsSearching(transcript.length > 0); // Show search results if there's a query
   };
 
   const handleClearSearch = () => {
@@ -138,7 +143,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     <Menu className="w-4 h-4 lg:w-5 lg:h-5" />
                   </Button>
                   {/* Search Input */}
-                  <div className="relative flex-1 mx-4">
+                  <div className="relative flex-1 mx-4 flex items-center"> {/* Added flex items-center */}
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       ref={searchInputRef}
@@ -149,6 +154,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                       onFocus={() => setIsSearching(true)}
                       // onBlur={() => setTimeout(() => setIsSearching(false), 100)} // Keep search results visible until cleared
                     />
+                    <VoiceSearchButton onResult={handleVoiceSearchResult} className="ml-2" /> {/* Added VoiceSearchButton */}
                   </div>
                   <div className="flex items-center gap-1 lg:gap-2">
                     {isSearching && (
@@ -408,6 +414,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 <Button variant="ghost" size="icon" className="w-9 h-9" onClick={() => { navigate('/home'); onClose(); }}>
                   <Search className="w-5 h-5" />
                 </Button>
+                <VoiceSearchButton onResult={handleVoiceSearchResult} className="w-9 h-9" /> {/* Added VoiceSearchButton */}
                 <MobileSidebar navItems={[
                   { id: "home", label: "Home", icon: HomeIcon, path: "/home" },
                   { id: "music", label: "Music", icon: Music, path: "/music" },
@@ -537,7 +544,6 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             <PlaylistQueue
               activeVideoId={currentTrack?.videoId}
               isMobile
-              recentlySearched={recentlySearched}
               isOpen={isPlaylistQueueOpen} // Pass isOpen prop
               onToggle={() => setIsPlaylistQueueOpen(prev => !prev)} // Pass toggle function
               currentTrack={currentTrack} // Pass currentTrack to PlaylistQueue
