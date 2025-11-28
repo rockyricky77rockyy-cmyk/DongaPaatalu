@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react"; // Import useCallback
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search, X } from "lucide-react"; // Import X icon
+import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import MobileSidebar from "@/components/MobileSidebar";
 import NeonLogo from "@/components/NeonLogo";
@@ -14,12 +14,13 @@ import HomeArtistsSection from "@/components/home/HomeArtistsSection";
 import HomeGenresSection from "@/components/home/HomeGenresSection";
 import HomePlaylistsSection from "@/components/home/HomePlaylistsSection";
 import HomeRadioStationsSection from "@/components/home/HomeRadioStationsSection";
-import HomePodcastSection from "@/components/home/HomePodcastSection"; // NEW: Import HomePodcastSection
+import HomePodcastSection from "@/components/home/HomePodcastSection";
 import AppSidebar from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import HomeHeader from "@/components/home/HomeHeader";
+import VoiceSearchButton from "@/components/VoiceSearchButton"; // Import VoiceSearchButton
 
 const Home = () => {
   const navigate = useNavigate();
@@ -30,7 +31,6 @@ const Home = () => {
   const desktopHeaderRef = useRef<HTMLDivElement>(null);
   const [mobileSuggestionsTop, setMobileSuggestionsTop] = useState(0);
   const [desktopSuggestionsTop, setDesktopSuggestionsTop] = useState(0);
-
 
   const { data: suggestions, isLoading: isLoadingSuggestions } = useYouTubeMusicSuggestions(searchTerm);
 
@@ -70,15 +70,16 @@ const Home = () => {
     setShowSuggestions(e.target.value.length > 0);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchTerm(suggestion);
-    setShowSuggestions(false);
-  };
-
   const handleClearSearch = () => {
     setSearchTerm("");
     setShowSuggestions(false);
   };
+
+  // Moved handleVoiceSearchResult here
+  const handleVoiceSearchResult = useCallback((transcript: string) => {
+    setSearchTerm(transcript);
+    setShowSuggestions(transcript.length > 0);
+  }, []);
 
   return (
     <div className="h-full bg-background flex flex-col relative">
@@ -94,21 +95,22 @@ const Home = () => {
             DPaata
           </div>
           {/* Mobile Search Bar */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex items-center"> {/* Added flex items-center */}
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
-              className="pl-10 bg-input border-border rounded-lg h-10 text-sm w-full"
+              className="pl-10 pr-10 bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-10
               value={searchTerm}
               onChange={handleSearchChange}
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
+            <VoiceSearchButton onResult={handleVoiceSearchResult} className="absolute right-2 top-1/2 -translate-y-1/2" /> {/* Added VoiceSearchButton */}
             {searchTerm && ( // Show clear button only when searchTerm is not empty
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground"
+                className="absolute right-10 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right position
                 onClick={handleClearSearch}
               >
                 <X className="w-4 h-4" />
@@ -139,9 +141,15 @@ const Home = () => {
         <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col relative lg:ml-64"> {/* Added lg:ml-64 */}
+        <div className="flex-1 flex flex-col relative lg:ml-64">
           {/* Desktop Search Bar (now in HomeHeader) */}
-          <HomeHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} setShowSuggestions={setShowSuggestions} ref={desktopHeaderRef} />
+          <HomeHeader
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            setShowSuggestions={setShowSuggestions}
+            onVoiceSearchResult={handleVoiceSearchResult} // Pass the handler
+            ref={desktopHeaderRef}
+          />
 
           {/* Desktop Search Suggestions */}
           {showSuggestions && suggestions && suggestions.length > 0 && (
@@ -167,14 +175,14 @@ const Home = () => {
               <HomeSearchResults searchTerm={searchTerm} onClearSearch={handleClearSearch} />
             ) : (
               <>
-                <HomeHeroSection className="mb-8" /> {/* Added mb-8 here */}
-                <HomeRecentlySearched className="mt-0" /> {/* Overriding space-y with mt-0 */}
+                <HomeHeroSection className="mb-8" />
+                <HomeRecentlySearched className="mt-0" />
                 <HomeTopSearches />
                 <HomeNewReleases />
                 <HomeAlbumsSection />
-                <HomePlaylistsSection /> {/* Moved Playlists after Albums */}
+                <HomePlaylistsSection />
                 <HomeArtistsSection />
-                <HomePodcastSection /> {/* NEW: Added HomePodcastSection here */}
+                <HomePodcastSection />
                 <HomeGenresSection />
                 <HomeRadioStationsSection />
               </>

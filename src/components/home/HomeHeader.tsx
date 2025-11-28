@@ -7,20 +7,16 @@ interface HomeHeaderProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   setShowSuggestions: (show: boolean) => void;
+  onVoiceSearchResult: (transcript: string) => void; // New prop for voice search result
 }
 
-const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, setSearchTerm, setShowSuggestions }, ref) => {
+const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, setSearchTerm, setShowSuggestions, onVoiceSearchResult }, ref) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setShowSuggestions(e.target.value.length > 0);
   };
 
-  const handleVoiceSearchResult = (transcript: string) => {
-    setSearchTerm(transcript);
-    setShowSuggestions(transcript.length > 0);
-    // Optionally, trigger search immediately after voice input
-    // You might want to add a debounce or a specific search function call here
-  };
+  // Removed handleVoiceSearchResult from here as it's now passed from Home.tsx
 
   return (
     <div ref={ref} className="sticky top-0 z-20 bg-background p-4 sm:p-8 border-b border-border hidden lg:block min-h-[4.5rem] lg:min-h-[6.5rem]">
@@ -28,7 +24,7 @@ const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, se
         <h1 className="text-3xl font-bold bg-gradient-neon bg-clip-text text-transparent">
           Donga Paatalu
         </h1>
-        <div className="relative flex-1 ml-8 flex items-center"> {/* Added flex items-center */}
+        <div className="relative flex-1 ml-8 flex items-center">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search music, artists, albums..."
@@ -38,7 +34,7 @@ const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, se
             onFocus={() => setShowSuggestions(searchTerm.length > 0)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
           />
-          <VoiceSearchButton onResult={handleVoiceSearchResult} className="ml-2" /> {/* Added VoiceSearchButton */}
+          <VoiceSearchButton onResult={onVoiceSearchResult} className="ml-2" /> {/* Pass onVoiceSearchResult */}
         </div>
       </div>
       {/* Suggestions are rendered in Home.tsx */}
