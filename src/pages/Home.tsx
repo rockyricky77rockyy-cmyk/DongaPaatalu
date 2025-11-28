@@ -81,6 +81,12 @@ const Home = () => {
     setShowSuggestions(transcript.length > 0);
   }, []);
 
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setShowSuggestions(false);
+    // Optionally trigger search immediately
+  };
+
   return (
     <div className="h-full bg-background flex flex-col relative">
       <div className="flex-1 flex flex-col lg:flex-row h-full">
@@ -95,22 +101,22 @@ const Home = () => {
             DPaata
           </div>
           {/* Mobile Search Bar */}
-          <div className="relative flex-1 flex items-center"> {/* Added flex items-center */}
+          <div className="relative flex-1 flex items-center">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
-              className="pl-10 pr-10 bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-10
+              className="pl-10 pr-[6rem] bg-input border-border rounded-lg h-10 text-sm w-full" // Adjusted pr-[6rem]
               value={searchTerm}
               onChange={handleSearchChange}
               onFocus={() => setShowSuggestions(searchTerm.length > 0)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
-            <VoiceSearchButton onResult={handleVoiceSearchResult} className="absolute right-2 top-1/2 -translate-y-1/2" /> {/* Added VoiceSearchButton */}
-            {searchTerm && ( // Show clear button only when searchTerm is not empty
+            <VoiceSearchButton onResult={handleVoiceSearchResult} className="absolute right-2 top-1/2 -translate-y-1/2" />
+            {searchTerm && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-10 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right position
+                className="absolute right-[3.5rem] top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground" // Adjusted right-[3.5rem]
                 onClick={handleClearSearch}
               >
                 <X className="w-4 h-4" />
