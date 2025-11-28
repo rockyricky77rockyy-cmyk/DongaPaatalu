@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useYouTubeMusicSuggestions } from "@/hooks/use-youtube-music";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import HomeHeader from "@/components/home/HomeHeader";
+import VoiceSearchButton from '@/components/VoiceSearchButton'; // Import VoiceSearchButton
 
 const Home = () => {
   const navigate = useNavigate();
@@ -70,6 +71,11 @@ const Home = () => {
     setShowSuggestions(e.target.value.length > 0);
   };
 
+  const handleVoiceSearchResult = (transcript: string) => {
+    setSearchTerm(transcript);
+    setShowSuggestions(transcript.length > 0);
+  };
+
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
     setShowSuggestions(false);
@@ -94,7 +100,7 @@ const Home = () => {
             DPaata
           </div>
           {/* Mobile Search Bar */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex items-center"> {/* Added flex items-center */}
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
@@ -108,12 +114,13 @@ const Home = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground"
+                className="absolute right-10 top-1/2 -translate-y-1/2 w-7 h-7 text-muted-foreground hover:text-foreground"
                 onClick={handleClearSearch}
               >
                 <X className="w-4 h-4" />
               </Button>
             )}
+            <VoiceSearchButton onResult={handleVoiceSearchResult} className="ml-2" /> {/* Added VoiceSearchButton */}
           </div>
         </header>
 
