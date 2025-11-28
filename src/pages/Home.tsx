@@ -82,7 +82,7 @@ const Home = () => {
 
   return (
     <div className="h-full bg-background flex flex-col relative">
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex flex-col lg:flex-row h-full"> {/* Added h-full here */}
         {/* Mobile Header with Sidebar Trigger and Search Bar */}
         <header
           ref={mobileHeaderRef}
