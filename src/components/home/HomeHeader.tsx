@@ -1,6 +1,7 @@
 import React, { useState, forwardRef } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import VoiceSearchButton from '@/components/VoiceSearchButton'; // Import the new component
 
 interface HomeHeaderProps {
   searchTerm: string;
@@ -14,13 +15,20 @@ const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, se
     setShowSuggestions(e.target.value.length > 0);
   };
 
+  const handleVoiceSearchResult = (transcript: string) => {
+    setSearchTerm(transcript);
+    setShowSuggestions(transcript.length > 0);
+    // Optionally, trigger search immediately after voice input
+    // You might want to add a debounce or a specific search function call here
+  };
+
   return (
     <div ref={ref} className="sticky top-0 z-20 bg-background p-4 sm:p-8 border-b border-border hidden lg:block min-h-[4.5rem] lg:min-h-[6.5rem]">
-      <div className="flex items-center justify-between mb-4"> {/* Added flex container for title and search */}
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold bg-gradient-neon bg-clip-text text-transparent">
           Donga Paatalu
         </h1>
-        <div className="relative flex-1 ml-8"> {/* Adjusted margin-left for spacing */}
+        <div className="relative flex-1 ml-8 flex items-center"> {/* Added flex items-center */}
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search music, artists, albums..."
@@ -30,6 +38,7 @@ const HomeHeader = forwardRef<HTMLDivElement, HomeHeaderProps>(({ searchTerm, se
             onFocus={() => setShowSuggestions(searchTerm.length > 0)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
           />
+          <VoiceSearchButton onResult={handleVoiceSearchResult} className="ml-2" /> {/* Added VoiceSearchButton */}
         </div>
       </div>
       {/* Suggestions are rendered in Home.tsx */}

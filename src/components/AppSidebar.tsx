@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
 
 const AppSidebar = ({ activeNav, onNavigate, className }: AppSidebarProps) => {
   return (
-    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 sticky top-0 h-full overflow-y-auto relative ${className}`}>
+    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 fixed top-0 bottom-[120px] overflow-y-auto z-30 ${className}`}>
       <div className="mb-8 flex justify-center">
         {/* Replaced NeonLogo with "Donga Paatalu" text */}
         <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
