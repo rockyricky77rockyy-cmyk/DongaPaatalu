@@ -798,10 +798,10 @@ serve(async (req) => {
       try {
         const requestBody = await req.json();
         const { videoId: clientVideoId, title, artist } = requestBody; // Get videoId, title, and artist from client
-        console.log(`[yt-music-proxy] LYRICS: Fetching lyrics for videoId: "${clientVideoId}", title: "${title}", artist: "${artist}"`);
+        console.log(`[yt-music-proxy] LYRICS DEBUG: Received videoId: "${clientVideoId}", title: "${title}", artist: "${artist}"`);
 
         if (!clientVideoId || !title || !artist) {
-          console.error('[yt-music-proxy] LYRICS: Missing videoId, title, or artist for lyrics');
+          console.error('[yt-music-proxy] LYRICS DEBUG: Missing videoId, title, or artist for lyrics');
           return new Response(JSON.stringify({ error: 'Missing videoId, title, or artist for lyrics' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -814,15 +814,17 @@ serve(async (req) => {
 
         // First, try to get song info directly with the provided videoId
         try {
+          console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with clientVideoId: "${clientVideoId}"`);
           songInfo = await ytmusic.getSong(clientVideoId);
-          console.log(`[yt-music-proxy] LYRICS: getSong with clientVideoId "${clientVideoId}" successful.`);
+          console.log(`[yt-music-proxy] LYRICS DEBUG: getSong with clientVideoId successful. Raw songInfo (partial):`, JSON.stringify({ title: songInfo.title, lyricsId: songInfo.lyricsId, related: songInfo.related?.results?.length }, null, 2));
           lyricsId = songInfo.lyricsId;
         } catch (directGetSongError: any) {
-          console.warn(`[yt-music-proxy] LYRICS: Direct getSong for "${clientVideoId}" failed: ${directGetSongError.message}. Attempting search fallback.`);
+          console.warn(`[yt-music-proxy] LYRICS DEBUG: Direct getSong for "${clientVideoId}" failed: ${directGetSongError.message}. Attempting search fallback.`);
           // Fallback: Search for the song using title and artist
           const searchQuery = `${title} by ${artist}`;
+          console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search query: "${searchQuery}"`);
           const searchResults = await ytmusic.search(searchQuery, 'songs');
-          console.log(`[yt-music-proxy] LYRICS: Search fallback for "${searchQuery}" returned ${searchResults.length} results.`);
+          console.log(`[yt-music-proxy] LYRICS DEBUG: Search fallback for "${searchQuery}" returned ${searchResults.length} results.`);
 
           // Find the most relevant track from search results
           const foundTrack = searchResults.find((item: any) =>
@@ -830,26 +832,27 @@ serve(async (req) => {
           ) || searchResults.find((item: any) => item.videoId && item.title?.toLowerCase().includes(title.toLowerCase()));
 
           if (foundTrack && foundTrack.videoId) {
-            console.log(`[yt-music-proxy] LYRICS: Found track via search fallback: "${foundTrack.title}" (videoId: ${foundTrack.videoId}).`);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrack.title}" (videoId: ${foundTrack.videoId}).`);
             try {
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with fallback videoId: "${foundTrack.videoId}"`);
               songInfo = await ytmusic.getSong(foundTrack.videoId);
               lyricsId = songInfo.lyricsId;
-              console.log(`[yt-music-proxy] LYRICS: getSong with fallback videoId "${foundTrack.videoId}" successful.`);
+              console.log(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId successful. Raw songInfo (partial):`, JSON.stringify({ title: songInfo.title, lyricsId: songInfo.lyricsId, related: songInfo.related?.results?.length }, null, 2));
             } catch (fallbackGetSongError: any) {
-              console.warn(`[yt-music-proxy] LYRICS: getSong with fallback videoId "${foundTrack.videoId}" failed: ${fallbackGetSongError.message}.`);
+              console.warn(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId "${foundTrack.videoId}" failed: ${fallbackGetSongError.message}.`);
             }
           } else {
-            console.log(`[yt-music-proxy] LYRICS: No suitable track found via search fallback for "${searchQuery}".`);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: No suitable track found via search fallback for "${searchQuery}".`);
           }
         }
 
         if (lyricsId) {
-          console.log(`[yt-music-proxy] LYRICS: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
+          console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
           const lyricsResult = await ytmusic.getLyrics(lyricsId);
           lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
-          console.log(`[yt-music-proxy] LYRICS: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
+          console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
         } else {
-          console.log(`[yt-music-proxy] LYRICS: No lyricsId found after all attempts for videoId: ${clientVideoId}.`);
+          console.log(`[yt-music-proxy] LYRICS DEBUG: No lyricsId found after all attempts for videoId: ${clientVideoId}.`);
         }
 
         return new Response(JSON.stringify({ lyrics: lyricsText }), {
@@ -857,8 +860,8 @@ serve(async (req) => {
           status: 200,
         });
       } catch (lyricsError: any) {
-        console.error('[yt-music-proxy] LYRICS: Error in /lyrics endpoint:', lyricsError.message);
-        console.error('[yt-music-proxy] LYRICS: Stack:', lyricsError.stack);
+        console.error('[yt-music-proxy] LYRICS DEBUG: Error in /lyrics endpoint:', lyricsError.message);
+        console.error('[yt-music-proxy] LYRICS DEBUG: Stack:', lyricsError.stack);
         return new Response(JSON.stringify({ error: `Internal server error during lyrics fetch: ${lyricsError.message}` }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
