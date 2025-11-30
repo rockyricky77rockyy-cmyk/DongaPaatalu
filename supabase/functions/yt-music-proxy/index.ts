@@ -429,7 +429,7 @@ serve(async (req) => {
         'new Telugu albums',
         'top Telugu albums',
         'best Telugu albums',
-        'latest Telugu albums',
+        'latest Telugu Telugu albums',
       ].filter(q => q); // Filter out any empty queries
 
       let allAlbumResults: any[] = [];
@@ -798,9 +798,10 @@ serve(async (req) => {
       try {
         const requestBody = await req.json();
         const { videoId } = requestBody;
-        console.log(`[yt-music-proxy] Fetching lyrics for videoId: "${videoId}"`);
+        console.log(`[yt-music-proxy] LYRICS: Fetching lyrics for videoId: "${videoId}"`);
 
         if (!videoId) {
+          console.error('[yt-music-proxy] LYRICS: Missing videoId for lyrics');
           return new Response(JSON.stringify({ error: 'Missing videoId for lyrics' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -808,16 +809,19 @@ serve(async (req) => {
         }
 
         const songInfo = await ytmusic.getSong(videoId);
+        console.log(`[yt-music-proxy] LYRICS: Raw songInfo for videoId "${videoId}":`, JSON.stringify(songInfo, null, 2));
+
         let lyricsText = '';
 
         if (songInfo && songInfo.lyricsId) {
-          console.log(`[yt-music-proxy] Found lyricsId: ${songInfo.lyricsId}. Fetching lyrics...`);
+          console.log(`[yt-music-proxy] LYRICS: Found lyricsId: ${songInfo.lyricsId}. Attempting to fetch lyrics...`);
           const lyricsResult = await ytmusic.getLyrics(songInfo.lyricsId);
+          console.log(`[yt-music-proxy] LYRICS: Raw lyricsResult for lyricsId "${songInfo.lyricsId}":`, JSON.stringify(lyricsResult, null, 2));
           lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
-          console.log(`[yt-music-proxy] Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
+          console.log(`[yt-music-proxy] LYRICS: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
         } else {
           lyricsText = 'No lyrics found for this track.';
-          console.log(`[yt-music-proxy] No lyricsId found for videoId: ${videoId}.`);
+          console.log(`[yt-music-proxy] LYRICS: No lyricsId found for videoId: ${videoId}.`);
         }
 
         return new Response(JSON.stringify({ lyrics: lyricsText }), {
@@ -825,45 +829,14 @@ serve(async (req) => {
           status: 200,
         });
       } catch (lyricsError: any) {
-        console.error('[yt-music-proxy] Error in /lyrics endpoint:', lyricsError.message);
-        console.error('[yt-music-proxy] Stack:', lyricsError.stack);
+        console.error('[yt-music-proxy] LYRICS: Error in /lyrics endpoint:', lyricsError.message);
+        console.error('[yt-music-proxy] LYRICS: Stack:', lyricsError.stack);
         return new Response(JSON.stringify({ error: `Internal server error during lyrics fetch: ${lyricsError.message}` }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
     }
-
-    // REMOVED: Placeholder lyrics endpoint is no longer needed
-    // if (pathname.endsWith('/lyrics-placeholder')) {
-    //   try {
-    //     const requestBody = await req.json();
-    //     const { title, artist } = requestBody;
-    //     console.log(`[yt-music-proxy] Generating placeholder lyrics for: "${title}" by "${artist}"`);
-
-    //     if (!title || !artist) {
-    //       return new Response(JSON.stringify({ error: 'Missing title or artist for lyrics generation' }), {
-    //         status: 400,
-    //         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    //       });
-    //     }
-
-    //     const lyrics = generatePlaceholderLyrics(title, artist);
-
-    //     return new Response(JSON.stringify({ lyrics }), {
-    //       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    //       status: 200,
-    //     });
-    //   } catch (lyricsError: any) {
-    //     console.error('[yt-music-proxy] Error in /lyrics-placeholder endpoint:', lyricsError.message);
-    //     console.error('[yt-music-proxy] Stack:', lyricsError.stack);
-    //     return new Response(JSON.stringify({ error: `Internal server error during lyrics generation: ${lyricsError.message}` }), {
-    //       status: 500,
-    //       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    //     });
-    //   }
-    // }
-
 
     console.log(`[yt-music-proxy] Path not found: ${pathname}`);
     return new Response(JSON.stringify({ error: 'Not Found' }), {
@@ -872,8 +845,8 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('[yt-music-proxy] Error:', error.message);
-    console.error('[yt-music-proxy] Stack:', error.stack);
+    console.error('[yt-music-proxy] Global Error:', error.message);
+    console.error('[yt-music-proxy] Global Stack:', error.stack);
     return new Response(JSON.stringify({ error: error.message, stack: error.stack }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
