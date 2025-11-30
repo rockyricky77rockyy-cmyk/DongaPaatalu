@@ -834,130 +834,118 @@ serve(async (req) => {
             });
           }
 
-          let lyricsText = 'No lyrics found for this track.';
+          let lyricsText = ''; // Start with empty string
           let lyricsId: string | undefined;
           let songInfo: any;
 
-          // Attempt 1: Get song info directly with clientVideoId
+          // Attempt 1: Get song info directly with clientVideoId from YouTube Music
           try {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: Calling ytmusic.getSong with clientVideoId: "${clientVideoId}"`);
             songInfo = await ytmusic.getSong(clientVideoId);
-            console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: Full songInfo from getSong:`, JSON.stringify(songInfo, null, 2));
             lyricsId = songInfo.lyricsId;
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong successful. lyricsId: ${lyricsId}`);
           } catch (error: any) {
-            console.warn(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong for "${clientVideoId}" failed: ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
-            // Proceed to fallback search if getSong fails
+            console.warn(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong for "${clientVideoId}" failed: ${error.message}.`);
           }
 
-          // Fallback: If lyricsId not found from getSong, try searching
+          // Fallback: If lyricsId not found from getSong, try searching YouTube Music
           if (!lyricsId) {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: lyricsId not found from getSong. Attempting fallback search for lyrics.`);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: lyricsId not found from getSong. Attempting fallback search for lyrics on YouTube Music.`);
             try {
               const searchQuery = `${title} ${artist}`;
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search query: "${searchQuery}"`);
               const searchResults = await ytmusic.search(searchQuery, 'songs');
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search found ${searchResults.length} songs.`);
-              // Log the first few search results to inspect their structure
-              console.log(`[yt-music-proxy] LYRICS DEBUG: First 3 fallback search results:`, JSON.stringify(searchResults.slice(0, 3), null, 2));
-
               const matchingTrack = searchResults.find((item: any) => {
-                // Only consider songs/videos for lyrics
-                if (item.type !== 'SONG' && item.type !== 'VIDEO') {
-                  console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search item comparison: Skipping item "${item.title}" due to type "${item.type}"`);
-                  return false;
-                }
+                if (item.type !== 'SONG' && item.type !== 'VIDEO') return false;
+                if (item.videoId === clientVideoId) return true;
 
-                // Prioritize exact videoId match
-                if (item.videoId === clientVideoId) {
-                  console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search item comparison: Exact videoId match for "${item.title}"`);
-                  return true;
-                }
-
-                // Fallback to title and artist match with more flexibility
                 const normalizedItemTitle = (item.title || '').toLowerCase().trim();
                 const normalizedClientTitle = (title || '').toLowerCase().trim();
                 const normalizedItemArtist = (getArtistName(item.artists || item.artist) || '').toLowerCase().trim();
                 const normalizedClientArtist = (artist || '').toLowerCase().trim();
 
-                // Check if titles are very similar (e.g., one contains the other)
                 const titleMatch = normalizedItemTitle.includes(normalizedClientTitle) || normalizedClientTitle.includes(normalizedItemTitle);
-                
-                // Check if artists are very similar (e.g., one contains the other)
                 const artistMatch = normalizedItemArtist.includes(normalizedClientArtist) || normalizedClientArtist.includes(normalizedItemArtist);
-
-
-                console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search item comparison: Item Title: "${item.title}", Client Title: "${title}", Item Artist: "${getArtistName(item.artists || item.artist)}", Client Artist: "${artist}"`);
-                console.log(`[yt-music-proxy] LYRICS DEBUG:   Normalized Item Title: "${normalizedItemTitle}", Normalized Client Title: "${normalizedClientTitle}"`);
-                console.log(`[yt-music-proxy] LYRICS DEBUG:   Normalized Item Artist: "${normalizedItemArtist}", Normalized Client Artist: "${normalizedClientArtist}"`);
-                console.log(`[yt-music-proxy] LYRICS DEBUG:   Title Match: ${titleMatch}, Artist Match: ${artistMatch}`);
-
                 return titleMatch && artistMatch;
               });
 
               if (matchingTrack) {
-                console.log(`[yt-music-proxy] LYRICS DEBUG: Found matchingTrack in fallback search:`, JSON.stringify(matchingTrack, null, 2));
                 if (matchingTrack.lyricsId) {
                   lyricsId = matchingTrack.lyricsId;
                   console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from fallback search result: ${lyricsId}`);
                 } else {
-                  // If matching track found but no lyricsId, try getSong with its videoId
                   console.log(`[yt-music-proxy] LYRICS DEBUG: Matching track found but no lyricsId. Attempting secondary getSong for videoId: ${matchingTrack.videoId}`);
                   try {
                     const secondarySongInfo = await ytmusic.getSong(matchingTrack.videoId);
-                    console.log(`[yt-music-proxy] LYRICS DEBUG: Secondary getSong successful. Full secondarySongInfo:`, JSON.stringify(secondarySongInfo, null, 2));
                     lyricsId = secondarySongInfo.lyricsId;
                     console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from secondary getSong: ${lyricsId}`);
                   } catch (secondaryError: any) {
-                    console.warn(`[yt-music-proxy] LYRICS DEBUG: Secondary getSong for "${matchingTrack.videoId}" failed: ${secondaryError.message}. Error object:`, JSON.stringify(secondaryError, Object.getOwnPropertyNames(secondaryError)));
+                    console.warn(`[yt-music-proxy] LYRICS DEBUG: Secondary getSong for "${matchingTrack.videoId}" failed: ${secondaryError.message}.`);
                   }
                 }
-              } else {
-                console.log(`[yt-music-proxy] LYRICS DEBUG: No matching track found in fallback search.`);
               }
             } catch (searchError: any) {
-              console.error(`[yt-music-proxy] LYRICS DEBUG: Fallback search for lyrics failed: ${searchError.message}. Error object:`, JSON.stringify(searchError, Object.getOwnPropertyNames(searchError)));
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Fallback search for lyrics failed: ${searchError.message}.`);
             }
           }
 
-          // Attempt 2: Fetch lyrics if lyricsId is now available (either from getSong or fallback search)
+          // Attempt 2: Fetch lyrics from YouTube Music if lyricsId is now available
           if (lyricsId) {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics from YouTube Music...`);
             try {
               const lyricsResult = await ytmusic.getLyrics(lyricsId);
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Full lyricsResult from getLyrics:`, JSON.stringify(lyricsResult, null, 2));
-              lyricsText = lyricsResult.lyrics || ''; // Set to empty string if no lyrics
+              lyricsText = lyricsResult.lyrics || '';
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Fetched lyrics from YouTube Music (first 100 chars): ${lyricsText.substring(0, 100)}`);
             } catch (error: any) {
-              console.error(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Error fetching lyrics from YouTube Music for lyricsId "${lyricsId}": ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
-              lyricsText = ''; // Clear lyrics if error
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Error fetching lyrics from YouTube Music for lyricsId "${lyricsId}": ${error.message}.`);
+              lyricsText = '';
             }
           }
 
-          // NEW: Attempt 3: Fallback to Musixmatch if YouTube Music lyrics are still not found
+          // Attempt 3: Fallback to Musixmatch if YouTube Music lyrics are still not found
           if (!lyricsText && MUSIXMATCH_API_KEY) {
             console.log(`[yt-music-proxy] LYRICS DEBUG: YouTube Music lyrics not found. Attempting to fetch lyrics from Musixmatch...`);
             try {
               const musixmatchUrl = `https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?q_track=${encodeURIComponent(title)}&q_artist=${encodeURIComponent(artist)}&apikey=${MUSIXMATCH_API_KEY}`;
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch API URL: ${musixmatchUrl}`);
               const musixmatchResponse = await fetch(musixmatchUrl);
               const musixmatchData = await musixmatchResponse.json();
-
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch raw response:`, JSON.stringify(musixmatchData, null, 2));
 
               if (musixmatchData.message.header.status_code === 200 && musixmatchData.message.body.lyrics) {
                 lyricsText = musixmatchData.message.body.lyrics.lyrics_body || '';
                 console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics from Musixmatch (first 100 chars): ${lyricsText.substring(0, 100)}`);
               } else {
-                console.warn(`[yt-music-proxy] LYRICS DEBUG: Musixmatch did not return lyrics. Status: ${musixmatchData.message.header.status_code}, Message: ${musixmatchData.message.header.status_code !== 200 ? musixmatchData.message.header.status_code : 'No lyrics body'}`);
-                lyricsText = ''; // Ensure it's empty if Musixmatch fails
+                console.warn(`[yt-music-proxy] LYRICS DEBUG: Musixmatch did not return lyrics. Status: ${musixmatchData.message.header.status_code}.`);
+                lyricsText = '';
               }
             } catch (error: any) {
-              console.error(`[yt-music-proxy] LYRICS DEBUG: Error fetching lyrics from Musixmatch: ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
-              lyricsText = ''; // Clear lyrics if error
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Error fetching lyrics from Musixmatch: ${error.message}.`);
+              lyricsText = '';
             }
           } else if (!MUSIXMATCH_API_KEY) {
             console.warn(`[yt-music-proxy] LYRICS DEBUG: MUSIXMATCH_API_KEY is not set. Skipping Musixmatch fallback.`);
+          }
+
+          // NEW Attempt 4: Fallback to Lyrist.vercel.app if Musixmatch also fails
+          if (!lyricsText) {
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch lyrics not found. Attempting to fetch lyrics from Lyrist.vercel.app...`);
+            try {
+              const lyristUrl = `https://lyrist.vercel.app/api/${encodeURIComponent(title)}/${encodeURIComponent(artist)}`;
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Lyrist API URL: ${lyristUrl}`);
+              const lyristResponse = await fetch(lyristUrl);
+              const lyristData = await lyristResponse.json();
+
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Lyrist raw response:`, JSON.stringify(lyristData, null, 2));
+
+              if (lyristResponse.ok && lyristData.lyrics) {
+                lyricsText = lyristData.lyrics || '';
+                console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics from Lyrist (first 100 chars): ${lyricsText.substring(0, 100)}`);
+              } else {
+                console.warn(`[yt-music-proxy] LYRICS DEBUG: Lyrist did not return lyrics. Status: ${lyristResponse.status}, Message: ${lyristData.error || 'No lyrics body'}`);
+                lyricsText = '';
+              }
+            } catch (error: any) {
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Error fetching lyrics from Lyrist: ${error.message}.`);
+              lyricsText = '';
+            }
           }
 
           // Final fallback to placeholder if no lyrics found from any source
