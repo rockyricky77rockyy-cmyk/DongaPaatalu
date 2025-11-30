@@ -75,6 +75,60 @@ function getBestThumbnail(thumbnails: any[], context: string): { url?: string; w
   return { url: finalUrl, width: finalWidth, height: finalHeight };
 }
 
+// NEW: Helper function to generate unique placeholder lyrics
+function generatePlaceholderLyrics(title: string, artist: string): string {
+  const seed = `${title}-${artist}`.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const lines = [
+    `This is a placeholder lyric for "${title}" by ${artist}.`,
+    `A unique verse generated just for you.`,
+    `Feel the rhythm, hear the sound, music all around.`,
+    `Every note a story told, brave and strong and bold.`,
+    `In this moment, we are free, just you and me.`,
+    `Dancing to the beat, so sweet, can't be beat.`,
+    `Let the melody take flight, shining ever so bright.`,
+    `From the heart, a brand new start, playing its essential part.`,
+    `The world is spinning, we are winning, a new beginning.`,
+    `Lost in harmony, wild and free, for all to see.`,
+    `Sunrise paints the window pane, another day begins.`,
+    `A gentle hum, a soft refrain, where my journey spins.`,
+    `Through city streets or quiet lanes, a melody takes hold.`,
+    `Washing away the weary pains, a story to unfold.`,
+    `Whispers carried on the breeze, a secret softly told.`,
+    `Dancing through the ancient trees, a spirit brave and bold.`,
+    `Moments caught in time's embrace, like stardust in the air.`,
+    `Finding beauty, finding grace, beyond all worldly care.`,
+    `Sometimes the tempo slows down low, a quiet, thoughtful pace.`,
+    `Sometimes the fire starts to glow, lighting up this space.`,
+    `Through every high and every low, a constant, steady sound.`,
+    `A guiding light, a gentle flow, where peace can still be found.`,
+    `The music plays, it never ends, a symphony of light.`,
+    `On this journey, with my friends, we dance into the night.`,
+  ];
+
+  // Simple pseudo-random selection based on the seed
+  const seedHash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const numLines = 15 + (seedHash % 5); // Between 15 and 19 lines
+  const selectedLines: string[] = [];
+  const usedIndices = new Set<number>();
+
+  for (let i = 0; i < numLines; i++) {
+    let randomIndex;
+    do {
+      randomIndex = (seedHash + i * 7 + selectedLines.length) % lines.length;
+    } while (usedIndices.has(randomIndex) && usedIndices.size < lines.length);
+    
+    if (usedIndices.size === lines.length) { // All lines used, break to avoid infinite loop
+      break;
+    }
+    
+    selectedLines.push(lines[randomIndex]);
+    usedIndices.add(randomIndex);
+  }
+
+  return selectedLines.join('\n');
+}
+
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -673,9 +727,9 @@ serve(async (req) => {
             console.log(`[yt-music-proxy] Falling back to search for related tracks with query: "${searchQuery}"`);
             const searchRes = await ytmusic.search(searchQuery, 'songs');
             relatedResults = searchRes;
-            console.log(`[yt-music-proxy] Fallback search returned ${relatedResults.length} results.`);
+            console.log(`[yt-music-proxy] Search returned ${relatedResults.length} results.`);
             if (relatedResults.length > 0) {
-              console.log(`[yt-music-proxy] First 3 raw related results from fallback search:`, JSON.stringify(relatedResults.slice(0, 3), null, 2));
+              console.log(`[yt-music-proxy] First 3 raw related results from search:`, JSON.stringify(relatedResults.slice(0, 3), null, 2));
             }
           }
         }
@@ -767,6 +821,27 @@ serve(async (req) => {
       console.log(`[yt-music-proxy] Formatted podcast results count: ${formattedPodcasts.length}`);
 
       return new Response(JSON.stringify({ podcasts: formattedPodcasts }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    // NEW: Endpoint for generating placeholder lyrics
+    if (pathname.endsWith('/lyrics-placeholder')) {
+      const requestBody = await req.json();
+      const { title, artist } = requestBody;
+      console.log(`[yt-music-proxy] Generating placeholder lyrics for: "${title}" by "${artist}"`);
+
+      if (!title || !artist) {
+        return new Response(JSON.stringify({ error: 'Missing title or artist for lyrics generation' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const lyrics = generatePlaceholderLyrics(title, artist);
+
+      return new Response(JSON.stringify({ lyrics }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });

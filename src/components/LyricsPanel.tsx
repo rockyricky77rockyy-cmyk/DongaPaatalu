@@ -3,6 +3,8 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { useLyricsPlaceholder } from '@/hooks/use-lyrics-placeholder'; // Import the new hook
+import { Skeleton } from './ui/skeleton'; // Import Skeleton for loading state
 
 interface LyricsPanelProps {
   title: string;
@@ -17,51 +19,9 @@ const LyricsPanel = ({ title, artist, onClose, currentTime, duration, className 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const highlightedLineRef = useRef<HTMLParagraphElement>(null);
 
-  // Placeholder lyrics for demonstration.
-  // In a real application, you would fetch these based on title/artist/videoId.
-  const placeholderLyrics = `
-(Verse 1)
-Sunrise paints the window pane, another day begins
-A gentle hum, a soft refrain, where my journey spins
-Through city streets or quiet lanes, a melody takes hold
-Washing away the weary pains, a story to unfold
+  const { data: lyricsContent, isLoading, isError, error } = useLyricsPlaceholder(title, artist);
 
-(Chorus)
-Oh, the rhythm of the heart, a beat so strong and true
-Playing its essential part, in everything I do
-With every note, a brand new start, a feeling fresh and new
-Breaking free, tearing apart, the old to make way for you
-
-(Verse 2)
-Whispers carried on the breeze, a secret softly told
-Dancing through the ancient trees, a spirit brave and bold
-Moments caught in time's embrace, like stardust in the air
-Finding beauty, finding grace, beyond all worldly care
-
-(Chorus)
-Oh, the rhythm of the heart, a beat so strong and true
-Playing its essential part, in everything I do
-With every note, a brand new start, a feeling fresh and new
-Breaking free, tearing apart, the old to make way for you
-
-(Bridge)
-Sometimes the tempo slows down low, a quiet, thoughtful pace
-Sometimes the fire starts to glow, lighting up this space
-Through every high and every low, a constant, steady sound
-A guiding light, a gentle flow, where peace can still be found
-
-(Chorus)
-Oh, the rhythm of the heart, a beat so strong and true
-Playing its essential part, in everything I do
-With every note, a brand new start, a feeling fresh and new
-Breaking free, tearing apart, the old to make way for you
-
-(Outro)
-The music plays, it never ends, a symphony of light
-On this journey, with my friends, we dance into the night
-`;
-
-  const lyricsLines = placeholderLyrics.trim().split('\n').filter(line => line.trim() !== '');
+  const lyricsLines = lyricsContent ? lyricsContent.trim().split('\n').filter(line => line.trim() !== '') : [];
   const linesCount = lyricsLines.length;
   const lineDuration = duration > 0 ? duration / linesCount : 0;
 
@@ -101,22 +61,34 @@ On this journey, with my friends, we dance into the night
       </div>
       <p className="text-sm text-muted-foreground mb-4 truncate">by {artist}</p>
       <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4">
-        <div className="font-sans text-base leading-relaxed">
-          {lyricsLines.map((line, index) => (
-            <p
-              key={index}
-              ref={index === highlightedLineIndex ? highlightedLineRef : null}
-              className={cn(
-                "py-1 transition-all duration-300",
-                index === highlightedLineIndex
-                  ? "text-primary font-semibold scale-105"
-                  : "text-foreground opacity-70"
-              )}
-            >
-              {line}
-            </p>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} className="h-5 w-full" />
+            ))}
+          </div>
+        ) : isError ? (
+          <p className="text-destructive">Error loading lyrics: {error?.message}</p>
+        ) : lyricsLines.length > 0 ? (
+          <div className="font-sans text-base leading-relaxed">
+            {lyricsLines.map((line, index) => (
+              <p
+                key={index}
+                ref={index === highlightedLineIndex ? highlightedLineRef : null}
+                className={cn(
+                  "py-1 transition-all duration-300",
+                  index === highlightedLineIndex
+                    ? "text-primary font-semibold scale-105"
+                    : "text-foreground opacity-70"
+                )}
+              >
+                {line}
+              </p>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground">No lyrics found for this track.</p>
+        )}
       </ScrollArea>
     </div>
   );
