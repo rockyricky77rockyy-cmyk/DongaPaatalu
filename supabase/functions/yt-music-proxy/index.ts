@@ -882,6 +882,8 @@ serve(async (req) => {
                     console.warn(`[yt-music-proxy] LYRICS DEBUG: Secondary getSong for "${matchingTrack.videoId}" failed: ${secondaryError.message}.`);
                   }
                 }
+              } else {
+                console.log(`[yt-music-proxy] LYRICS DEBUG: No matching track found in YouTube Music fallback search for "${searchQuery}".`);
               }
             } catch (searchError: any) {
               console.error(`[yt-music-proxy] LYRICS DEBUG: Fallback search for lyrics failed: ${searchError.message}.`);
@@ -906,8 +908,11 @@ serve(async (req) => {
             console.log(`[yt-music-proxy] LYRICS DEBUG: YouTube Music lyrics not found. Attempting to fetch lyrics from Musixmatch...`);
             try {
               const musixmatchUrl = `https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?q_track=${encodeURIComponent(title)}&q_artist=${encodeURIComponent(artist)}&apikey=${MUSIXMATCH_API_KEY}`;
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch API URL: ${musixmatchUrl}`);
               const musixmatchResponse = await fetch(musixmatchUrl);
               const musixmatchData = await musixmatchResponse.json();
+
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch raw response:`, JSON.stringify(musixmatchData, null, 2));
 
               if (musixmatchData.message.header.status_code === 200 && musixmatchData.message.body.lyrics) {
                 lyricsText = musixmatchData.message.body.lyrics.lyrics_body || '';
