@@ -872,14 +872,17 @@ serve(async (req) => {
                 }
 
                 // Fallback to title and artist match with more flexibility
-                const normalizedItemTitle = item.title?.toLowerCase().trim();
-                const normalizedClientTitle = title.toLowerCase().trim();
-                const normalizedItemArtist = getArtistName(item.artists || item.artist)?.toLowerCase().trim();
-                const normalizedClientArtist = artist.toLowerCase().trim();
+                const normalizedItemTitle = (item.title || '').toLowerCase().trim();
+                const normalizedClientTitle = (title || '').toLowerCase().trim();
+                const normalizedItemArtist = (getArtistName(item.artists || item.artist) || '').toLowerCase().trim();
+                const normalizedClientArtist = (artist || '').toLowerCase().trim();
 
-                // Check if titles are very similar (e.g., one contains the other) AND artists match
+                // Check if titles are very similar (e.g., one contains the other)
                 const titleMatch = normalizedItemTitle.includes(normalizedClientTitle) || normalizedClientTitle.includes(normalizedItemTitle);
-                const artistMatch = normalizedItemArtist === normalizedClientArtist;
+                
+                // Check if artists are very similar (e.g., one contains the other)
+                const artistMatch = normalizedItemArtist.includes(normalizedClientArtist) || normalizedClientArtist.includes(normalizedItemArtist);
+
 
                 console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search item comparison: Item Title: "${item.title}", Client Title: "${title}", Item Artist: "${getArtistName(item.artists || item.artist)}", Client Artist: "${artist}"`);
                 console.log(`[yt-music-proxy] LYRICS DEBUG:   Normalized Item Title: "${normalizedItemTitle}", Normalized Client Title: "${normalizedClientTitle}"`);
