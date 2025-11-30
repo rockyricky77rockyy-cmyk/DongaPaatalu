@@ -10,6 +10,9 @@ const ytmusic = new YouTubeMusic();
 let isInitialized = false;
 let initializationPromise: Promise<void> | null = null;
 
+// Get Musixmatch API Key from environment variables
+const MUSIXMATCH_API_KEY = Deno.env.get('MUSIXMATCH_API_KEY');
+
 // Helper function to safely extract artist name
 function getArtistName(artistData: any): string {
   if (typeof artistData === 'string') {
@@ -919,18 +922,47 @@ serve(async (req) => {
 
           // Attempt 2: Fetch lyrics if lyricsId is now available (either from getSong or fallback search)
           if (lyricsId) {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics from YouTube Music...`);
             try {
               const lyricsResult = await ytmusic.getLyrics(lyricsId);
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Full lyricsResult from getLyrics:`, JSON.stringify(lyricsResult, null, 2));
-              lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
+              lyricsText = lyricsResult.lyrics || ''; // Set to empty string if no lyrics
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Fetched lyrics from YouTube Music (first 100 chars): ${lyricsText.substring(0, 100)}`);
             } catch (error: any) {
-              console.error(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Error fetching lyrics for lyricsId "${lyricsId}": ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
-              lyricsText = generatePlaceholderLyrics(title, artist); // Fallback to placeholder on getLyrics error
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Error fetching lyrics from YouTube Music for lyricsId "${lyricsId}": ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
+              lyricsText = ''; // Clear lyrics if error
             }
-          } else {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: No lyricsId found after all attempts for videoId: ${clientVideoId}. Using placeholder lyrics.`);
+          }
+
+          // NEW: Attempt 3: Fallback to Musixmatch if YouTube Music lyrics are still not found
+          if (!lyricsText && MUSIXMATCH_API_KEY) {
+            console.log(`[yt-music-proxy] LYRICS DEBUG: YouTube Music lyrics not found. Attempting to fetch lyrics from Musixmatch...`);
+            try {
+              const musixmatchUrl = `https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?q_track=${encodeURIComponent(title)}&q_artist=${encodeURIComponent(artist)}&apikey=${MUSIXMATCH_API_KEY}`;
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch API URL: ${musixmatchUrl}`);
+              const musixmatchResponse = await fetch(musixmatchUrl);
+              const musixmatchData = await musixmatchResponse.json();
+
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch raw response:`, JSON.stringify(musixmatchData, null, 2));
+
+              if (musixmatchData.message.header.status_code === 200 && musixmatchData.message.body.lyrics) {
+                lyricsText = musixmatchData.message.body.lyrics.lyrics_body || '';
+                console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics from Musixmatch (first 100 chars): ${lyricsText.substring(0, 100)}`);
+              } else {
+                console.warn(`[yt-music-proxy] LYRICS DEBUG: Musixmatch did not return lyrics. Status: ${musixmatchData.message.header.status_code}, Message: ${musixmatchData.message.header.status_code !== 200 ? musixmatchData.message.header.status_code : 'No lyrics body'}`);
+                lyricsText = ''; // Ensure it's empty if Musixmatch fails
+              }
+            } catch (error: any) {
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Error fetching lyrics from Musixmatch: ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
+              lyricsText = ''; // Clear lyrics if error
+            }
+          } else if (!MUSIXMATCH_API_KEY) {
+            console.warn(`[yt-music-proxy] LYRICS DEBUG: MUSIXMATCH_API_KEY is not set. Skipping Musixmatch fallback.`);
+          }
+
+          // Final fallback to placeholder if no lyrics found from any source
+          if (!lyricsText) {
+            console.log(`[yt-music-proxy] LYRICS DEBUG: No lyrics found after all attempts for videoId: ${clientVideoId}. Using placeholder lyrics.`);
             lyricsText = generatePlaceholderLyrics(title, artist);
           }
 
