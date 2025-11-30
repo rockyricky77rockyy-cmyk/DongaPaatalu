@@ -820,7 +820,7 @@ serve(async (req) => {
           console.log(`[yt-music-proxy] LYRICS DEBUG: getSong with clientVideoId successful. Raw songInfo (partial):`, JSON.stringify({ title: songInfo.title, lyricsId: songInfo.lyricsId, related: songInfo.related?.results?.length }, null, 2));
           lyricsId = songInfo.lyricsId;
         } catch (directGetSongError: any) {
-          console.warn(`[yt-music-proxy] LYRICS DEBUG: Direct getSong for "${clientVideoId}" failed: ${directGetSongError.message}. Attempting search fallback.`);
+          console.warn(`[yt-music-proxy] LYRICS DEBUG: Direct getSong for "${clientVideoId}" failed: ${directGetSongError.message}. Error object:`, JSON.stringify(directGetSongError, null, 2), `. Attempting search fallback.`);
           
           // Fallback: Search for the song using title and artist
           const searchQuery = `${title} by ${artist}`;
@@ -854,7 +854,8 @@ serve(async (req) => {
           }
 
           if (foundTrack && foundTrack.videoId) {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrack.title || 'Unknown Title'}" (videoId: ${foundTrack.videoId}).`); // Improved logging for title
+            const foundTrackTitle = foundTrack.title || 'Unknown Title from Search'; // Use a fallback for title
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrackTitle}" (videoId: ${foundTrack.videoId}).`);
             effectiveVideoId = foundTrack.videoId; // Update effectiveVideoId for the second getSong call
             try {
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with fallback videoId: "${effectiveVideoId}"`);
@@ -862,7 +863,7 @@ serve(async (req) => {
               lyricsId = songInfo.lyricsId;
               console.log(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId successful. Raw songInfo (partial):`, JSON.stringify({ title: songInfo.title, lyricsId: songInfo.lyricsId, related: songInfo.related?.results?.length }, null, 2));
             } catch (fallbackGetSongError: any) {
-              console.warn(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId "${effectiveVideoId}" failed: ${fallbackGetSongError.message}.`);
+              console.warn(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId "${effectiveVideoId}" failed: ${fallbackGetSongError.message}. Error object:`, JSON.stringify(fallbackGetSongError, null, 2), `.`);
             }
           } else {
             console.log(`[yt-music-proxy] LYRICS DEBUG: No suitable track found via search fallback for "${searchQuery}".`);
