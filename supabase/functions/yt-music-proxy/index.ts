@@ -855,12 +855,12 @@ serve(async (req) => {
               console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search query: "${searchQuery}"`);
               const searchResults = await ytmusic.search(searchQuery, 'songs');
               console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search found ${searchResults.length} songs.`);
-              // NEW LOG: Log the first few search results to inspect their structure
+              // Log the first few search results to inspect their structure
               console.log(`[yt-music-proxy] LYRICS DEBUG: First 3 fallback search results:`, JSON.stringify(searchResults.slice(0, 3), null, 2));
 
               const matchingTrack = searchResults.find((item: any) =>
                 item.videoId === clientVideoId ||
-                (item.title?.toLowerCase() === title.toLowerCase() && getArtistName(item.artists || item.artist)?.toLowerCase() === artist.toLowerCase())
+                (item.title?.toLowerCase().trim() === title.toLowerCase().trim() && getArtistName(item.artists || item.artist)?.toLowerCase().trim() === artist.toLowerCase().trim())
               );
 
               if (matchingTrack) {
