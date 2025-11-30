@@ -271,68 +271,62 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
                   </div>
                 ) : (
-                  <>
-                    {/* Album Art & Visualizer */}
-                    <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8 relative"> {/* Added relative for LyricsPanel positioning */}
-                      {showLyrics && currentTrack ? (
-                        <LyricsPanel
-                          title={currentTrack.title}
-                          artist={currentTrack.artist}
-                          onClose={() => setShowLyrics(false)}
-                          className="rounded-xl md:rounded-2xl" // Apply rounded corners to match player
-                        />
-                      ) : (
-                        <div className="relative">
-                          {/* Left Visualizer */}
-                          <div className="absolute -left-16 md:-left-24 lg:-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
-                            <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
-                          </div>
-
-                          {/* Album Art with Neon H */}
-                          <div className={cn(
-                            "w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10", // Added z-10
-                            isPlaying && "animate-zoom-pulse" // Apply animation when playing
-                          )}>
-                            <TrackThumbnail // Using TrackThumbnail component here
-                              thumbnail={currentTrack?.thumbnail}
-                              title={currentTrack?.title || 'No track'}
-                              className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl"
-                              iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
-                            />
-                          </div>
-
-                          {/* Right Visualizer */}
-                          <div className="absolute -right-16 md:-right-24 lg:-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
-                            <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
-                          </div>
+                  <ScrollArea className="flex-1 overflow-y-auto no-scrollbar">
+                    <div className="flex flex-col items-center justify-center p-6 lg:p-12 relative">
+                      {/* Album Art & Visualizer */}
+                      <div className="relative mb-8">
+                        {/* Left Visualizer */}
+                        <div className="absolute -left-16 md:-left-24 lg:-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
+                          <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
                         </div>
-                      )}
-                    </div>
 
-                    {/* Progress Bar */}
-                    <div className="px-6 lg:px-12 pb-4 mb-6">
-                      <Slider
-                        value={[playbackProgress]}
-                        onValueChange={handleSliderChange}
-                        max={100}
-                        step={1}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-xs lg:text-sm text-muted-foreground mt-2">
-                        <span>{formatTime(currentTime)}</span>
-                        <span>{formatTime(duration)}</span>
-                      </div>
-                    </div>
+                        {/* Album Art with Neon H */}
+                        <div className={cn(
+                          "w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10", // Added z-10
+                          isPlaying && "animate-zoom-pulse" // Apply animation when playing
+                        )}>
+                          <TrackThumbnail // Using TrackThumbnail component here
+                            thumbnail={currentTrack?.thumbnail}
+                            title={currentTrack?.title || 'No track'}
+                            className="relative z-10 w-full h-full object-cover rounded-xl md:rounded-2xl"
+                            iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
+                          />
+                        </div>
 
-                    {/* Bottom Controls */}
-                    <div className="p-3 lg:p-6 border-t border-border flex items-center">
-                      {/* Left Visualizer */}
-                      <div className="flex-1">
-                        <Visualizer barCount={25} className="h-12 w-48 lg:h-16 lg:w-64" isPlaying={isPlaying} animationIntervalMs={100} />
+                        {/* Right Visualizer */}
+                        <div className="absolute -right-16 md:-right-24 lg:-32 top-1/2 -translate-y-1/2 h-48 md:h-64">
+                          <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
+                        </div>
                       </div>
 
-                      {/* Center Controls */}
-                      <div className="flex items-center gap-4 lg:gap-6">
+                      {/* Track Info */}
+                      <div className="text-center px-6 mb-8">
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
+                        <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack ? String(currentTrack.artist) : ''}</p>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="w-full px-6 lg:px-12 pb-4 mb-6">
+                        <Slider
+                          value={[playbackProgress]}
+                          onValueChange={handleSliderChange}
+                          max={100}
+                          step={1}
+                          className="w-full"
+                        />
+                        <div className="flex justify-between text-xs lg:text-sm text-muted-foreground mt-2">
+                          <span>{formatTime(currentTime)}</span>
+                          <span>{formatTime(duration)}</span>
+                        </div>
+                      </div>
+
+                      {/* Visualizer */}
+                      <div className="w-full px-6 mb-6">
+                        <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} animationIntervalMs={100} />
+                      </div>
+
+                      {/* Bottom Controls */}
+                      <div className="w-full p-3 lg:p-6 border-t border-b border-border flex items-center justify-center gap-4 lg:gap-6 mb-6">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -341,6 +335,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                             isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                           )}
                           onClick={toggleShuffle}
+                          disabled={!currentTrack}
                         >
                           <Shuffle className="w-4 h-4 lg:w-5 lg:h-5" />
                         </Button>
@@ -349,6 +344,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           size="icon"
                           className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
                           onClick={playPreviousTrack}
+                          disabled={!currentTrack}
                         >
                           <SkipBack className="w-5 h-5 lg:w-7 lg:h-7" />
                         </Button>
@@ -356,6 +352,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           size="icon"
                           className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon"
                           onClick={togglePlayPause}
+                          disabled={!currentTrack}
                         >
                           {isPlaying ? <Pause className="w-5 h-5 lg:w-7 lg:h-7" /> : <Play className="w-5 h-5 lg:w-7 lg:h-7 ml-1" />}
                         </Button>
@@ -364,6 +361,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           size="icon"
                           className="text-foreground hover:text-primary w-10 h-10 lg:w-12 lg:h-12"
                           onClick={playNextTrack}
+                          disabled={!currentTrack}
                         >
                           <SkipForward className="w-5 h-5 lg:w-7 lg:h-7" />
                         </Button>
@@ -375,14 +373,11 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                             repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                           )}
                           onClick={toggleRepeatMode}
+                          disabled={!currentTrack}
                         >
                           <Repeat className="w-4 h-4 lg:w-5 lg:h-5" />
                           {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
                         </Button>
-                      </div>
-
-                      {/* Right Space */}
-                      <div className="flex-1 flex justify-end gap-1 lg:gap-2">
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -395,12 +390,21 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         >
                           <Mic2 className="w-4 h-4 lg:w-5 lg:h-5" /> {/* Microphone icon for lyrics */}
                         </Button>
-                        <Button variant="ghost" size="icon" className="w-8 h-8 lg:w-10 lg:h-10">
-                          <span className="text-xs lg:text-sm">🎤</span>
-                        </Button>
                       </div>
+
+                      {/* Lyrics Panel (Desktop) */}
+                      {showLyrics && currentTrack && (
+                        <div className="w-full px-6 lg:px-12 mt-6">
+                          <LyricsPanel
+                            title={currentTrack.title}
+                            artist={currentTrack.artist}
+                            onClose={() => setShowLyrics(false)}
+                            className="w-full h-[400px]" // Fixed height for desktop lyrics
+                          />
+                        </div>
+                      )}
                     </div>
-                  </>
+                  </ScrollArea>
                 )}
               </main>
 
@@ -443,49 +447,38 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
               </div>
             </header>
 
-            {/* Main Content Area: Album Art or Lyrics */}
-            <div className="relative flex-1 flex flex-col items-center justify-center p-6">
-              {showLyrics && currentTrack ? (
-                <LyricsPanel
-                  title={currentTrack.title}
-                  artist={currentTrack.artist}
-                  onClose={() => setShowLyrics(false)}
-                  className="rounded-2xl sm:rounded-3xl" // Apply rounded corners to match player
-                />
-              ) : (
-                <>
-                  {/* Album Art */}
-                  <div className="relative">
-                    {/* Left Visualizer */}
-                    <div className="absolute -left-16 top-1/2 -translate-y-1/2 h-48">
-                      <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
-                    </div>
+            {/* Main Content Area: Album Art */}
+            <div className="relative flex flex-col items-center justify-center p-6">
+              {/* Album Art */}
+              <div className="relative">
+                {/* Left Visualizer */}
+                <div className="absolute -left-16 top-1/2 -translate-y-1/2 h-48">
+                  <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
+                </div>
 
-                    <div className={cn(
-                      "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10",
-                      isPlaying && "animate-zoom-pulse" // Apply animation when playing
-                    )}>
-                      <TrackThumbnail // Using TrackThumbnail component here
-                        thumbnail={currentTrack?.thumbnail}
-                        title={currentTrack?.title || 'No track'}
-                        className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl"
-                        iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
-                      />
-                    </div>
+                <div className={cn(
+                  "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10",
+                  isPlaying && "animate-zoom-pulse" // Apply animation when playing
+                )}>
+                  <TrackThumbnail // Using TrackThumbnail component here
+                    thumbnail={currentTrack?.thumbnail}
+                    title={currentTrack?.title || 'No track'}
+                    className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                    iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
+                  />
+                </div>
 
-                    {/* Right Visualizer */}
-                    <div className="absolute -right-16 top-1/2 -translate-y-1/2 h-48">
-                      <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
-                    </div>
-                  </div>
+                {/* Right Visualizer */}
+                <div className="absolute -right-16 top-1/2 -translate-y-1/2 h-48">
+                  <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
+                </div>
+              </div>
 
-                  {/* Track Info */}
-                  <div className="text-center px-6 mt-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
-                    <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack ? String(currentTrack.artist) : ''}</p>
-                  </div>
-                </>
-              )}
+              {/* Track Info */}
+              <div className="text-center px-6 mt-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
+                <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack ? String(currentTrack.artist) : ''}</p>
+              </div>
             </div>
 
             {/* Progress Bar */}
@@ -519,6 +512,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     isShuffling ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={toggleShuffle}
+                  disabled={!currentTrack}
                 >
                   <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
@@ -527,6 +521,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   size="icon"
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
                   onClick={playPreviousTrack}
+                  disabled={!currentTrack}
                 >
                   <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
@@ -534,6 +529,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   size="icon"
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
                   onClick={togglePlayPause}
+                  disabled={!currentTrack}
                 >
                   {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 h-8 ml-1" />}
                 </Button>
@@ -542,6 +538,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   size="icon"
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
                   onClick={playNextTrack}
+                  disabled={!currentTrack}
                 >
                   <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
@@ -553,6 +550,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     repeatMode !== 'none' ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={toggleRepeatMode}
+                  disabled={!currentTrack}
                 >
                   <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
                   {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
@@ -574,6 +572,18 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                 </Button>
               </div>
             </div>
+
+            {/* Lyrics Panel (Mobile) */}
+            {showLyrics && currentTrack && (
+              <div className="px-6 pb-6">
+                <LyricsPanel
+                  title={currentTrack.title}
+                  artist={currentTrack.artist}
+                  onClose={() => setShowLyrics(false)}
+                  className="w-full h-[300px]" // Fixed height for mobile lyrics
+                />
+              </div>
+            )}
           </div>
 
           {/* Playlist Section */}

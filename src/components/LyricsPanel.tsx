@@ -58,7 +58,7 @@ On this journey, with my friends, we dance into the night
 
   return (
     <div className={cn(
-      "absolute inset-0 z-40 bg-card/50 backdrop-blur-md border border-border rounded-2xl md:rounded-3xl flex flex-col p-4 sm:p-6",
+      "bg-card/50 backdrop-blur-md border border-border rounded-2xl md:rounded-3xl flex flex-col p-4 sm:p-6",
       className
     )}>
       <div className="flex justify-between items-center mb-4">
