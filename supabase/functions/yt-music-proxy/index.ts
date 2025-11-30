@@ -839,6 +839,7 @@ serve(async (req) => {
           try {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: Calling ytmusic.getSong with clientVideoId: "${clientVideoId}"`);
             songInfo = await ytmusic.getSong(clientVideoId);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: Full songInfo from getSong:`, JSON.stringify(songInfo, null, 2)); // NEW LOG
             lyricsId = songInfo.lyricsId;
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong successful. lyricsId: ${lyricsId}`);
           } catch (error: any) { // Explicitly type error as any to access properties
@@ -862,7 +863,8 @@ serve(async (req) => {
                 (item.title?.toLowerCase() === title.toLowerCase() && getArtistName(item.artists || item.artist)?.toLowerCase() === artist.toLowerCase())
               );
 
-              if (matchingTrack && matchingTrack.lyricsId) {
+              if (matchingTrack) { // NEW: Log matching track details
+                console.log(`[yt-music-proxy] LYRICS DEBUG: Found matchingTrack in fallback search:`, JSON.stringify(matchingTrack, null, 2));
                 lyricsId = matchingTrack.lyricsId;
                 console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from fallback search: ${lyricsId}`);
               } else {
@@ -878,6 +880,7 @@ serve(async (req) => {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
             try {
               const lyricsResult = await ytmusic.getLyrics(lyricsId);
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Full lyricsResult from getLyrics:`, JSON.stringify(lyricsResult, null, 2)); // NEW LOG
               lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
             } catch (error: any) {
