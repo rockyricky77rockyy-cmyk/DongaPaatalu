@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,10 +8,15 @@ interface LyricsPanelProps {
   title: string;
   artist: string;
   onClose: () => void;
+  currentTime: number; // New prop for current playback time
+  duration: number;    // New prop for total track duration
   className?: string;
 }
 
-const LyricsPanel = ({ title, artist, onClose, className }: LyricsPanelProps) => {
+const LyricsPanel = ({ title, artist, onClose, currentTime, duration, className }: LyricsPanelProps) => {
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const highlightedLineRef = useRef<HTMLParagraphElement>(null);
+
   // Placeholder lyrics for demonstration.
   // In a real application, you would fetch these based on title/artist/videoId.
   const placeholderLyrics = `
@@ -56,6 +61,33 @@ The music plays, it never ends, a symphony of light
 On this journey, with my friends, we dance into the night
 `;
 
+  const lyricsLines = placeholderLyrics.trim().split('\n').filter(line => line.trim() !== '');
+  const linesCount = lyricsLines.length;
+  const lineDuration = duration > 0 ? duration / linesCount : 0;
+
+  // Determine which line should be highlighted based on current time
+  const highlightedLineIndex = duration > 0 ? Math.floor(currentTime / lineDuration) : -1;
+
+  useEffect(() => {
+    if (highlightedLineRef.current && scrollAreaRef.current) {
+      const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+      if (scrollArea) {
+        const lineElement = highlightedLineRef.current;
+        const lineTop = lineElement.offsetTop;
+        const lineHeight = lineElement.offsetHeight;
+        const scrollAreaHeight = scrollArea.offsetHeight;
+
+        // Calculate target scroll position to center the highlighted line
+        const targetScrollTop = lineTop - (scrollAreaHeight / 2) + (lineHeight / 2);
+
+        scrollArea.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [highlightedLineIndex]); // Re-run effect when highlighted line changes
+
   return (
     <div className={cn(
       "bg-card/50 backdrop-blur-md border border-border rounded-2xl md:rounded-3xl flex flex-col p-4 sm:p-6",
@@ -68,10 +100,23 @@ On this journey, with my friends, we dance into the night
         </Button>
       </div>
       <p className="text-sm text-muted-foreground mb-4 truncate">by {artist}</p>
-      <ScrollArea className="flex-1 pr-4"> {/* Added pr-4 for scrollbar space */}
-        <pre className="font-sans text-base text-foreground leading-relaxed whitespace-pre-wrap">
-          {placeholderLyrics}
-        </pre>
+      <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4">
+        <div className="font-sans text-base leading-relaxed">
+          {lyricsLines.map((line, index) => (
+            <p
+              key={index}
+              ref={index === highlightedLineIndex ? highlightedLineRef : null}
+              className={cn(
+                "py-1 transition-all duration-300",
+                index === highlightedLineIndex
+                  ? "text-primary font-semibold scale-105"
+                  : "text-foreground opacity-70"
+              )}
+            >
+              {line}
+            </p>
+          ))}
+        </div>
       </ScrollArea>
     </div>
   );

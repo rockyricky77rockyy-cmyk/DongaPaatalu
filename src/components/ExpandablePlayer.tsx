@@ -399,6 +399,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                             title={currentTrack.title}
                             artist={currentTrack.artist}
                             onClose={() => setShowLyrics(false)}
+                            currentTime={currentTime} // Pass currentTime
+                            duration={duration}     // Pass duration
                             className="w-full h-[400px]" // Fixed height for desktop lyrics
                           />
                         </div>
@@ -580,6 +582,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   title={currentTrack.title}
                   artist={currentTrack.artist}
                   onClose={() => setShowLyrics(false)}
+                  currentTime={currentTime} // Pass currentTime
+                  duration={duration}     // Pass duration
                   className="w-full h-[300px]" // Fixed height for mobile lyrics
                 />
               </div>
