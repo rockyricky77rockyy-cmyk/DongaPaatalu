@@ -240,6 +240,9 @@ serve(async (req) => {
         if (!videoId && item.feedbackTokens?.add) {
           videoId = item.feedbackTokens.add;
         }
+        if (!videoId && item.feedbackTokens?.remove) {
+          videoId = item.feedbackTokens.remove;
+        }
         if (!videoId && item.video?.videoId) { // Check for nested video object
           videoId = item.video.videoId;
         }
@@ -816,8 +819,13 @@ serve(async (req) => {
           // Fallback: Search for the song using title and artist
           const searchQuery = `${title} by ${artist}`;
           console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search query: "${searchQuery}"`);
-          const searchResults = await ytmusic.search(searchQuery, 'songs');
-          console.log(`[yt-music-proxy] LYRICS DEBUG: Search fallback for "${searchQuery}" returned ${searchResults.length} results.`);
+          let searchResults: any[] = [];
+          try {
+            searchResults = await ytmusic.search(searchQuery, 'songs');
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Search fallback for "${searchQuery}" returned ${searchResults.length} results.`);
+          } catch (searchError: any) {
+            console.error(`[yt-music-proxy] LYRICS DEBUG: Error during fallback search for "${searchQuery}": ${searchError.message}`);
+          }
 
           let foundTrack: any = null;
 
@@ -863,9 +871,15 @@ serve(async (req) => {
 
         if (lyricsId) {
           console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
-          const lyricsResult = await ytmusic.getLyrics(lyricsId);
-          lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
-          console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
+          let lyricsResult: any;
+          try {
+            lyricsResult = await ytmusic.getLyrics(lyricsId);
+            lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
+          } catch (getLyricsError: any) {
+            console.error(`[yt-music-proxy] LYRICS DEBUG: Error fetching lyrics for lyricsId "${lyricsId}": ${getLyricsError.message}`);
+            lyricsText = generatePlaceholderLyrics(title, artist); // Fallback to placeholder on getLyrics error
+          }
         } else {
           console.log(`[yt-music-proxy] LYRICS DEBUG: No lyricsId found after all attempts for videoId: ${clientVideoId}.`);
           // If no lyrics found, use a placeholder
