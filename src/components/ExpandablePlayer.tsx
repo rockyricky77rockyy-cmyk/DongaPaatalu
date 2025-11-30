@@ -396,6 +396,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                       {showLyrics && currentTrack && (
                         <div className="w-full px-6 lg:px-12 mt-6">
                           <LyricsPanel
+                            videoId={currentTrack.videoId} // Pass videoId here
                             title={currentTrack.title}
                             artist={currentTrack.artist}
                             onClose={() => setShowLyrics(false)}
@@ -579,6 +580,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             {showLyrics && currentTrack && (
               <div className="px-6 pb-6">
                 <LyricsPanel
+                  videoId={currentTrack.videoId} // Pass videoId here
                   title={currentTrack.title}
                   artist={currentTrack.artist}
                   onClose={() => setShowLyrics(false)}
