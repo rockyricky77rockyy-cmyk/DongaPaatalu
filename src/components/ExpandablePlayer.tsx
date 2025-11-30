@@ -16,7 +16,7 @@ import { Input } from "./ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TrackThumbnail from "./TrackThumbnail";
 import { useYouTubeMusicSearch, YouTubeMusicAlbum, YouTubeMusicTrack, YouTubeMusicArtist } from "@/hooks/use-youtube-music";
-import LyricsPanel from "./LyricsPanel"; // Import LyricsPanel
+// import LyricsPanel from "./LyricsPanel"; // Commented out LyricsPanel import
 
 interface ExpandablePlayerProps {
   isOpen: boolean;
@@ -52,7 +52,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Lyrics state
-  const [showLyrics, setShowLyrics] = useState(false); // New state for lyrics panel
+  // const [showLyrics, setShowLyrics] = useState(false); // Commented out state for lyrics
 
   const { data: searchResults, isLoading: isSearchLoading, isError: isSearchError, error: searchError } = useYouTubeMusicSearch(searchTerm);
 
@@ -78,7 +78,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setIsSearching(e.target.value.length > 0); // Show search results if there's a query
-    setShowLyrics(false); // Hide lyrics when searching
+    // setShowLyrics(false); // Hide lyrics when searching
   };
 
   const handleClearSearch = () => {
@@ -378,7 +378,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           <Repeat className="w-4 h-4 lg:w-5 lg:h-5" />
                           {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
                         </Button>
-                        <Button 
+                        {/* Commented out Lyrics Button */}
+                        {/* <Button 
                           variant="ghost" 
                           size="icon" 
                           className={cn(
@@ -388,24 +389,24 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                           onClick={() => setShowLyrics(prev => !prev)} // Toggle lyrics visibility
                           disabled={!currentTrack}
                         >
-                          <Mic2 className="w-4 h-4 lg:w-5 lg:h-5" /> {/* Microphone icon for lyrics */}
-                        </Button>
+                          <Mic2 className="w-4 h-4 lg:w-5 lg:h-5" />
+                        </Button> */}
                       </div>
 
-                      {/* Lyrics Panel (Desktop) */}
-                      {showLyrics && currentTrack && (
+                      {/* Commented out Lyrics Panel (Desktop) */}
+                      {/* {showLyrics && currentTrack && (
                         <div className="w-full px-6 lg:px-12 mt-6">
                           <LyricsPanel
-                            videoId={currentTrack.videoId} // Pass videoId here
+                            videoId={currentTrack.videoId}
                             title={currentTrack.title}
                             artist={currentTrack.artist}
                             onClose={() => setShowLyrics(false)}
-                            currentTime={currentTime} // Pass currentTime
-                            duration={duration}     // Pass duration
-                            className="w-full h-[400px]" // Fixed height for desktop lyrics
+                            currentTime={currentTime}
+                            duration={duration}
+                            className="w-full h-[400px]"
                           />
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </ScrollArea>
                 )}
@@ -559,8 +560,8 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
                 </Button>
               </div>
-              {/* Mobile Lyrics Button */}
-              <div className="flex justify-center mt-4">
+              {/* Commented out Mobile Lyrics Button */}
+              {/* <div className="flex justify-center mt-4">
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -571,25 +572,25 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   onClick={() => setShowLyrics(prev => !prev)} // Toggle lyrics visibility
                   disabled={!currentTrack}
                 >
-                  <Mic2 className="w-5 h-5 sm:w-6 sm:h-6" /> {/* Microphone icon for lyrics */}
+                  <Mic2 className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
-              </div>
+              </div> */}
             </div>
 
-            {/* Lyrics Panel (Mobile) */}
-            {showLyrics && currentTrack && (
+            {/* Commented out Lyrics Panel (Mobile) */}
+            {/* {showLyrics && currentTrack && (
               <div className="px-6 pb-6">
                 <LyricsPanel
-                  videoId={currentTrack.videoId} // Pass videoId here
+                  videoId={currentTrack.videoId}
                   title={currentTrack.title}
                   artist={currentTrack.artist}
                   onClose={() => setShowLyrics(false)}
-                  currentTime={currentTime} // Pass currentTime
-                  duration={duration}     // Pass duration
-                  className="w-full h-[300px]" // Fixed height for mobile lyrics
+                  currentTime={currentTime}
+                  duration={duration}
+                  className="w-full h-[300px]"
                 />
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Playlist Section */}
