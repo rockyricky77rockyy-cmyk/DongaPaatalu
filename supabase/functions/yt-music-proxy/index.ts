@@ -839,10 +839,10 @@ serve(async (req) => {
           try {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: Calling ytmusic.getSong with clientVideoId: "${clientVideoId}"`);
             songInfo = await ytmusic.getSong(clientVideoId);
-            console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: Full songInfo from getSong:`, JSON.stringify(songInfo, null, 2)); // NEW LOG
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: Full songInfo from getSong:`, JSON.stringify(songInfo, null, 2));
             lyricsId = songInfo.lyricsId;
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong successful. lyricsId: ${lyricsId}`);
-          } catch (error: any) { // Explicitly type error as any to access properties
+          } catch (error: any) {
             console.warn(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong for "${clientVideoId}" failed: ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
             // Proceed to fallback search if getSong fails
           }
@@ -856,19 +856,30 @@ serve(async (req) => {
               const searchResults = await ytmusic.search(searchQuery, 'songs');
               console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search found ${searchResults.length} songs.`);
 
-              // Try to find a track that matches the videoId (exact match is best)
-              // Or a close match by title/artist if videoId doesn't match
-              const matchingTrack = searchResults.find((item: any) => 
-                item.videoId === clientVideoId || 
+              const matchingTrack = searchResults.find((item: any) =>
+                item.videoId === clientVideoId ||
                 (item.title?.toLowerCase() === title.toLowerCase() && getArtistName(item.artists || item.artist)?.toLowerCase() === artist.toLowerCase())
               );
 
-              if (matchingTrack) { // NEW: Log matching track details
+              if (matchingTrack) {
                 console.log(`[yt-music-proxy] LYRICS DEBUG: Found matchingTrack in fallback search:`, JSON.stringify(matchingTrack, null, 2));
-                lyricsId = matchingTrack.lyricsId;
-                console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from fallback search: ${lyricsId}`);
+                if (matchingTrack.lyricsId) {
+                  lyricsId = matchingTrack.lyricsId;
+                  console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from fallback search result: ${lyricsId}`);
+                } else {
+                  // NEW: If matching track found but no lyricsId, try getSong with its videoId
+                  console.log(`[yt-music-proxy] LYRICS DEBUG: Matching track found but no lyricsId. Attempting secondary getSong for videoId: ${matchingTrack.videoId}`);
+                  try {
+                    const secondarySongInfo = await ytmusic.getSong(matchingTrack.videoId);
+                    console.log(`[yt-music-proxy] LYRICS DEBUG: Secondary getSong successful. Full secondarySongInfo:`, JSON.stringify(secondarySongInfo, null, 2));
+                    lyricsId = secondarySongInfo.lyricsId;
+                    console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from secondary getSong: ${lyricsId}`);
+                  } catch (secondaryError: any) {
+                    console.warn(`[yt-music-proxy] LYRICS DEBUG: Secondary getSong for "${matchingTrack.videoId}" failed: ${secondaryError.message}. Error object:`, JSON.stringify(secondaryError, Object.getOwnPropertyNames(secondaryError)));
+                  }
+                }
               } else {
-                console.log(`[yt-music-proxy] LYRICS DEBUG: No matching track with lyricsId found in fallback search.`);
+                console.log(`[yt-music-proxy] LYRICS DEBUG: No matching track found in fallback search.`);
               }
             } catch (searchError: any) {
               console.error(`[yt-music-proxy] LYRICS DEBUG: Fallback search for lyrics failed: ${searchError.message}. Error object:`, JSON.stringify(searchError, Object.getOwnPropertyNames(searchError)));
@@ -880,7 +891,7 @@ serve(async (req) => {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
             try {
               const lyricsResult = await ytmusic.getLyrics(lyricsId);
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Full lyricsResult from getLyrics:`, JSON.stringify(lyricsResult, null, 2)); // NEW LOG
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Full lyricsResult from getLyrics:`, JSON.stringify(lyricsResult, null, 2));
               lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
             } catch (error: any) {
