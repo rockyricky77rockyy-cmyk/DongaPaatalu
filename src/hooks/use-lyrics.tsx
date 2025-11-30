@@ -5,7 +5,9 @@ export const useLyrics = (videoId: string | null) => {
   return useQuery<string, Error>({
     queryKey: ["lyrics", videoId],
     queryFn: async () => {
+      console.log("useLyrics: Query function called with videoId:", videoId); // NEW LOG
       if (!videoId) {
+        console.log("useLyrics: videoId is null or empty, returning empty string."); // NEW LOG
         return ""; // Return empty string if no videoId
       }
 
