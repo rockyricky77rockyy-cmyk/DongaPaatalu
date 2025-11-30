@@ -841,25 +841,51 @@ serve(async (req) => {
             songInfo = await ytmusic.getSong(clientVideoId);
             lyricsId = songInfo.lyricsId;
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong successful. lyricsId: ${lyricsId}`);
-          } catch (error) {
-            console.warn(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong for "${clientVideoId}" failed: ${error.message}. Error object:`, JSON.stringify(error, null, 2));
-            // If getSong fails, we will not attempt a fallback search for lyrics in this simplified version.
-            // We will directly proceed to check if lyricsId was found (it won't be) and then return placeholder.
+          } catch (error: any) { // Explicitly type error as any to access properties
+            console.warn(`[yt-music-proxy] LYRICS DEBUG: Attempt 1: getSong for "${clientVideoId}" failed: ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
+            // Proceed to fallback search if getSong fails
           }
 
-          // Attempt 2: Fetch lyrics if lyricsId is now available
+          // Fallback: If lyricsId not found from getSong, try searching
+          if (!lyricsId) {
+            console.log(`[yt-music-proxy] LYRICS DEBUG: lyricsId not found from getSong. Attempting fallback search for lyrics.`);
+            try {
+              const searchQuery = `${title} ${artist}`;
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search query: "${searchQuery}"`);
+              const searchResults = await ytmusic.search(searchQuery, 'songs');
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search found ${searchResults.length} songs.`);
+
+              // Try to find a track that matches the videoId (exact match is best)
+              // Or a close match by title/artist if videoId doesn't match
+              const matchingTrack = searchResults.find((item: any) => 
+                item.videoId === clientVideoId || 
+                (item.title?.toLowerCase() === title.toLowerCase() && getArtistName(item.artists || item.artist)?.toLowerCase() === artist.toLowerCase())
+              );
+
+              if (matchingTrack && matchingTrack.lyricsId) {
+                lyricsId = matchingTrack.lyricsId;
+                console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from fallback search: ${lyricsId}`);
+              } else {
+                console.log(`[yt-music-proxy] LYRICS DEBUG: No matching track with lyricsId found in fallback search.`);
+              }
+            } catch (searchError: any) {
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Fallback search for lyrics failed: ${searchError.message}. Error object:`, JSON.stringify(searchError, Object.getOwnPropertyNames(searchError)));
+            }
+          }
+
+          // Attempt 2: Fetch lyrics if lyricsId is now available (either from getSong or fallback search)
           if (lyricsId) {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
             try {
               const lyricsResult = await ytmusic.getLyrics(lyricsId);
               lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
-            } catch (error) {
-              console.error(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Error fetching lyrics for lyricsId "${lyricsId}": ${error.message}. Error object:`, JSON.stringify(error, null, 2));
+            } catch (error: any) {
+              console.error(`[yt-music-proxy] LYRICS DEBUG: Attempt 2: Error fetching lyrics for lyricsId "${lyricsId}": ${error.message}. Error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
               lyricsText = generatePlaceholderLyrics(title, artist); // Fallback to placeholder on getLyrics error
             }
           } else {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: No lyricsId found after getSong for videoId: ${clientVideoId}. Using placeholder lyrics.`);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: No lyricsId found after all attempts for videoId: ${clientVideoId}. Using placeholder lyrics.`);
             lyricsText = generatePlaceholderLyrics(title, artist);
           }
 
