@@ -240,9 +240,6 @@ serve(async (req) => {
         if (!videoId && item.feedbackTokens?.add) {
           videoId = item.feedbackTokens.add;
         }
-        if (!videoId && item.feedbackTokens?.remove) {
-          videoId = item.feedbackTokens.remove;
-        }
         if (!videoId && item.video?.videoId) { // Check for nested video object
           videoId = item.video.videoId;
         }
@@ -849,7 +846,7 @@ serve(async (req) => {
 
           if (foundTrack && foundTrack.videoId) {
             const foundTrackTitle = foundTrack.title || 'Unknown Title from Search'; // Use a fallback for title
-            console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrackTitle}" (videoId: ${foundTrack.videoId}).`);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrackTitle}" (videoId: ${foundTrack.videoId}, type: ${foundTrack.type}).`); // ADDED type here
             effectiveVideoId = foundTrack.videoId; // Update effectiveVideoId for the second getSong call
             try {
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with fallback videoId: "${effectiveVideoId}"`);
