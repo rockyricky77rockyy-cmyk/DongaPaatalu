@@ -828,23 +828,32 @@ serve(async (req) => {
 
     // NEW: Endpoint for generating placeholder lyrics
     if (pathname.endsWith('/lyrics-placeholder')) {
-      const requestBody = await req.json();
-      const { title, artist } = requestBody;
-      console.log(`[yt-music-proxy] Generating placeholder lyrics for: "${title}" by "${artist}"`);
+      try { // Added try-catch block here
+        const requestBody = await req.json();
+        const { title, artist } = requestBody;
+        console.log(`[yt-music-proxy] Generating placeholder lyrics for: "${title}" by "${artist}"`);
 
-      if (!title || !artist) {
-        return new Response(JSON.stringify({ error: 'Missing title or artist for lyrics generation' }), {
-          status: 400,
+        if (!title || !artist) {
+          return new Response(JSON.stringify({ error: 'Missing title or artist for lyrics generation' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const lyrics = generatePlaceholderLyrics(title, artist);
+
+        return new Response(JSON.stringify({ lyrics }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        });
+      } catch (lyricsError: any) {
+        console.error('[yt-music-proxy] Error in /lyrics-placeholder endpoint:', lyricsError.message);
+        console.error('[yt-music-proxy] Stack:', lyricsError.stack);
+        return new Response(JSON.stringify({ error: `Internal server error during lyrics generation: ${lyricsError.message}` }), {
+          status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-
-      const lyrics = generatePlaceholderLyrics(title, artist);
-
-      return new Response(JSON.stringify({ lyrics }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
     }
 
 
