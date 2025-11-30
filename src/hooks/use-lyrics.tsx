@@ -1,18 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useLyrics = (videoId: string | null) => {
+export const useLyrics = (videoId: string | null, title: string | null, artist: string | null) => {
   return useQuery<string, Error>({
-    queryKey: ["lyrics", videoId],
+    queryKey: ["lyrics", videoId, title, artist], // Include title and artist in queryKey
     queryFn: async () => {
-      console.log("useLyrics: Query function called with videoId:", videoId); // NEW LOG
-      if (!videoId) {
-        console.log("useLyrics: videoId is null or empty, returning empty string."); // NEW LOG
-        return ""; // Return empty string if no videoId
+      console.log("useLyrics: Query function called with videoId:", videoId, "title:", title, "artist:", artist);
+      if (!videoId || !title || !artist) {
+        console.log("useLyrics: Missing videoId, title, or artist, returning empty string.");
+        return ""; // Return empty string if essential info is missing
       }
 
       const { data, error } = await supabase.functions.invoke('yt-music-proxy/lyrics', {
-        body: { videoId },
+        body: { videoId, title, artist }, // Pass title and artist in the body
       });
 
       if (error) {
@@ -25,7 +25,7 @@ export const useLyrics = (videoId: string | null) => {
       }
       return "";
     },
-    enabled: !!videoId, // Only enable query if videoId is available
+    enabled: !!videoId && !!title && !!artist, // Only enable query if all necessary info is available
     staleTime: Infinity, // Lyrics don't change, so cache indefinitely
     gcTime: Infinity,
   });

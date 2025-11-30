@@ -22,7 +22,7 @@ const LyricsPanel = ({ videoId, title, artist, onClose, currentTime, duration, c
 
   console.log("LyricsPanel: Received videoId:", videoId); // NEW LOG
 
-  const { data: lyricsContent, isLoading, isError, error } = useLyrics(videoId); // Use videoId to fetch lyrics
+  const { data: lyricsContent, isLoading, isError, error } = useLyrics(videoId, title, artist); // Pass title and artist here
 
   const lyricsLines = lyricsContent ? lyricsContent.trim().split('\n').filter(line => line.trim() !== '') : [];
   const linesCount = lyricsLines.length;

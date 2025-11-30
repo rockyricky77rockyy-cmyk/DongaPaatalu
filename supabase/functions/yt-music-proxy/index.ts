@@ -797,31 +797,59 @@ serve(async (req) => {
     if (pathname.endsWith('/lyrics')) {
       try {
         const requestBody = await req.json();
-        const { videoId } = requestBody;
-        console.log(`[yt-music-proxy] LYRICS: Fetching lyrics for videoId: "${videoId}"`);
+        const { videoId: clientVideoId, title, artist } = requestBody; // Get videoId, title, and artist from client
+        console.log(`[yt-music-proxy] LYRICS: Fetching lyrics for videoId: "${clientVideoId}", title: "${title}", artist: "${artist}"`);
 
-        if (!videoId) {
-          console.error('[yt-music-proxy] LYRICS: Missing videoId for lyrics');
-          return new Response(JSON.stringify({ error: 'Missing videoId for lyrics' }), {
+        if (!clientVideoId || !title || !artist) {
+          console.error('[yt-music-proxy] LYRICS: Missing videoId, title, or artist for lyrics');
+          return new Response(JSON.stringify({ error: 'Missing videoId, title, or artist for lyrics' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
-        const songInfo = await ytmusic.getSong(videoId);
-        console.log(`[yt-music-proxy] LYRICS: Raw songInfo for videoId "${videoId}":`, JSON.stringify(songInfo, null, 2));
+        let lyricsText = 'No lyrics found for this track.';
+        let lyricsId: string | undefined;
+        let songInfo: any;
 
-        let lyricsText = '';
+        // First, try to get song info directly with the provided videoId
+        try {
+          songInfo = await ytmusic.getSong(clientVideoId);
+          console.log(`[yt-music-proxy] LYRICS: getSong with clientVideoId "${clientVideoId}" successful.`);
+          lyricsId = songInfo.lyricsId;
+        } catch (directGetSongError: any) {
+          console.warn(`[yt-music-proxy] LYRICS: Direct getSong for "${clientVideoId}" failed: ${directGetSongError.message}. Attempting search fallback.`);
+          // Fallback: Search for the song using title and artist
+          const searchQuery = `${title} by ${artist}`;
+          const searchResults = await ytmusic.search(searchQuery, 'songs');
+          console.log(`[yt-music-proxy] LYRICS: Search fallback for "${searchQuery}" returned ${searchResults.length} results.`);
 
-        if (songInfo && songInfo.lyricsId) {
-          console.log(`[yt-music-proxy] LYRICS: Found lyricsId: ${songInfo.lyricsId}. Attempting to fetch lyrics...`);
-          const lyricsResult = await ytmusic.getLyrics(songInfo.lyricsId);
-          console.log(`[yt-music-proxy] LYRICS: Raw lyricsResult for lyricsId "${songInfo.lyricsId}":`, JSON.stringify(lyricsResult, null, 2));
+          // Find the most relevant track from search results
+          const foundTrack = searchResults.find((item: any) =>
+            item.videoId && item.title?.toLowerCase() === title.toLowerCase() && getArtistName(item.artists || item.artist)?.toLowerCase() === artist.toLowerCase()
+          ) || searchResults.find((item: any) => item.videoId && item.title?.toLowerCase().includes(title.toLowerCase()));
+
+          if (foundTrack && foundTrack.videoId) {
+            console.log(`[yt-music-proxy] LYRICS: Found track via search fallback: "${foundTrack.title}" (videoId: ${foundTrack.videoId}).`);
+            try {
+              songInfo = await ytmusic.getSong(foundTrack.videoId);
+              lyricsId = songInfo.lyricsId;
+              console.log(`[yt-music-proxy] LYRICS: getSong with fallback videoId "${foundTrack.videoId}" successful.`);
+            } catch (fallbackGetSongError: any) {
+              console.warn(`[yt-music-proxy] LYRICS: getSong with fallback videoId "${foundTrack.videoId}" failed: ${fallbackGetSongError.message}.`);
+            }
+          } else {
+            console.log(`[yt-music-proxy] LYRICS: No suitable track found via search fallback for "${searchQuery}".`);
+          }
+        }
+
+        if (lyricsId) {
+          console.log(`[yt-music-proxy] LYRICS: Found lyricsId: ${lyricsId}. Attempting to fetch lyrics...`);
+          const lyricsResult = await ytmusic.getLyrics(lyricsId);
           lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
           console.log(`[yt-music-proxy] LYRICS: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
         } else {
-          lyricsText = 'No lyrics found for this track.';
-          console.log(`[yt-music-proxy] LYRICS: No lyricsId found for videoId: ${videoId}.`);
+          console.log(`[yt-music-proxy] LYRICS: No lyricsId found after all attempts for videoId: ${clientVideoId}.`);
         }
 
         return new Response(JSON.stringify({ lyrics: lyricsText }), {
