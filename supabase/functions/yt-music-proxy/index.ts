@@ -793,35 +793,76 @@ serve(async (req) => {
       });
     }
 
-    // NEW: Endpoint for generating placeholder lyrics
-    if (pathname.endsWith('/lyrics-placeholder')) {
-      try { // Added try-catch block here
+    // NEW: Endpoint for fetching actual lyrics
+    if (pathname.endsWith('/lyrics')) {
+      try {
         const requestBody = await req.json();
-        const { title, artist } = requestBody;
-        console.log(`[yt-music-proxy] Generating placeholder lyrics for: "${title}" by "${artist}"`);
+        const { videoId } = requestBody;
+        console.log(`[yt-music-proxy] Fetching lyrics for videoId: "${videoId}"`);
 
-        if (!title || !artist) {
-          return new Response(JSON.stringify({ error: 'Missing title or artist for lyrics generation' }), {
+        if (!videoId) {
+          return new Response(JSON.stringify({ error: 'Missing videoId for lyrics' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
-        const lyrics = generatePlaceholderLyrics(title, artist);
+        const songInfo = await ytmusic.getSong(videoId);
+        let lyricsText = '';
 
-        return new Response(JSON.stringify({ lyrics }), {
+        if (songInfo && songInfo.lyricsId) {
+          console.log(`[yt-music-proxy] Found lyricsId: ${songInfo.lyricsId}. Fetching lyrics...`);
+          const lyricsResult = await ytmusic.getLyrics(songInfo.lyricsId);
+          lyricsText = lyricsResult.lyrics || 'No lyrics found for this track.';
+          console.log(`[yt-music-proxy] Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
+        } else {
+          lyricsText = 'No lyrics found for this track.';
+          console.log(`[yt-music-proxy] No lyricsId found for videoId: ${videoId}.`);
+        }
+
+        return new Response(JSON.stringify({ lyrics: lyricsText }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200,
         });
       } catch (lyricsError: any) {
-        console.error('[yt-music-proxy] Error in /lyrics-placeholder endpoint:', lyricsError.message);
+        console.error('[yt-music-proxy] Error in /lyrics endpoint:', lyricsError.message);
         console.error('[yt-music-proxy] Stack:', lyricsError.stack);
-        return new Response(JSON.stringify({ error: `Internal server error during lyrics generation: ${lyricsError.message}` }), {
+        return new Response(JSON.stringify({ error: `Internal server error during lyrics fetch: ${lyricsError.message}` }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
     }
+
+    // REMOVED: Placeholder lyrics endpoint is no longer needed
+    // if (pathname.endsWith('/lyrics-placeholder')) {
+    //   try {
+    //     const requestBody = await req.json();
+    //     const { title, artist } = requestBody;
+    //     console.log(`[yt-music-proxy] Generating placeholder lyrics for: "${title}" by "${artist}"`);
+
+    //     if (!title || !artist) {
+    //       return new Response(JSON.stringify({ error: 'Missing title or artist for lyrics generation' }), {
+    //         status: 400,
+    //         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    //       });
+    //     }
+
+    //     const lyrics = generatePlaceholderLyrics(title, artist);
+
+    //     return new Response(JSON.stringify({ lyrics }), {
+    //       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    //       status: 200,
+    //     });
+    //   } catch (lyricsError: any) {
+    //     console.error('[yt-music-proxy] Error in /lyrics-placeholder endpoint:', lyricsError.message);
+    //     console.error('[yt-music-proxy] Stack:', lyricsError.stack);
+    //     return new Response(JSON.stringify({ error: `Internal server error during lyrics generation: ${lyricsError.message}` }), {
+    //       status: 500,
+    //       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    //     });
+    //   }
+    // }
 
 
     console.log(`[yt-music-proxy] Path not found: ${pathname}`);

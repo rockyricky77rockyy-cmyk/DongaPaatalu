@@ -3,10 +3,11 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { useLyricsPlaceholder } from '@/hooks/use-lyrics-placeholder'; // Import the new hook
+import { useLyrics } from '@/hooks/use-lyrics'; // Import the new hook
 import { Skeleton } from './ui/skeleton'; // Import Skeleton for loading state
 
 interface LyricsPanelProps {
+  videoId: string; // Changed to videoId
   title: string;
   artist: string;
   onClose: () => void;
@@ -15,11 +16,11 @@ interface LyricsPanelProps {
   className?: string;
 }
 
-const LyricsPanel = ({ title, artist, onClose, currentTime, duration, className }: LyricsPanelProps) => {
+const LyricsPanel = ({ videoId, title, artist, onClose, currentTime, duration, className }: LyricsPanelProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const highlightedLineRef = useRef<HTMLParagraphElement>(null);
 
-  const { data: lyricsContent, isLoading, isError, error } = useLyricsPlaceholder(title, artist);
+  const { data: lyricsContent, isLoading, isError, error } = useLyrics(videoId); // Use videoId to fetch lyrics
 
   const lyricsLines = lyricsContent ? lyricsContent.trim().split('\n').filter(line => line.trim() !== '') : [];
   const linesCount = lyricsLines.length;
