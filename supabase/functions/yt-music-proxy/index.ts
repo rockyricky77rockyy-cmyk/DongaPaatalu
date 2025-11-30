@@ -526,7 +526,7 @@ serve(async (req) => {
         playlistResults = searchRes;
       } else {
         const trendingPlaylists = await ytmusic.search('popular playlists', 'playlists'); // Changed to 'popular playlists' for potentially better results
-        playlistResults = trendingPlaylists;
+        playlistResults = trendingPlayplaylists;
       }
 
       const formattedPlaylists = playlistResults.map((item: any) => {
@@ -811,8 +811,9 @@ serve(async (req) => {
         let lyricsText = 'No lyrics found for this track.';
         let lyricsId: string | undefined;
         let songInfo: any;
+        let effectiveVideoId = clientVideoId; // Use this to track which videoId we successfully got songInfo for
 
-        // First, try to get song info directly with the provided videoId
+        // First, try to get song info directly with the provided clientVideoId
         try {
           console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with clientVideoId: "${clientVideoId}"`);
           songInfo = await ytmusic.getSong(clientVideoId);
@@ -820,26 +821,48 @@ serve(async (req) => {
           lyricsId = songInfo.lyricsId;
         } catch (directGetSongError: any) {
           console.warn(`[yt-music-proxy] LYRICS DEBUG: Direct getSong for "${clientVideoId}" failed: ${directGetSongError.message}. Attempting search fallback.`);
+          
           // Fallback: Search for the song using title and artist
           const searchQuery = `${title} by ${artist}`;
           console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search query: "${searchQuery}"`);
           const searchResults = await ytmusic.search(searchQuery, 'songs');
           console.log(`[yt-music-proxy] LYRICS DEBUG: Search fallback for "${searchQuery}" returned ${searchResults.length} results.`);
 
-          // Find the most relevant track from search results
-          const foundTrack = searchResults.find((item: any) =>
-            item.videoId && item.title?.toLowerCase() === title.toLowerCase() && getArtistName(item.artists || item.artist)?.toLowerCase() === artist.toLowerCase()
-          ) || searchResults.find((item: any) => item.videoId && item.title?.toLowerCase().includes(title.toLowerCase()));
+          let foundTrack: any = null;
+
+          // Prioritize exact videoId match from search results
+          foundTrack = searchResults.find((item: any) => item.videoId === clientVideoId);
+
+          // If not found by exact videoId, try a more robust title/artist match
+          if (!foundTrack) {
+            foundTrack = searchResults.find((item: any) => {
+              const itemTitle = item.title?.toLowerCase();
+              const itemArtist = getArtistName(item.artists || item.artist)?.toLowerCase();
+              const clientTitle = title.toLowerCase();
+              const clientArtist = artist.toLowerCase();
+
+              // Check if title and artist are included, allowing for slight variations
+              return item.videoId &&
+                     itemTitle?.includes(clientTitle) &&
+                     itemArtist?.includes(clientArtist);
+            });
+          }
+
+          // If still not found, try a broader title match
+          if (!foundTrack) {
+            foundTrack = searchResults.find((item: any) => item.videoId && item.title?.toLowerCase().includes(title.toLowerCase()));
+          }
 
           if (foundTrack && foundTrack.videoId) {
             console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrack.title}" (videoId: ${foundTrack.videoId}).`);
+            effectiveVideoId = foundTrack.videoId; // Update effectiveVideoId for the second getSong call
             try {
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with fallback videoId: "${foundTrack.videoId}"`);
-              songInfo = await ytmusic.getSong(foundTrack.videoId);
+              console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with fallback videoId: "${effectiveVideoId}"`);
+              songInfo = await ytmusic.getSong(effectiveVideoId);
               lyricsId = songInfo.lyricsId;
               console.log(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId successful. Raw songInfo (partial):`, JSON.stringify({ title: songInfo.title, lyricsId: songInfo.lyricsId, related: songInfo.related?.results?.length }, null, 2));
             } catch (fallbackGetSongError: any) {
-              console.warn(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId "${foundTrack.videoId}" failed: ${fallbackGetSongError.message}.`);
+              console.warn(`[yt-music-proxy] LYRICS DEBUG: getSong with fallback videoId "${effectiveVideoId}" failed: ${fallbackGetSongError.message}.`);
             }
           } else {
             console.log(`[yt-music-proxy] LYRICS DEBUG: No suitable track found via search fallback for "${searchQuery}".`);
@@ -853,6 +876,9 @@ serve(async (req) => {
           console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics (first 100 chars): ${lyricsText.substring(0, 100)}`);
         } else {
           console.log(`[yt-music-proxy] LYRICS DEBUG: No lyricsId found after all attempts for videoId: ${clientVideoId}.`);
+          // If no lyrics found, use a placeholder
+          lyricsText = generatePlaceholderLyrics(title, artist);
+          console.log(`[yt-music-proxy] LYRICS DEBUG: Using placeholder lyrics.`);
         }
 
         return new Response(JSON.stringify({ lyrics: lyricsText }), {
