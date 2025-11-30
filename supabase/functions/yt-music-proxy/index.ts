@@ -858,10 +858,36 @@ serve(async (req) => {
               // Log the first few search results to inspect their structure
               console.log(`[yt-music-proxy] LYRICS DEBUG: First 3 fallback search results:`, JSON.stringify(searchResults.slice(0, 3), null, 2));
 
-              const matchingTrack = searchResults.find((item: any) =>
-                item.videoId === clientVideoId ||
-                (item.title?.toLowerCase().trim() === title.toLowerCase().trim() && getArtistName(item.artists || item.artist)?.toLowerCase().trim() === artist.toLowerCase().trim())
-              );
+              const matchingTrack = searchResults.find((item: any) => {
+                // Only consider songs/videos for lyrics
+                if (item.type !== 'SONG' && item.type !== 'VIDEO') {
+                  console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search item comparison: Skipping item "${item.title}" due to type "${item.type}"`);
+                  return false;
+                }
+
+                // Prioritize exact videoId match
+                if (item.videoId === clientVideoId) {
+                  console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search item comparison: Exact videoId match for "${item.title}"`);
+                  return true;
+                }
+
+                // Fallback to title and artist match with more flexibility
+                const normalizedItemTitle = item.title?.toLowerCase().trim();
+                const normalizedClientTitle = title.toLowerCase().trim();
+                const normalizedItemArtist = getArtistName(item.artists || item.artist)?.toLowerCase().trim();
+                const normalizedClientArtist = artist.toLowerCase().trim();
+
+                // Check if titles are very similar (e.g., one contains the other) AND artists match
+                const titleMatch = normalizedItemTitle.includes(normalizedClientTitle) || normalizedClientTitle.includes(normalizedItemTitle);
+                const artistMatch = normalizedItemArtist === normalizedClientArtist;
+
+                console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search item comparison: Item Title: "${item.title}", Client Title: "${title}", Item Artist: "${getArtistName(item.artists || item.artist)}", Client Artist: "${artist}"`);
+                console.log(`[yt-music-proxy] LYRICS DEBUG:   Normalized Item Title: "${normalizedItemTitle}", Normalized Client Title: "${normalizedClientTitle}"`);
+                console.log(`[yt-music-proxy] LYRICS DEBUG:   Normalized Item Artist: "${normalizedItemArtist}", Normalized Client Artist: "${normalizedClientArtist}"`);
+                console.log(`[yt-music-proxy] LYRICS DEBUG:   Title Match: ${titleMatch}, Artist Match: ${artistMatch}`);
+
+                return titleMatch && artistMatch;
+              });
 
               if (matchingTrack) {
                 console.log(`[yt-music-proxy] LYRICS DEBUG: Found matchingTrack in fallback search:`, JSON.stringify(matchingTrack, null, 2));
