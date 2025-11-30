@@ -936,15 +936,23 @@ serve(async (req) => {
               const lyristUrl = `https://lyrist.vercel.app/api/${encodeURIComponent(title)}/${encodeURIComponent(artist)}`;
               console.log(`[yt-music-proxy] LYRICS DEBUG: Lyrist API URL: ${lyristUrl}`);
               const lyristResponse = await fetch(lyristUrl);
-              const lyristData = await lyristResponse.json();
 
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Lyrist raw response:`, JSON.stringify(lyristData, null, 2));
+              // Check if the response is OK and if it's JSON
+              const contentType = lyristResponse.headers.get('content-type');
+              if (lyristResponse.ok && contentType && contentType.includes('application/json')) {
+                const lyristData = await lyristResponse.json();
+                console.log(`[yt-music-proxy] LYRICS DEBUG: Lyrist raw response:`, JSON.stringify(lyristData, null, 2));
 
-              if (lyristResponse.ok && lyristData.lyrics) {
-                lyricsText = lyristData.lyrics || '';
-                console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics from Lyrist (first 100 chars): ${lyricsText.substring(0, 100)}`);
+                if (lyristData.lyrics) {
+                  lyricsText = lyristData.lyrics || '';
+                  console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics from Lyrist (first 100 chars): ${lyricsText.substring(0, 100)}`);
+                } else {
+                  console.warn(`[yt-music-proxy] LYRICS DEBUG: Lyrist did not return lyrics body. Response: ${JSON.stringify(lyristData)}`);
+                  lyricsText = '';
+                }
               } else {
-                console.warn(`[yt-music-proxy] LYRICS DEBUG: Lyrist did not return lyrics. Status: ${lyristResponse.status}, Message: ${lyristData.error || 'No lyrics body'}`);
+                const rawResponseText = await lyristResponse.text();
+                console.warn(`[yt-music-proxy] LYRICS DEBUG: Lyrist did not return JSON or response was not OK. Status: ${lyristResponse.status}, Content-Type: ${contentType}. Raw response: ${rawResponseText.substring(0, 500)}`);
                 lyricsText = '';
               }
             } catch (error: any) {
