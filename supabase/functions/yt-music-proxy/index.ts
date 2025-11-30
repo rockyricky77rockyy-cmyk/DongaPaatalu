@@ -77,46 +77,22 @@ function getBestThumbnail(thumbnails: any[], context: string): { url?: string; w
 
 // Helper function to generate unique placeholder lyrics
 function generatePlaceholderLyrics(title: string, artist: string): string {
-  const seed = `${title}-${artist}`.toLowerCase().replace(/[^a-z0-9]/g, '');
   const lines = [
     `This is a placeholder lyric for "${title}" by ${artist}.`,
-    `A unique verse generated just for you.`,
-    `Feel the rhythm, hear the sound, music all around.`,
-    `Every note a story told, brave and strong and bold.`,
-    `In this moment, we are free, just you and me.`,
-    `Dancing to the beat, so sweet, can't be beat.`,
-    `Let the melody take flight, shining ever so bright.`,
-    `From the heart, a brand new start, playing its essential part.`,
-    `The world is spinning, we are winning, a new beginning.`,
-    `Lost in harmony, wild and free, for all to see.`,
-    `Sunrise paints the window pane, another day begins.`,
-    `A gentle hum, a soft refrain, where my journey spins.`,
-    `Through city streets or quiet lanes, a melody takes hold.`,
-    `Washing away the weary pains, a story to unfold.`,
-    `Whispers carried on the breeze, a secret softly told.`,
-    `Dancing through the ancient trees, a spirit brave and bold.`,
-    `Moments caught in time's embrace, like stardust in the air.`,
-    `Finding beauty, finding grace, beyond all worldly care.`,
-    `Sometimes the tempo slows down low, a quiet, thoughtful pace.`,
-    `Sometimes the fire starts to glow, lighting up this space.`,
-    `Through every high and every low, a constant, steady sound.`,
-    `A guiding light, a gentle flow, where peace can still be found.`,
-    `The music plays, it never ends, a symphony of light.`,
-    `On this journey, with my friends, we dance into the night.`,
+    `A simple verse generated for you.`,
+    `Music flows, the spirit grows.`,
+    `Listen close, let your heart compose.`,
+    `Every beat, a sweet retreat.`,
+    `Life's a song, where we all belong.`,
   ];
-
-  // Simple pseudo-random selection based on the seed
-  const seedHash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const numLines = 15 + (seedHash % 5); // Between 15 and 19 lines
-  const selectedLines: string[] = [];
-  
-  // Simplified logic: just pick lines, allowing repetition for performance
-  for (let i = 0; i < numLines; i++) {
-    const randomIndex = (seedHash + i) % lines.length;
-    selectedLines.push(lines[randomIndex]);
-  }
-
-  return selectedLines.join('\n');
+  // Use a simple hash to pick a few lines deterministically
+  const seedHash = (title.length + artist.length) % lines.length;
+  return [
+    lines[seedHash],
+    lines[(seedHash + 1) % lines.length],
+    lines[(seedHash + 2) % lines.length],
+    `Enjoy the rhythm!`,
+  ].join('\n');
 }
 
 
