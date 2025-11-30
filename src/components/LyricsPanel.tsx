@@ -20,9 +20,11 @@ const LyricsPanel = ({ videoId, title, artist, onClose, currentTime, duration, c
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const highlightedLineRef = useRef<HTMLParagraphElement>(null);
 
-  console.log("LyricsPanel: Received videoId:", videoId); // NEW LOG
-
+  console.log("LyricsPanel: Received videoId:", videoId, "title:", title, "artist:", artist); // NEW LOG: Log all props
+  
   const { data: lyricsContent, isLoading, isError, error } = useLyrics(videoId, title, artist); // Pass title and artist here
+
+  console.log("LyricsPanel: useLyrics state - isLoading:", isLoading, "isError:", isError, "error:", error, "lyricsContent length:", lyricsContent?.length); // NEW LOG: Log hook state
 
   const lyricsLines = lyricsContent ? lyricsContent.trim().split('\n').filter(line => line.trim() !== '') : [];
   const linesCount = lyricsLines.length;
