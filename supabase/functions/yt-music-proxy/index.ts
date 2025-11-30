@@ -84,15 +84,9 @@ function generatePlaceholderLyrics(title: string, artist: string): string {
     `Listen close, let your heart compose.`,
     `Every beat, a sweet retreat.`,
     `Life's a song, where we all belong.`,
-  ];
-  // Use a simple hash to pick a few lines deterministically
-  const seedHash = (title.length + artist.length) % lines.length;
-  return [
-    lines[seedHash],
-    lines[(seedHash + 1) % lines.length],
-    lines[(seedHash + 2) % lines.length],
     `Enjoy the rhythm!`,
-  ].join('\n');
+  ];
+  return lines.join('\n');
 }
 
 
