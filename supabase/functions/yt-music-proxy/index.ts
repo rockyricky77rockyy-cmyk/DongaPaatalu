@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import YouTubeMusic from 'npm:ytmusic-api';
+import YouTubeMusic from 'npm:ytmusic-api@5.3.0'; // Explicitly specify version
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,7 +24,7 @@ function getArtistName(artistData: any): string {
 }
 
 // Helper to get the best thumbnail and log its details
-function getBestThumbnail(thumbnails: any[], context: string): { url?: string; width?: number; height?: number } {
+function getBestThumbnail(thumbnails: any[], context: string): { url?: string; width?: number; height?: number; } {
   if (!thumbnails || thumbnails.length === 0) {
     return {};
   }
@@ -526,7 +526,7 @@ serve(async (req) => {
         playlistResults = searchRes;
       } else {
         const trendingPlaylists = await ytmusic.search('popular playlists', 'playlists'); // Changed to 'popular playlists' for potentially better results
-        playlistResults = trendingPlayplaylists;
+        playlistResults = trendingPlaylists;
       }
 
       const formattedPlaylists = playlistResults.map((item: any) => {
@@ -854,7 +854,7 @@ serve(async (req) => {
           }
 
           if (foundTrack && foundTrack.videoId) {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrack.title}" (videoId: ${foundTrack.videoId}).`);
+            console.log(`[yt-music-proxy] LYRICS DEBUG: Found track via search fallback: "${foundTrack.title || 'Unknown Title'}" (videoId: ${foundTrack.videoId}).`); // Improved logging for title
             effectiveVideoId = foundTrack.videoId; // Update effectiveVideoId for the second getSong call
             try {
               console.log(`[yt-music-proxy] LYRICS DEBUG: Attempting ytmusic.getSong with fallback videoId: "${effectiveVideoId}"`);
