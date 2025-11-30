@@ -855,6 +855,8 @@ serve(async (req) => {
               console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search query: "${searchQuery}"`);
               const searchResults = await ytmusic.search(searchQuery, 'songs');
               console.log(`[yt-music-proxy] LYRICS DEBUG: Fallback search found ${searchResults.length} songs.`);
+              // NEW LOG: Log the first few search results to inspect their structure
+              console.log(`[yt-music-proxy] LYRICS DEBUG: First 3 fallback search results:`, JSON.stringify(searchResults.slice(0, 3), null, 2));
 
               const matchingTrack = searchResults.find((item: any) =>
                 item.videoId === clientVideoId ||
@@ -867,7 +869,7 @@ serve(async (req) => {
                   lyricsId = matchingTrack.lyricsId;
                   console.log(`[yt-music-proxy] LYRICS DEBUG: Found lyricsId from fallback search result: ${lyricsId}`);
                 } else {
-                  // NEW: If matching track found but no lyricsId, try getSong with its videoId
+                  // If matching track found but no lyricsId, try getSong with its videoId
                   console.log(`[yt-music-proxy] LYRICS DEBUG: Matching track found but no lyricsId. Attempting secondary getSong for videoId: ${matchingTrack.videoId}`);
                   try {
                     const secondarySongInfo = await ytmusic.getSong(matchingTrack.videoId);
