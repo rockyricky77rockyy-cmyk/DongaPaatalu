@@ -75,7 +75,7 @@ function getBestThumbnail(thumbnails: any[], context: string): { url?: string; w
   return { url: finalUrl, width: finalWidth, height: finalHeight };
 }
 
-// NEW: Helper function to generate unique placeholder lyrics
+// Helper function to generate unique placeholder lyrics
 function generatePlaceholderLyrics(title: string, artist: string): string {
   const seed = `${title}-${artist}`.toLowerCase().replace(/[^a-z0-9]/g, '');
   const lines = [
@@ -109,20 +109,11 @@ function generatePlaceholderLyrics(title: string, artist: string): string {
   const seedHash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const numLines = 15 + (seedHash % 5); // Between 15 and 19 lines
   const selectedLines: string[] = [];
-  const usedIndices = new Set<number>();
-
+  
+  // Simplified logic: just pick lines, allowing repetition for performance
   for (let i = 0; i < numLines; i++) {
-    let randomIndex;
-    do {
-      randomIndex = (seedHash + i * 7 + selectedLines.length) % lines.length;
-    } while (usedIndices.has(randomIndex) && usedIndices.size < lines.length);
-    
-    if (usedIndices.size === lines.length) { // All lines used, break to avoid infinite loop
-      break;
-    }
-    
+    const randomIndex = (seedHash + i) % lines.length;
     selectedLines.push(lines[randomIndex]);
-    usedIndices.add(randomIndex);
   }
 
   return selectedLines.join('\n');
