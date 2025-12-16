@@ -1007,64 +1007,6 @@ serve(async (req) => {
             }
           }
 
-          // Attempt 3: Fallback to Musixmatch if YouTube Music lyrics are still not found
-          if (!lyricsText && MUSIXMATCH_API_KEY) {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: YouTube Music lyrics not found. Attempting to fetch lyrics from Musixmatch...`);
-            try {
-              const musixmatchUrl = `https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?q_track=${encodeURIComponent(title)}&q_artist=${encodeURIComponent(artist)}&apikey=${MUSIXMATCH_API_KEY}`;
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch API URL: ${musixmatchUrl}`);
-              const musixmatchResponse = await fetch(musixmatchUrl);
-              const musixmatchData = await musixmatchResponse.json();
-
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch raw response:`, JSON.stringify(musixmatchData, null, 2));
-
-              if (musixmatchData.message.header.status_code === 200 && musixmatchData.message.body.lyrics) {
-                lyricsText = musixmatchData.message.body.lyrics.lyrics_body || '';
-                console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics from Musixmatch (first 100 chars): ${lyricsText.substring(0, 100)}`);
-              } else {
-                console.warn(`[yt-music-proxy] LYRICS DEBUG: Musixmatch did not return lyrics. Status: ${musixmatchData.message.header.status_code}.`);
-                lyricsText = '';
-              }
-            } catch (error: any) {
-              console.error(`[yt-music-proxy] LYRICS DEBUG: Error fetching lyrics from Musixmatch: ${error.message}.`);
-              lyricsText = '';
-            }
-          } else if (!MUSIXMATCH_API_KEY) {
-            console.warn(`[yt-music-proxy] LYRICS DEBUG: MUSIXMATCH_API_KEY is not set. Skipping Musixmatch fallback.`);
-          }
-
-          // NEW Attempt 4: Fallback to Lyrist.vercel.app if Musixmatch also fails
-          if (!lyricsText) {
-            console.log(`[yt-music-proxy] LYRICS DEBUG: Musixmatch lyrics not found. Attempting to fetch lyrics from Lyrist.vercel.app...`);
-            try {
-              const lyristUrl = `https://lyrist.vercel.app/api/${encodeURIComponent(title)}/${encodeURIComponent(artist)}`;
-              console.log(`[yt-music-proxy] LYRICS DEBUG: Lyrist API URL: ${lyristUrl}`);
-              const lyristResponse = await fetch(lyristUrl);
-
-              // Check if the response is OK and if it's JSON
-              const contentType = lyristResponse.headers.get('content-type');
-              if (lyristResponse.ok && contentType && contentType.includes('application/json')) {
-                const lyristData = await lyristResponse.json();
-                console.log(`[yt-music-proxy] LYRICS DEBUG: Lyrist raw response:`, JSON.stringify(lyristData, null, 2));
-
-                if (lyristData.lyrics) {
-                  lyricsText = lyristData.lyrics || '';
-                  console.log(`[yt-music-proxy] LYRICS DEBUG: Fetched lyrics from Lyrist (first 100 chars): ${lyricsText.substring(0, 100)}`);
-                } else {
-                  console.warn(`[yt-music-proxy] LYRICS DEBUG: Lyrist did not return lyrics body. Response: ${JSON.stringify(lyristData)}`);
-                  lyricsText = '';
-                }
-              } else {
-                const rawResponseText = await lyristResponse.text();
-                console.warn(`[yt-music-proxy] LYRICS DEBUG: Lyrist did not return JSON or response was not OK. Status: ${lyristResponse.status}, Content-Type: ${contentType}. Raw response: ${rawResponseText.substring(0, 500)}`);
-                lyricsText = '';
-              }
-            } catch (error: any) {
-              console.error(`[yt-music-proxy] LYRICS DEBUG: Error fetching lyrics from Lyrist: ${error.message}.`);
-              lyricsText = '';
-            }
-          }
-
           // Final fallback to placeholder if no lyrics found from any source
           if (!lyricsText) {
             console.log(`[yt-music-proxy] LYRICS DEBUG: No lyrics found after all attempts for videoId: ${clientVideoId}. Using placeholder lyrics.`);
