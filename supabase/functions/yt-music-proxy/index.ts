@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import YouTubeMusic from 'npm:ytmusic-api@5.3.0'; // Explicitly specify version
+import YouTubeMusic from 'npm:ytmusic-api@5.3.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'; // Import Supabase client for DB interaction
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,8 +11,21 @@ const ytmusic = new YouTubeMusic();
 let isInitialized = false;
 let initializationPromise: Promise<void> | null = null;
 
-// Get Musixmatch API Key from environment variables (kept for potential future use, but not used in client)
-const MUSIXMATCH_API_KEY = Deno.env.get('MUSIXMATCH_API_KEY');
+// Initialize Supabase client for database interaction within the Edge Function
+const supabaseAdmin = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+);
+
+// Rate limit configuration
+const RATE_LIMITS = {
+  '/search': { limit: 30, windowMinutes: 1 },
+  '/suggestions': { limit: 40, windowMinutes: 1 },
+  '/lyrics': { limit: 10, windowMinutes: 1 },
+  '/stream-audio': { limit: 8, windowMinutes: 1 }, // Only counts initial stream request
+};
+
+const MAX_CHUNK_SIZE_BYTES = 2.5 * 1024 * 1024; // 2.5 MB
 
 // Helper function to safely extract artist name
 function getArtistName(artistData: any): string {
@@ -119,6 +133,73 @@ async function ensureInitialized() {
   await initializationPromise;
 }
 
+async function checkRateLimit(ip: string, endpoint: string, isRangeRequest: boolean = false): Promise<{ allowed: boolean; retryAfter?: number }> {
+  const config = RATE_LIMITS[endpoint as keyof typeof RATE_LIMITS];
+  if (!config) {
+    return { allowed: true }; // No rate limit configured for this endpoint
+  }
+
+  const { limit, windowMinutes } = config;
+  const windowMs = windowMinutes * 60 * 1000;
+  const now = new Date();
+
+  // For stream-audio, only count the first request (not range requests)
+  if (endpoint === '/stream-audio' && isRangeRequest) {
+    return { allowed: true };
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('rate_limits')
+      .select('*')
+      .eq('ip', ip)
+      .eq('endpoint', endpoint)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 means "no rows found"
+      console.error(`[yt-music-proxy] Rate limit DB error: ${error.message}`);
+      // In case of DB error, allow the request to proceed to avoid blocking legitimate users
+      return { allowed: true };
+    }
+
+    if (data) {
+      const windowStart = new Date(data.window_start);
+      if (now.getTime() - windowStart.getTime() < windowMs) {
+        // Within the current window
+        if (data.count < limit) {
+          await supabaseAdmin
+            .from('rate_limits')
+            .update({ count: data.count + 1, last_accessed: now.toISOString() })
+            .eq('ip', ip)
+            .eq('endpoint', endpoint);
+          return { allowed: true };
+        } else {
+          const retryAfter = Math.ceil((windowStart.getTime() + windowMs - now.getTime()) / 1000);
+          return { allowed: false, retryAfter };
+        }
+      } else {
+        // Window has passed, reset count
+        await supabaseAdmin
+          .from('rate_limits')
+          .update({ count: 1, window_start: now.toISOString(), last_accessed: now.toISOString() })
+          .eq('ip', ip)
+          .eq('endpoint', endpoint);
+        return { allowed: true };
+      }
+    } else {
+      // First request for this IP and endpoint
+      await supabaseAdmin
+        .from('rate_limits')
+        .insert({ ip, endpoint, count: 1, window_start: now.toISOString(), last_accessed: now.toISOString() });
+      return { allowed: true };
+    }
+  } catch (e: any) {
+    console.error(`[yt-music-proxy] Unexpected error in checkRateLimit: ${e.message}`);
+    // Default to allowing the request if there's an unexpected error
+    return { allowed: true };
+  }
+}
+
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -133,8 +214,31 @@ serve(async (req) => {
   try {
     const response = await Promise.race([
       (async () => {
-        const { pathname } = new URL(req.url);
+        const url = new URL(req.url);
+        const pathname = url.pathname;
         console.log(`[yt-music-proxy] Request received for: ${pathname}`);
+
+        // Extract client IP
+        const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown';
+        const endpoint = pathname.split('/').pop(); // Get the last part of the path as endpoint name
+
+        // Check rate limit for all relevant endpoints
+        if (endpoint && RATE_LIMITS[`/${endpoint}` as keyof typeof RATE_LIMITS]) {
+          const isRangeRequest = req.headers.has('Range');
+          const rateLimitResult = await checkRateLimit(clientIp, `/${endpoint}`, isRangeRequest);
+
+          if (!rateLimitResult.allowed) {
+            console.warn(`[yt-music-proxy] Rate limit exceeded for IP: ${clientIp}, Endpoint: /${endpoint}`);
+            return new Response(JSON.stringify({ error: 'Too Many Requests', message: `Rate limit exceeded. Try again in ${rateLimitResult.retryAfter} seconds.` }), {
+              status: 429,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+                'Retry-After': rateLimitResult.retryAfter?.toString() || '60',
+              },
+            });
+          }
+        }
 
         await ensureInitialized(); // Ensure API is initialized
 
@@ -975,7 +1079,6 @@ serve(async (req) => {
 
         // NEW: Audio Streaming API
         if (pathname.endsWith('/stream-audio')) {
-          const url = new URL(req.url);
           const videoId = url.searchParams.get('videoId');
           console.log(`[yt-music-proxy] Audio streaming request for videoId: "${videoId}"`);
 
@@ -1026,6 +1129,23 @@ serve(async (req) => {
           const audioUrl = audioFormat.url;
           const rangeHeader = req.headers.get('Range');
           console.log(`[yt-music-proxy] Fetching audio from YouTube URL: ${audioUrl} with Range: ${rangeHeader || 'none'}`);
+
+          // Abuse Protection: Block excessively large byte-range requests
+          if (rangeHeader) {
+            const rangeMatch = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+            if (rangeMatch) {
+              const start = parseInt(rangeMatch[1], 10);
+              const end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : undefined;
+              // Only check if 'end' is defined, meaning a specific range length is requested
+              if (end !== undefined && (end - start + 1) > MAX_CHUNK_SIZE_BYTES) {
+                console.warn(`[yt-music-proxy] Abusive range request detected for IP: ${clientIp}. Requested chunk size: ${end - start + 1} bytes.`);
+                return new Response(JSON.stringify({ error: 'Range Not Satisfiable', message: `Requested byte range exceeds maximum allowed chunk size of ${MAX_CHUNK_SIZE_BYTES / (1024 * 1024)} MB.` }), {
+                  status: 416, // Range Not Satisfiable
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                });
+              }
+            }
+          }
 
           const youtubeResponse = await fetch(audioUrl, {
             headers: {
