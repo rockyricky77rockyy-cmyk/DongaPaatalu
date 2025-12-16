@@ -1051,11 +1051,11 @@ serve(async (req) => {
           }
 
           // Find the best audio-only format
-          // Prioritize AUDIO_QUALITY_HIGH, then AUDIO_QUALITY_MEDIUM, then any audio/ format
+          // Prioritize itag 140 (m4a), then itag 251 (opus), then any audio/ format
           const audioFormat = songInfo.streamingData.adaptiveFormats.find((f: any) =>
-            f.mimeType.startsWith('audio/') && f.audioQuality === 'AUDIO_QUALITY_HIGH'
+            f.itag === 140 && f.mimeType.startsWith('audio/mp4')
           ) || songInfo.streamingData.adaptiveFormats.find((f: any) =>
-            f.mimeType.startsWith('audio/') && f.audioQuality === 'AUDIO_QUALITY_MEDIUM'
+            f.itag === 251 && f.mimeType.startsWith('audio/webm')
           ) || songInfo.streamingData.adaptiveFormats.find((f: any) =>
             f.mimeType.startsWith('audio/')
           );
@@ -1108,16 +1108,19 @@ serve(async (req) => {
           console.log(`[yt-music-proxy] YouTube fetch response status: ${youtubeResponse.status}`);
           console.log(`[yt-music-proxy] YouTube fetch response headers:`, Object.fromEntries(youtubeResponse.headers.entries()));
 
-          if (!youtubeResponse.ok) {
-            console.error(`[yt-music-proxy] Failed to fetch audio from YouTube: ${youtubeResponse.status} ${youtubeResponse.statusText}`);
+          // Validate YouTube's response
+          if (!youtubeResponse.ok || youtubeResponse.headers.get('Content-Type')?.includes('text/html')) {
+            console.error(`[yt-music-proxy] Failed to fetch audio from YouTube: ${youtubeResponse.status} ${youtubeResponse.statusText}. Content-Type: ${youtubeResponse.headers.get('Content-Type')}`);
             let status = 502; // Default to Bad Gateway
             let errorMessage = 'Failed to fetch audio stream from YouTube.';
 
             if (youtubeResponse.status === 403) {
-              errorMessage = 'YouTube blocked access to this audio stream.';
+              errorMessage = 'YouTube blocked access to this audio stream (403 Forbidden).';
             } else if (youtubeResponse.status === 404) {
-              errorMessage = 'Audio stream not found on YouTube.';
+              errorMessage = 'Audio stream not found on YouTube (404 Not Found).';
               status = 404; // Propagate 404 if YouTube says it's not found
+            } else if (youtubeResponse.headers.get('Content-Type')?.includes('text/html')) {
+              errorMessage = 'YouTube returned an HTML page instead of an audio stream. Possibly a block or redirect.';
             }
             // For other 4xx or 5xx errors from YouTube, we return 502 Bad Gateway
 
