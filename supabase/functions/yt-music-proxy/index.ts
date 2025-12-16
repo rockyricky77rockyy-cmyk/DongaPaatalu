@@ -1069,12 +1069,12 @@ serve(async (req) => {
           }
 
           const audioUrl = audioFormat.url;
-          const rangeHeader = req.headers.get('Range');
-          console.log(`[yt-music-proxy] Fetching audio from YouTube URL: ${audioUrl} with Range: ${rangeHeader || 'none'}`);
+          const clientRangeHeader = req.headers.get('Range');
+          console.log(`[yt-music-proxy] Client Range header: ${clientRangeHeader || 'none'}`);
 
           // Abuse Protection: Block excessively large byte-range requests
-          if (rangeHeader) {
-            const rangeMatch = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+          if (clientRangeHeader) {
+            const rangeMatch = clientRangeHeader.match(/bytes=(\d+)-(\d*)/);
             if (rangeMatch) {
               const start = parseInt(rangeMatch[1], 10);
               const end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : undefined;
@@ -1089,18 +1089,40 @@ serve(async (req) => {
             }
           }
 
+          let headersToForward: HeadersInit = {
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+          };
+
+          if (clientRangeHeader) {
+            headersToForward['Range'] = clientRangeHeader;
+          } else {
+            // Default to bytes=0- if Range header is missing from client request
+            headersToForward['Range'] = 'bytes=0-';
+            console.log('[yt-music-proxy] Client Range header missing, defaulting to "bytes=0-" for YouTube fetch.');
+          }
+
           const youtubeResponse = await fetch(audioUrl, {
-            headers: {
-              // Updated User-Agent to mimic a mobile browser
-              'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-              ...(rangeHeader ? { 'Range': rangeHeader } : {}), // Forward Range header if present
-            },
+            headers: headersToForward,
           });
+
+          console.log(`[yt-music-proxy] YouTube fetch response status: ${youtubeResponse.status}`);
+          console.log(`[yt-music-proxy] YouTube fetch response headers:`, Object.fromEntries(youtubeResponse.headers.entries()));
 
           if (!youtubeResponse.ok) {
             console.error(`[yt-music-proxy] Failed to fetch audio from YouTube: ${youtubeResponse.status} ${youtubeResponse.statusText}`);
-            return new Response(JSON.stringify({ error: 'Failed to fetch audio stream from YouTube.' }), {
-              status: youtubeResponse.status,
+            let status = 502; // Default to Bad Gateway
+            let errorMessage = 'Failed to fetch audio stream from YouTube.';
+
+            if (youtubeResponse.status === 403) {
+              errorMessage = 'YouTube blocked access to this audio stream.';
+            } else if (youtubeResponse.status === 404) {
+              errorMessage = 'Audio stream not found on YouTube.';
+              status = 404; // Propagate 404 if YouTube says it's not found
+            }
+            // For other 4xx or 5xx errors from YouTube, we return 502 Bad Gateway
+
+            return new Response(JSON.stringify({ error: errorMessage }), {
+              status: status,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
