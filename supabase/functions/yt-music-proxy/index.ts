@@ -1006,8 +1006,10 @@ serve(async (req) => {
           }
 
           // Find the best audio-only format
-          // Prioritize AUDIO_QUALITY_MEDIUM, then look for any audio/ format
+          // Prioritize AUDIO_QUALITY_HIGH, then AUDIO_QUALITY_MEDIUM, then any audio/ format
           const audioFormat = songInfo.streamingData.adaptiveFormats.find((f: any) =>
+            f.mimeType.startsWith('audio/') && f.audioQuality === 'AUDIO_QUALITY_HIGH'
+          ) || songInfo.streamingData.adaptiveFormats.find((f: any) =>
             f.mimeType.startsWith('audio/') && f.audioQuality === 'AUDIO_QUALITY_MEDIUM'
           ) || songInfo.streamingData.adaptiveFormats.find((f: any) =>
             f.mimeType.startsWith('audio/')
