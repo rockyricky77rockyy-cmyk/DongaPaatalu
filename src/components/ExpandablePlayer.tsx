@@ -266,7 +266,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
                   </div>
                 ) : (
-                  <main className="flex-1 flex flex-col overflow-y-auto no-scrollbar"> {/* ADDED overflow-y-auto no-scrollbar */}
+                  <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar"> {/* Wrapped in a div */}
                     {/* Album Art & Visualizer */}
                     <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8">
                       <div className="relative">
@@ -377,7 +377,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         </Button>
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
               </main>
 
@@ -421,60 +421,57 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             </header>
 
             {/* Main Content Area: Album Art */}
-            <>
-              {/* Album Art */}
-              <div className="flex justify-center p-6">
-                <div className="relative">
-                  {/* Left Visualizer */}
-                  <div className="absolute -left-16 top-1/2 -translate-y-1/2 h-48">
-                    <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
-                  </div>
+            <div className="flex justify-center p-6">
+              <div className="relative">
+                {/* Left Visualizer */}
+                <div className="absolute -left-16 top-1/2 -translate-y-1/2 h-48">
+                  <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
+                </div>
 
-                  <div className={cn(
-                    "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10",
-                    isPlaying && "animate-zoom-pulse" // Apply animation when playing
-                  )}>
-                    <TrackThumbnail // Using TrackThumbnail component here
-                      thumbnail={currentTrack?.thumbnail}
-                      title={currentTrack?.title || 'No track'}
-                      className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl"
-                      iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
-                    />
-                  </div>
+                <div className={cn(
+                  "w-64 h-64 sm:w-80 sm:h-80 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-neon-strong relative overflow-hidden z-10",
+                  isPlaying && "animate-zoom-pulse" // Apply animation when playing
+                )}>
+                  <TrackThumbnail // Using TrackThumbnail component here
+                    thumbnail={currentTrack?.thumbnail}
+                    title={currentTrack?.title || 'No track'}
+                    className="relative z-10 w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                    iconClassName="relative z-10 text-6xl font-bold bg-gradient-neon bg-clip-text text-transparent" // Pass text as iconClassName
+                  />
+                </div>
 
-                  {/* Right Visualizer */}
-                  <div className="absolute -right-16 top-1/2 -translate-y-1/2 h-48">
-                    <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
-                  </div>
+                {/* Right Visualizer */}
+                <div className="absolute -right-16 top-1/2 -translate-y-1/2 h-48">
+                  <Visualizer barCount={20} direction="horizontal" className="h-full" isPlaying={isPlaying} animationIntervalMs={100} />
                 </div>
               </div>
+            </div>
 
-              {/* Track Info */}
-              <div className="text-center px-6 mb-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
-                <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack ? String(currentTrack.artist) : ''}</p>
-              </div>
+            {/* Track Info */}
+            <div className="text-center px-6 mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">{currentTrack?.title}</h2>
+              <p className="text-sm sm:text-base text-muted-foreground truncate">{currentTrack ? String(currentTrack.artist) : ''}</p>
+            </div>
 
-              {/* Progress Bar */}
-              <div className="px-6 mb-4">
-                <Slider
-                  value={[playbackProgress]}
-                  onValueChange={handleSliderChange}
-                  max={100}
-                  step={1}
-                  className="w-full" // Removed custom classes here too
-                />
-                <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
+            {/* Progress Bar */}
+            <div className="px-6 mb-4">
+              <Slider
+                value={[playbackProgress]}
+                onValueChange={handleSliderChange}
+                max={100}
+                step={1}
+                className="w-full" // Removed custom classes here too
+              />
+              <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
               </div>
+            </div>
 
-              {/* Visualizer */}
-              <div className="px-6 mb-6">
-                <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} animationIntervalMs={100} />
-              </div>
-            </>
+            {/* Visualizer */}
+            <div className="px-6 mb-6">
+              <Visualizer barCount={40} className="h-16" isPlaying={isPlaying} animationIntervalMs={100} />
+            </div>
 
             {/* Controls */}
             <div className="px-6 mb-6">
