@@ -120,10 +120,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   if (!currentTrack && !isSearching) return null; // Or render a "No track playing" state
 
   return (
-    <div className="fixed inset-0 z-50 bg-background animate-slide-up p-4 md:p-8 flex flex-col"> {/* Added flex flex-col here */}
+    <div className="fixed inset-0 z-50 bg-background animate-slide-up flex flex-col"> {/* Removed p-4 md:p-8 */}
       {/* Desktop Version */}
       {!isMobile ? (
-        <div className="flex-1"> {/* This flex-1 will now correctly fill the space within the padded parent */}
+        <div className="flex-1 p-4 md:p-8"> {/* Added padding here */}
           {/* Neon Border Container */}
           <div className="flex-1 rounded-2xl md:rounded-3xl border-4 border-transparent bg-gradient-to-br from-primary via-accent to-secondary p-1 shadow-neon-strong">
             <div className="flex-1 rounded-2xl md:rounded-3xl bg-background flex overflow-hidden">
@@ -390,7 +390,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
         </div>
       ) : (
         /* Mobile Version */
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-cyan-500/10 via-background to-purple-500/10">
+        <div className="flex-1 flex flex-col bg-gradient-to-br from-cyan-500/10 via-background to-purple-500/10 p-4"> {/* Added p-4 here */}
           <div className="flex-1 overflow-y-auto no-scrollbar"> {/* This div will handle scrolling for the top content */}
             {/* Top Bar */}
             <header className="p-4 flex items-center justify-between">
