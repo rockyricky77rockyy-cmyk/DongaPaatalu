@@ -123,10 +123,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
     <div className="fixed inset-0 z-50 bg-background animate-slide-up p-4 md:p-8"> {/* Padding moved here */}
       {/* Desktop Version */}
       {!isMobile ? (
-        <div className="h-full flex flex-col"> {/* No padding here */}
+        <div className="flex-1 flex flex-col"> {/* Changed h-full to flex-1 */}
           {/* Neon Border Container */}
           <div className="flex-1 rounded-2xl md:rounded-3xl border-4 border-transparent bg-gradient-to-br from-primary via-accent to-secondary p-1 shadow-neon-strong">
-            <div className="h-full rounded-2xl md:rounded-3xl bg-background flex overflow-hidden">
+            <div className="flex-1 rounded-2xl md:rounded-3xl bg-background flex overflow-hidden"> {/* Changed h-full to flex-1 */}
               {/* Left Sidebar - Navigation */}
               <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" isExpandedPlayer={true} /> {/* Pass new prop */}
 
@@ -390,7 +390,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
         </div>
       ) : (
         /* Mobile Version */
-        <div className="h-full flex flex-col bg-gradient-to-br from-cyan-500/10 via-background to-purple-500/10">
+        <div className="flex-1 flex flex-col bg-gradient-to-br from-cyan-500/10 via-background to-purple-500/10"> {/* Changed h-full to flex-1 */}
           <div className="flex-1 overflow-y-auto no-scrollbar"> {/* This div will handle scrolling for the top content */}
             {/* Top Bar */}
             <header className="p-4 flex items-center justify-between">
