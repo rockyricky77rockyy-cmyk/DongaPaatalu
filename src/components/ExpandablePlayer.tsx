@@ -120,10 +120,10 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
   if (!currentTrack && !isSearching) return null; // Or render a "No track playing" state
 
   return (
-    <div className="fixed inset-0 z-50 bg-background animate-slide-up">
+    <div className="fixed inset-0 z-50 bg-background animate-slide-up p-4 md:p-8"> {/* Padding moved here */}
       {/* Desktop Version */}
       {!isMobile ? (
-        <div className="h-full flex flex-col p-4 md:p-8">
+        <div className="h-full flex flex-col"> {/* No padding here */}
           {/* Neon Border Container */}
           <div className="flex-1 rounded-2xl md:rounded-3xl border-4 border-transparent bg-gradient-to-br from-primary via-accent to-secondary p-1 shadow-neon-strong">
             <div className="h-full rounded-2xl md:rounded-3xl bg-background flex overflow-hidden">
