@@ -266,7 +266,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
                   </div>
                 ) : (
-                  <>
+                  <main className="flex-1 flex flex-col overflow-y-auto no-scrollbar"> {/* ADDED overflow-y-auto no-scrollbar */}
                     {/* Album Art & Visualizer */}
                     <div className="flex-1 flex items-center justify-center p-6 lg:p-12 mb-8">
                       <div className="relative">
@@ -302,7 +302,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                         onValueChange={handleSliderChange}
                         max={100}
                         step={1}
-                        className="w-full [&>span:first-child]:bg-primary [&>span:last-child]:bg-primary [&>span:last-child]:shadow-neon" // Added neon styling
+                        className="w-full" // Removed previous custom classes, as they are now in ui/slider.tsx
                       />
                       <div className="flex justify-between text-xs lg:text-sm text-muted-foreground mt-2">
                         <span>{formatTime(currentTime)}</span>
@@ -462,7 +462,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   onValueChange={handleSliderChange}
                   max={100}
                   step={1}
-                  className="w-full [&>span:first-child]:bg-primary [&>span:last-child]:bg-primary [&>span:last-child]:shadow-neon" // Added neon styling
+                  className="w-full" // Removed custom classes here too
                 />
                 <div className="flex justify-between text-sm text-muted-foreground mt-2">
                   <span>{formatTime(currentTime)}</span>

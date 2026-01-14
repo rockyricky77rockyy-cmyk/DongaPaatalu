@@ -31,8 +31,8 @@ const navItems: NavItem[] = [
 const AppSidebar = ({ activeNav, onNavigate, className, isExpandedPlayer = false }: AppSidebarProps) => {
   return (
     <aside className={cn(
-      "w-64 bg-card border-r border-border p-6 space-y-2 overflow-y-auto z-30",
-      isExpandedPlayer ? "relative h-full" : "fixed top-0 bottom-[120px]", // Conditional positioning
+      "w-64 bg-card border-r border-border p-6 space-y-2 z-30",
+      isExpandedPlayer ? "relative h-full overflow-y-auto no-scrollbar" : "fixed top-0 bottom-[120px] overflow-y-auto no-scrollbar",
       className
     )}>
       <div className="mb-8 flex justify-center">
