@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { X, ChevronDown, Menu, Search, Minimize2, Copy, Maximize2, Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat } from "react-icons/lu";
 import Visualizer from "./Visualizer";
 import PlaylistQueue from "./PlaylistQueue";
 // import NeonLogo from "./NeonLogo"; // Removed NeonLogo import
@@ -296,7 +296,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="px-6 lg:px-12 pb-4 mb-6">
+                    <div className="px-6 lg:px-12 pb-4 mb-6 min-h-[40px] flex flex-col justify-center">
                       <Slider
                         value={[playbackProgress]}
                         onValueChange={handleSliderChange}
@@ -454,7 +454,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
             </div>
 
             {/* Progress Bar */}
-            <div className="px-6 mb-4">
+            <div className="px-6 mb-4 min-h-[40px] flex flex-col justify-center">
               <Slider
                 value={[playbackProgress]}
                 onValueChange={handleSliderChange}
