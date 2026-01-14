@@ -128,7 +128,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
           <div className="flex-1 rounded-2xl md:rounded-3xl border-4 border-transparent bg-gradient-to-br from-primary via-accent to-secondary p-1 shadow-neon-strong">
             <div className="h-full rounded-2xl md:rounded-3xl bg-background flex overflow-hidden">
               {/* Left Sidebar - Navigation */}
-              <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" />
+              <AppSidebar activeNav={activeNav} onNavigate={handleNavClick} className="hidden lg:block" isExpandedPlayer={true} /> {/* Pass new prop */}
 
               {/* Center - Player/Search Results */}
               <main className="flex-1 flex flex-col">
@@ -488,7 +488,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   )}
                   onClick={toggleShuffle}
                 >
-                  <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Shuffle className="w-4 h-4 sm:w-5 h-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -496,14 +496,14 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
                   onClick={playPreviousTrack}
                 >
-                  <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <SkipBack className="w-5 h-5 sm:w-6 h-6" />
                 </Button>
                 <Button
                   size="icon"
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-neon hover:scale-110 transition-transform shadow-neon-strong"
                   onClick={togglePlayPause}
                 >
-                  {isPlaying ? <Pause className="w-6 h-6 sm:w-8 sm:h-8" /> : <Play className="w-6 h-6 sm:w-8 h-8 ml-1" />}
+                  {isPlaying ? <Pause className="w-6 h-6 sm:w-8 h-8" /> : <Play className="w-6 h-6 sm:w-8 h-8 ml-1" />}
                 </Button>
                 <Button
                   variant="ghost"
@@ -511,7 +511,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-card"
                   onClick={playNextTrack}
                 >
-                  <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <SkipForward className="w-5 h-5 sm:w-6 h-6" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -522,7 +522,7 @@ const ExpandablePlayer = ({ isOpen, onClose }: ExpandablePlayerProps) => {
                   )}
                   onClick={toggleRepeatMode}
                 >
-                  <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Repeat className="w-4 h-4 sm:w-5 h-5" />
                   {repeatMode === 'track' && <span className="absolute text-xs -bottom-1 right-0">1</span>}
                 </Button>
               </div>

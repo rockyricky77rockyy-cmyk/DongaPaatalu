@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home as HomeIcon, Music, Disc3, Headphones, Radio, Mic2, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import NeonLogo from "@/components/NeonLogo";
+import { cn } from '@/lib/utils'; // Import cn
 
 interface NavItem {
   id: string;
@@ -15,6 +15,7 @@ interface AppSidebarProps {
   activeNav: string;
   onNavigate: (item: NavItem) => void;
   className?: string;
+  isExpandedPlayer?: boolean; // New prop to control positioning
 }
 
 const navItems: NavItem[] = [
@@ -27,9 +28,13 @@ const navItems: NavItem[] = [
   { id: "playlists", label: "Playlists", icon: List, path: "/playlists" },
 ];
 
-const AppSidebar = ({ activeNav, onNavigate, className }: AppSidebarProps) => {
+const AppSidebar = ({ activeNav, onNavigate, className, isExpandedPlayer = false }: AppSidebarProps) => {
   return (
-    <aside className={`w-64 bg-card border-r border-border p-6 space-y-2 fixed top-0 bottom-[120px] overflow-y-auto z-30 ${className}`}>
+    <aside className={cn(
+      "w-64 bg-card border-r border-border p-6 space-y-2 overflow-y-auto z-30",
+      isExpandedPlayer ? "relative h-full" : "fixed top-0 bottom-[120px]", // Conditional positioning
+      className
+    )}>
       <div className="mb-8 flex justify-center">
         {/* Replaced NeonLogo with "Donga Paatalu" text */}
         <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
@@ -55,8 +60,10 @@ const AppSidebar = ({ activeNav, onNavigate, className }: AppSidebarProps) => {
         ))}
       </nav>
 
-      {/* Neon light effect at the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-primary/50 to-transparent pointer-events-none" />
+      {/* Neon light effect at the bottom - only for main app sidebar */}
+      {!isExpandedPlayer && (
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-primary/50 to-transparent pointer-events-none" />
+      )}
     </aside>
   );
 };
