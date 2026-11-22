@@ -14,5 +14,4 @@ User-agent: *
 Allow: /
 
 
-Sitemap: https://dongapaatalu.vercel.app/sitemap.xml
 Sitemap: https://dongapaatalu.syncrotech.online/sitemap.xml
