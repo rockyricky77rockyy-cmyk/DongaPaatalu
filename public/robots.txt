@@ -15,3 +15,5 @@ Allow: /
 
 
 Sitemap: https://dongapaatalu.syncrotech.online/sitemap.xml
+Sitemap: https://dongapaatalu.vercel.app/sitemap.xml
+
